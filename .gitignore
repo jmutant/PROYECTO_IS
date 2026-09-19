@@ -1,0 +1,20 @@
+# Compilados y ejecutables (para C/C++)
+*.o
+*.obj
+*.exe
+*.out
+build/
+bin/
+
+# Archivos de configuración de Visual Studio Code
+.vscode/
+*.project
+*.classpath
+.settings/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de depuración / logs
+*.log
