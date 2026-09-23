@@ -1,20 +1,18 @@
-# Compilados y ejecutables (para C/C++)
-*.o
-*.obj
-*.exe
-*.out
-build/
-bin/
+# Maven
+target/
 
-# Archivos de configuración de Visual Studio Code
+# IDEs
 .vscode/
-*.project
-*.classpath
+.idea/
+*.iml
+.classpath
+.project
 .settings/
 
-# Archivos del sistema operativo
+# Sistema operativo
 .DS_Store
 Thumbs.db
 
-# Archivos de depuración / logs
-*.log
+# Datos locales de ejecución (si se configura dentro del proyecto)
+/data/
+/datos/
