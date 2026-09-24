@@ -85,14 +85,14 @@ public class UsuarioRepositorioArchivo implements UsuarioRepositorio {
                     "El nombre de usuario '" + usuario.getUsername() + "' ya está registrado.");
         }
 
-        // Formato: nombre_,apellido_,cedula_,rol_,username_,hash_
+        // Formato: nombre_,apellido_,cedula_,rol_,username_,password_
         String linea = String.format("%s_,%s_,%s_,%s_,%s_,%s_%n",
                 proteger(usuario.getNombre()),
                 proteger(usuario.getApellido()),
                 proteger(usuario.getCedula()),
                 usuario.getRol().name(),
                 proteger(usuario.getUsername()),
-                proteger(usuario.getHashContrasena()));
+                proteger(usuario.getContrasena()));
 
         try {
             Files.writeString(rutaArchivo, linea, StandardCharsets.UTF_8,
