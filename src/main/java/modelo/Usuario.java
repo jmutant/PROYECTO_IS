@@ -8,7 +8,7 @@ public class Usuario {
     private String cedula;
     private Rol rol;
     private String username;
-    private String hashContrasena;
+    private String contrasena;
 
     /** Constructor usado por el registro completo de la aplicación. */
     public Usuario(String nombre, String apellido, String cedula, Rol rol,
@@ -19,11 +19,11 @@ public class Usuario {
         this.cedula = cedula == null ? "" : cedula.trim();
         this.rol = rol;
         this.username = normalizar(username);
-        this.hashContrasena = passwordPersistido;
+        this.contrasena = passwordPersistido;
     }
 
     /** Constructor compatible con la primera versión del proyecto. */
-    public Usuario(String nombreUsuario, String nombreCompleto, Rol rol, String hashContrasena) {
+    public Usuario(String nombreUsuario, String nombreCompleto, Rol rol, String contrasena) {
         if (nombreUsuario == null || nombreUsuario.isBlank()) {
             throw new IllegalArgumentException("El nombre de usuario es obligatorio.");
         }
@@ -31,8 +31,8 @@ public class Usuario {
             throw new IllegalArgumentException("El nombre completo es obligatorio.");
         }
         if (rol == null) throw new IllegalArgumentException("El rol es obligatorio.");
-        if (hashContrasena == null || hashContrasena.isBlank()) {
-            throw new IllegalArgumentException("El hash de contraseña es obligatorio.");
+        if (contrasena == null || contrasena.isBlank()) {
+            throw new IllegalArgumentException("La contraseña es obligatoria.");
         }
         String completo = nombreCompleto.trim();
         int espacio = completo.indexOf(' ');
@@ -41,7 +41,7 @@ public class Usuario {
         this.cedula = "";
         this.rol = rol;
         this.username = normalizar(nombreUsuario);
-        this.hashContrasena = hashContrasena;
+        this.contrasena = contrasena;
     }
 
     private static void validar(String nombre, String apellido, Rol rol,
@@ -64,20 +64,19 @@ public class Usuario {
     public String getUsername() { return username; }
     public String getNombreUsuario() { return username; }
     public String getNombreCompleto() { return (nombre + " " + apellido).trim(); }
-    public String getHashContrasena() { return hashContrasena; }
-    public String getPassword() { return hashContrasena; }
+    public String getContrasena() { return contrasena; }
+    public String getPassword() { return contrasena; }
 
     public void setNombre(String nombre) { this.nombre = nombre; }
     public void setApellido(String apellido) { this.apellido = apellido; }
     public void setCedula(String cedula) { this.cedula = cedula; }
     public void setRol(Rol rol) { this.rol = rol; }
     public void setUsername(String username) { this.username = normalizar(username); }
-    public void setPassword(String password) { this.hashContrasena = password; }
+    public void setPassword(String password) { this.contrasena = password; }
 
     public boolean coincidePassword(String passwordIngresada) {
-        if (passwordIngresada == null || hashContrasena == null) return false;
-        return hashContrasena.equals(passwordIngresada)
-                || hashContrasena.equals(AutenticacionServicio.hash(passwordIngresada));
+        return passwordIngresada != null && contrasena != null
+                && contrasena.equals(passwordIngresada);
     }
 
     @Override
