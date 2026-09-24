@@ -1,0 +1,6 @@
+
+Estruturaaaaaaaaaaaa
+
+modelo_uni,anio_Uni,Placa_uni_,capacidad_uni,estado_uni,registred
+
+nombre1_,apellido1_,cedula_,Edad_,username_,password_

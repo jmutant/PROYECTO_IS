@@ -9,10 +9,14 @@ target/
 .project
 .settings/
 
+# Archivos de configuración de Visual Studio Code
+.vscode/
+*.project
+*.classpath
+.settings/
+
 # Sistema operativo
 .DS_Store
 Thumbs.db
 
-# Datos locales de ejecución (si se configura dentro del proyecto)
-/data/
-/datos/
+*.log

@@ -1,0 +1,46 @@
+package modelo;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+class ItinerarioServicioTest {
+
+    private ItinerarioServicio servicio;
+    private Usuario admin;
+
+    @BeforeEach
+    void preparar() {
+        UnidadRepositorioMemoria unidades = new UnidadRepositorioMemoria();
+        unidades.guardar(new Unidad("ABC123", "Bus", 40, EstadoUnidad.ACTIVO));
+
+        ConductorRepositorioMemoria conductores = new ConductorRepositorioMemoria();
+        conductores.guardar(new Conductor("Carlos Pérez", "LIC-001"));
+
+        servicio = new ItinerarioServicio(new ItinerarioRepositorioMemoria(), unidades, conductores,
+                new AutorizacionServicio());
+        admin = new Usuario("admin", "Administrador", Rol.ADMINISTRADOR, "hash");
+    }
+
+    @Test
+    void registraItinerarioConRecursosDisponibles() {
+        servicio.registrar("UCV", "La Bandera", DayOfWeek.MONDAY, LocalTime.of(7, 30),
+                TipoRuta.URBANA, "ABC123", "LIC-001", admin);
+
+        assertEquals(1, servicio.listar(admin).size());
+    }
+
+    @Test
+    void impideReutilizarUnidadOConductorEnElMismoHorario() {
+        servicio.registrar("UCV", "La Bandera", DayOfWeek.MONDAY, LocalTime.of(7, 30),
+                TipoRuta.URBANA, "ABC123", "LIC-001", admin);
+
+        assertThrows(ConflictoHorarioException.class, () -> servicio.registrar(
+                "UCV", "Petare", DayOfWeek.MONDAY, LocalTime.of(7, 30),
+                TipoRuta.URBANA, "ABC123", "LIC-001", admin));
+    }
+}
