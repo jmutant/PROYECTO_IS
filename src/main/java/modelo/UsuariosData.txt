@@ -3,4 +3,3 @@ Estudiante_,de Prueba_,_,ESTUDIANTE_,estudiante_,estudiante123_
 Empleado_,de Prueba_,_,EMPLEADO_,empleado_,empleado123_
 Profesor_,de Prueba_,_,PROFESOR_,profesor_,profesor123_
 Público_,General de Prueba_,_,PUBLICO_GENERAL_,publico_,publico123_
-barbara_,Perez_,8945652125555_,ESTUDIANTE_,barbaperez_,12345555_

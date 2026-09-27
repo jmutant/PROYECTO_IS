@@ -2,7 +2,6 @@ package controlador;
 
 import java.util.Objects;
 import modelo.Conductor;
-import modelo.Itinerario;
 import modelo.Unidad;
 import modelo.Usuario;
 import modelo.ConflictoHorarioException;

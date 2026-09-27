@@ -1,10 +1,11 @@
 package controlador;
 
 import java.util.Arrays;
-import modelo.Usuario;
-import modelo.CredencialesInvalidasException;
+
 import modelo.AutenticacionServicio;
 import modelo.AutorizacionServicio;
+import modelo.CredencialesInvalidasException;
+import modelo.Usuario;
 import vista.LoginVista;
 
 /**
@@ -31,10 +32,18 @@ public class LoginControlador {
     }
 
     private void abrirRegistro() {
+        if (vista instanceof vista.LoginVentana) {
+            new vista.RegistroVentana(autenticacion).mostrar();
+        }
+    }
+
+    /*
+    private void abrirRegistro() {
         if (vista instanceof vista.LoginVentana ventana) {
             new vista.RegistroVentana(autenticacion).mostrar();
         }
     }
+    */
 
     /** Se ejecuta cuando el usuario presiona "Iniciar Sesión". */
     public void iniciarSesion() {
