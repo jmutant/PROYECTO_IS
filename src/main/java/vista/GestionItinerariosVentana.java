@@ -49,16 +49,14 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
 
     private void construirInterfaz() {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        setSize(700, 520);
+        setSize(800, 520);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout(10, 10));
+        setLayout(new BorderLayout(5, 5));
 
         // 1. PANEL FORMULARIO DE ITINERARIOS
-        JPanel panelFormulario = new JPanel(new GridLayout(7, 2, 8, 8));
-        panelFormulario.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(), "Datos del Itinerario (HU-003)", 
-                TitledBorder.LEFT, TitledBorder.TOP));
-
+        JPanel panelFormulario = new JPanel(new GridLayout(7, 2, 3, 3));
+        panelFormulario.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Datos del Itinerario (HU-003)", TitledBorder.LEFT, TitledBorder.TOP));
+        
         panelFormulario.add(new JLabel(" Origen:"));
         panelFormulario.add(campoOrigen);
 
@@ -81,14 +79,14 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
         panelFormulario.add(comboConductores);
 
         // Contenedor Central
-        JPanel panelContenedorCentral = new JPanel(new BorderLayout(10, 10));
+        JPanel panelContenedorCentral = new JPanel(new BorderLayout(5, 5));
         panelContenedorCentral.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         panelContenedorCentral.add(panelFormulario, BorderLayout.CENTER);
 
         // 2. PANEL DE BOTONES
-        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
         
-        botonRegistrar.setBackground(new Color(40, 167, 69));
+        botonRegistrar.setBackground(new Color(69, 167, 69));
         botonRegistrar.setForeground(Color.WHITE);
 
         panelBotones.add(botonRegresar);
@@ -100,7 +98,6 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
     }
 
     // --- IMPLEMENTACIÓN DE MÉTODOS DE LA INTERFAZ ---
-
     @Override
     public String getOrigen() {
         return campoOrigen.getText().trim();
