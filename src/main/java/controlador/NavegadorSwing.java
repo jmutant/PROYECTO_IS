@@ -20,9 +20,9 @@ public class NavegadorSwing implements Navegador {
     private final FlotaServicio flota;
     @SuppressWarnings("unused")
     private final ItinerarioServicio itinerarios;
+    private Usuario usuarioActual;
 
-    public NavegadorSwing(AutenticacionServicio autenticacion, AutorizacionServicio autorizacion,
-                          FlotaServicio flota, ItinerarioServicio itinerarios) {
+    public NavegadorSwing(AutenticacionServicio autenticacion, AutorizacionServicio autorizacion, FlotaServicio flota, ItinerarioServicio itinerarios) {
         this.autenticacion = autenticacion;
         this.autorizacion = autorizacion;
         this.flota = flota;
@@ -45,6 +45,7 @@ public class NavegadorSwing implements Navegador {
 
     @Override
     public void mostrarPantallaAdministrador(Usuario usuario) {
+        this.usuarioActual = usuario;
         PrincipalAdministradorVentana ventana = new PrincipalAdministradorVentana(usuario);
         new PrincipalControlador(ventana, this);
         ventana.setAccionGestionFlota(this::mostrarGestionFlota);
@@ -60,7 +61,7 @@ public class NavegadorSwing implements Navegador {
 
     private void mostrarGestionItinerarios() {
         GestionItinerariosVentana ventana = new GestionItinerariosVentana();
-        new GestionItinerariosControlador(ventana);
+        new GestionItinerariosControlador(ventana, itinerarios, usuarioActual);
         ventana.mostrar();
     }
 }

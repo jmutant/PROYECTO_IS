@@ -1,12 +1,5 @@
 package vista;
 
-public interface GestionItinerariosVista {
-    void setAccionRegresar(Runnable accion);
-    void mostrar();
-    void cerrar();
-}
-/* package vista;
-
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
@@ -33,6 +26,8 @@ public interface GestionItinerariosVista {
 
     void setAccionRegistrar(Runnable accion);
 
+    void setAccionRegresar(Runnable accion);
+
     void mostrarItinerarios(List<Itinerario> itinerarios);
 
     void cargarUnidades(List<Unidad> unidades);
@@ -44,4 +39,6 @@ public interface GestionItinerariosVista {
     void mostrarError(String mensaje);
 
     void mostrar();
-} */
+
+    void cerrar();
+}
