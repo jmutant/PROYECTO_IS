@@ -36,8 +36,7 @@ public class RegistroVentana extends JFrame {
             Rol.ESTUDIANTE,
             Rol.EMPLEADO,
             Rol.PROFESOR,
-            Rol.PUBLICO_GENERAL,
-            Rol.ADMINISTRADOR
+            Rol.PUBLICO_GENERAL
     });
 
     public RegistroVentana(AutenticacionServicio autenticacionServicio) {

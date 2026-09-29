@@ -15,19 +15,10 @@
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>5.10.2</junit.version>
         <clase.principal>Main</clase.principal>
     </properties>
 
-    <dependencies>
-        <!-- JUnit 5 (incluye junit-jupiter-api, junit-jupiter-params y el motor de ejecución) -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+    <!-- No hay dependencias de ejecución externas: Java 17 + Swing. -->
 
     <build>
         <plugins>
@@ -35,12 +26,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
-            </plugin>
-            <!-- Ejecuta las pruebas JUnit 5 con "mvn test" -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
             </plugin>
             <!-- Genera un .jar ejecutable con "mvn package" -->
             <plugin>

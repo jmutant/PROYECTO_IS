@@ -11,26 +11,33 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Almacén local sencillo para el MVP. Los repositorios del modelo guardan sus
- * registros en archivos UTF-8 separados y no dependen de Swing ni del controlador.
+ * Almacén local persistente del sistema.
+ *
+ * <p>Por defecto utiliza la carpeta {@code data/} ubicada en el directorio
+ * desde el que se ejecuta la aplicación. Así, todas las partes del sistema
+ * utilizan una única ubicación de datos.</p>
  */
 public final class AlmacenDatosLocal {
 
     private final Path directorio;
 
     public AlmacenDatosLocal(Path directorio) {
-        this.directorio = Objects.requireNonNull(directorio, "El directorio es obligatorio").toAbsolutePath();
+        this.directorio = Objects.requireNonNull(directorio, "El directorio es obligatorio")
+                .toAbsolutePath().normalize();
         crearDirectorioSiEsNecesario();
     }
 
-    /** Directorio de datos persistentes de la instalación del usuario. */
+    /**
+     * Directorio predeterminado: data/ junto al proyecto/JAR desde el que se
+     * ejecuta la aplicación. También puede cambiarse con
+     * -Dcampus.express.data=... si en el futuro se necesita otra ubicación.
+     */
     public static AlmacenDatosLocal porDefecto() {
         String configuracion = System.getProperty("campus.express.data");
         if (configuracion != null && !configuracion.isBlank()) {
             return new AlmacenDatosLocal(Path.of(configuracion));
         }
-        String casa = System.getProperty("user.home", ".");
-        return new AlmacenDatosLocal(Path.of(casa, ".campus-express", "datos"));
+        return new AlmacenDatosLocal(Path.of("data"));
     }
 
     public Path getDirectorio() {
@@ -50,14 +57,14 @@ public final class AlmacenDatosLocal {
         }
     }
 
-    /** Reemplaza el archivo de forma segura usando un archivo temporal. */
+    /** Reemplaza un archivo usando una escritura temporal para evitar archivos a medio escribir. */
     public synchronized void reemplazar(String nombreArchivo, List<String> lineas) {
         Objects.requireNonNull(nombreArchivo, "El nombre del archivo es obligatorio");
         Objects.requireNonNull(lineas, "Las líneas son obligatorias");
         crearDirectorioSiEsNecesario();
 
         Path archivo = directorio.resolve(nombreArchivo);
-        Path temporal;
+        Path temporal = null;
         try {
             temporal = Files.createTempFile(directorio, nombreArchivo + ".", ".tmp");
             Files.write(temporal, lineas, StandardCharsets.UTF_8);
@@ -69,6 +76,14 @@ public final class AlmacenDatosLocal {
             }
         } catch (IOException e) {
             throw new IllegalStateException("No se pudieron guardar los datos en " + archivo, e);
+        } finally {
+            if (temporal != null) {
+                try {
+                    Files.deleteIfExists(temporal);
+                } catch (IOException ignored) {
+                    // El archivo temporal ya no afecta al funcionamiento del sistema.
+                }
+            }
         }
     }
 

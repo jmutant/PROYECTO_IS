@@ -19,3 +19,5 @@ target/
 .DS_Store
 Thumbs.db
 *.log
+# Datos persistentes del proyecto
+# data/ se conserva para que los usuarios registrados permanezcan al ejecutar la app.
