@@ -1,5 +1,22 @@
 package controlador;
 
+import vista.GestionItinerariosVista;
+
+public class GestionItinerariosControlador {
+
+    private final GestionItinerariosVista vista;
+
+    public GestionItinerariosControlador(GestionItinerariosVista vista) {
+        this.vista = vista;
+        this.vista.setAccionRegresar(this::regresar);
+    }
+
+    private void regresar() {
+        vista.cerrar();
+    }
+}
+/* package controlador;
+
 import java.util.Objects;
 import modelo.Conductor;
 import modelo.Unidad;
@@ -8,7 +25,7 @@ import modelo.ConflictoHorarioException;
 import modelo.ItinerarioServicio;
 import vista.GestionItinerariosVista;
 
-/** Controlador de HU-003: valida asociaciones y conflictos antes de guardar el itinerario. */
+
 public final class GestionItinerariosControlador {
 
     private final GestionItinerariosVista vista;
@@ -46,4 +63,4 @@ public final class GestionItinerariosControlador {
         vista.cargarConductores(servicio.getConductorRepositorio().listarTodos());
         vista.mostrarItinerarios(servicio.listar(usuario));
     }
-}
+} */

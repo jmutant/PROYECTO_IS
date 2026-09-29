@@ -1,5 +1,7 @@
-Administrador_,del Sistema_,_,ADMINISTRADOR_,admin_,admin123_
-Estudiante_,de Prueba_,_,ESTUDIANTE_,estudiante_,estudiante123_
-Empleado_,de Prueba_,_,EMPLEADO_,empleado_,empleado123_
-Profesor_,de Prueba_,_,PROFESOR_,profesor_,profesor123_
-Público_,General de Prueba_,_,PUBLICO_GENERAL_,publico_,publico123_
+Administrador_,del Sistema_,_,ADMINISTRADOR_,admin_,Admin123_
+Estudiante_,de Prueba_,_,ESTUDIANTE_,estudiante_,Estudiante123_
+Empleado_,de Prueba_,_,EMPLEADO_,empleado_,Empleado123_
+Profesor_,de Prueba_,_,PROFESOR_,profesor_,Profesor123_
+Público_,General de Prueba_,_,PUBLICO_GENERAL_,publico_,Publico123_
+Ernesto_,Di Prisco_,4561238_,EMPLEADO_,3err_,123456Y_
+guevo_,pelao_,69674532_,ESTUDIANTE_,holamundocruel_,123AAA123_

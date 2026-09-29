@@ -1,34 +1,25 @@
 package controlador;
 
-import modelo.Usuario;
 import modelo.AutenticacionServicio;
 import modelo.AutorizacionServicio;
 import modelo.FlotaServicio;
 import modelo.ItinerarioServicio;
-import modelo.ConductorRepositorioMemoria;
-import modelo.ItinerarioRepositorioMemoria;
-import modelo.UnidadRepositorioMemoria;
+import modelo.Usuario;
 import vista.GestionFlotaVentana;
 import vista.GestionItinerariosVentana;
 import vista.LoginVentana;
 import vista.PrincipalAdministradorVentana;
 import vista.PrincipalPasajeroVentana;
 
-/** Implementación real de Navegador: crea ventanas y sus controladores. */
+/** Implementación real de Navegador: crea las ventanas Swing y sus controladores. */
 public class NavegadorSwing implements Navegador {
 
     private final AutenticacionServicio autenticacion;
     private final AutorizacionServicio autorizacion;
+    @SuppressWarnings("unused")
     private final FlotaServicio flota;
+    @SuppressWarnings("unused")
     private final ItinerarioServicio itinerarios;
-
-    /** Constructor de compatibilidad para código que solo requiera HU-001. */
-    public NavegadorSwing(AutenticacionServicio autenticacion, AutorizacionServicio autorizacion) {
-        this(autenticacion, autorizacion,
-                new FlotaServicio(new UnidadRepositorioMemoria(), autorizacion),
-                new ItinerarioServicio(new ItinerarioRepositorioMemoria(), new UnidadRepositorioMemoria(),
-                        new ConductorRepositorioMemoria(), autorizacion));
-    }
 
     public NavegadorSwing(AutenticacionServicio autenticacion, AutorizacionServicio autorizacion,
                           FlotaServicio flota, ItinerarioServicio itinerarios) {
@@ -56,20 +47,20 @@ public class NavegadorSwing implements Navegador {
     public void mostrarPantallaAdministrador(Usuario usuario) {
         PrincipalAdministradorVentana ventana = new PrincipalAdministradorVentana(usuario);
         new PrincipalControlador(ventana, this);
-        ventana.setAccionGestionFlota(() -> mostrarGestionFlota(usuario));
-        ventana.setAccionGestionItinerarios(() -> mostrarGestionItinerarios(usuario));
+        ventana.setAccionGestionFlota(this::mostrarGestionFlota);
+        ventana.setAccionGestionItinerarios(this::mostrarGestionItinerarios);
         ventana.mostrar();
     }
 
-    private void mostrarGestionFlota(Usuario usuario) {
+    private void mostrarGestionFlota() {
         GestionFlotaVentana ventana = new GestionFlotaVentana();
-        new GestionFlotaControlador(ventana, flota, usuario);
+        new GestionFlotaControlador(ventana);
         ventana.mostrar();
     }
 
-    private void mostrarGestionItinerarios(Usuario usuario) {
+    private void mostrarGestionItinerarios() {
         GestionItinerariosVentana ventana = new GestionItinerariosVentana();
-        new GestionItinerariosControlador(ventana, itinerarios, usuario);
+        new GestionItinerariosControlador(ventana);
         ventana.mostrar();
     }
 }

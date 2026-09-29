@@ -6,7 +6,9 @@ import modelo.AutenticacionServicio;
 import modelo.AutorizacionServicio;
 import modelo.CredencialesInvalidasException;
 import modelo.Usuario;
+import vista.LoginVentana;
 import vista.LoginVista;
+import vista.RegistroVentana;
 
 /**
  * Controlador de la pantalla de inicio de sesión (HU-001).
@@ -32,8 +34,8 @@ public class LoginControlador {
     }
 
     private void abrirRegistro() {
-        if (vista instanceof vista.LoginVentana) {
-            new vista.RegistroVentana(autenticacion).mostrar();
+        if (vista instanceof LoginVentana) {
+            new RegistroVentana(autenticacion).mostrar();
         }
     }
 

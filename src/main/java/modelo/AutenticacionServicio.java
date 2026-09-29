@@ -39,7 +39,7 @@ public class AutenticacionServicio {
     }
 
     public void registrarUsuario(String nombre, String apellido, String cedula, Rol rol,
-                                 String username, String password) {
+                                String username, String password) {
         validarRegistro(nombre, apellido, cedula, rol, username, password);
         Usuario nuevo = new Usuario(
                 nombre.trim(), apellido.trim(), cedula.trim(), rol,
@@ -66,14 +66,14 @@ public class AutenticacionServicio {
     }
 
     private void registrarUsuarioInterno(String nombre, String apellido, String cedula, Rol rol,
-                                         String username, String password) {
+                                        String username, String password) {
         Usuario nuevo = new Usuario(nombre, apellido, cedula, rol,
                 username.trim(), password);
         usuarioRepositorio.guardar(nuevo);
     }
 
     private void validarRegistro(String nombre, String apellido, String cedula, Rol rol,
-                                 String username, String password) {
+                                String username, String password) {
         if (nombre == null || nombre.isBlank() || apellido == null || apellido.isBlank()
                 || cedula == null || cedula.isBlank() || username == null || username.isBlank()
                 || password == null || password.isBlank()) {
@@ -85,6 +85,13 @@ public class AutenticacionServicio {
         if (password.length() < LONGITUD_MINIMA_CONTRASENA) {
             throw new IllegalArgumentException("La contraseña debe tener al menos "
                     + LONGITUD_MINIMA_CONTRASENA + " caracteres.");
+        }
+        if (!password.matches(".*\\d.*")) {
+        throw new IllegalArgumentException("La contraseña debe contener al menos un número.");
+        }
+        
+        if (!password.matches(".*[A-Z].*")) {
+            throw new IllegalArgumentException("La contraseña debe contener al menos una letra mayúscula.");
         }
     }
 

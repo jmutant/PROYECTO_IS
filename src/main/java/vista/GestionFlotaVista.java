@@ -1,6 +1,14 @@
 package vista;
 
+public interface GestionFlotaVista {
+    void setAccionRegresar(Runnable accion);
+    void mostrar();
+    void cerrar();
+}
+/* package vista;
+
 import java.util.List;
+
 import modelo.EstadoUnidad;
 import modelo.Unidad;
 
@@ -25,4 +33,4 @@ public interface GestionFlotaVista {
     void mostrar();
 
     void cerrar();
-}
+} */

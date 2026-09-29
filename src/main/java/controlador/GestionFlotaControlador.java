@@ -1,12 +1,28 @@
 package controlador;
 
+import vista.GestionFlotaVista;
+
+public class GestionFlotaControlador {
+
+    private final GestionFlotaVista vista;
+
+    public GestionFlotaControlador(GestionFlotaVista vista) {
+        this.vista = vista;
+        this.vista.setAccionRegresar(this::regresar);
+    }
+
+    private void regresar() {
+        vista.cerrar();
+    }
+}
+/* package controlador;
+
 import java.util.Objects;
 import modelo.Usuario;
 import modelo.UnidadDuplicadaException;
 import modelo.FlotaServicio;
 import vista.GestionFlotaVista;
 
-/** Controlador de HU-002: registra y lista unidades sin exponer detalles de persistencia a la vista. */
 public final class GestionFlotaControlador {
 
     private final GestionFlotaVista vista;
@@ -35,4 +51,4 @@ public final class GestionFlotaControlador {
     private void actualizarTabla() {
         vista.mostrarUnidades(servicio.listar(usuario));
     }
-}
+} */

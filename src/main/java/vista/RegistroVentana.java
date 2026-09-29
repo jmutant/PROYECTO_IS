@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -14,6 +15,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
+
 import modelo.AutenticacionServicio;
 import modelo.Rol;
 import modelo.UsuarioDuplicadoException;
@@ -71,10 +73,11 @@ public class RegistroVentana extends JFrame {
         principal.add(botones, BorderLayout.SOUTH);
         setContentPane(principal);
 
-        pack();
         setResizable(false);
+        pack();
         setLocationRelativeTo(null);
     }
+
 
     private void agregar(JPanel panel, String texto, java.awt.Component componente, int fila) {
         GridBagConstraints etiqueta = new GridBagConstraints();
