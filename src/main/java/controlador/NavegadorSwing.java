@@ -55,7 +55,7 @@ public class NavegadorSwing implements Navegador {
 
     private void mostrarGestionFlota() {
         GestionFlotaVentana ventana = new GestionFlotaVentana();
-        new GestionFlotaControlador(ventana);
+        new GestionFlotaControlador(ventana, flota,usuarioActual );
         ventana.mostrar();
     }
 
