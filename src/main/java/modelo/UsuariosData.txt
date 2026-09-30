@@ -1,3 +1,7 @@
+
+QWRtaW5pc3RyYWRvcg==|ZGVsIFNpc3RlbWE=||ADMINISTRADOR|YWRtaW4=|Admin123
+
+
 Administrador_,del Sistema_,_,ADMINISTRADOR_,admin_,Admin123_
 Estudiante_,de Prueba_,_,ESTUDIANTE_,estudiante_,Estudiante123_
 Empleado_,de Prueba_,_,EMPLEADO_,empleado_,Empleado123_
