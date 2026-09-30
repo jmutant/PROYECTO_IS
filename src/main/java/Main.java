@@ -1,5 +1,3 @@
-import java.nio.file.Path;
-
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -19,7 +17,6 @@ import modelo.UnidadRepositorioArchivo;
 import modelo.UsuarioRepositorio;
 import modelo.UsuarioRepositorioArchivo;
 
-/** Punto de entrada de Campus Express. Java 17 + Swing, sin librerías de ejecución externas. */
 public final class Main {
 
     private Main() {
