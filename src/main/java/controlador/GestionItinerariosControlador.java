@@ -1,5 +1,6 @@
 package controlador;
 
+import java.util.List;
 import java.util.Objects;
 import modelo.Conductor;
 import modelo.ConflictoHorarioException;
@@ -22,6 +23,9 @@ public final class GestionItinerariosControlador {
         // Mapeo de eventos de la vista
         this.vista.setAccionRegistrar(this::registrar);
         this.vista.setAccionRegresar(this::regresar);
+        // --- TAREA 3: Suscripción a Búsquedas Dinámicas ---
+        this.vista.setAccionBuscarUnidad(this::filtrarUnidades);
+        this.vista.setAccionBuscarConductor(this::filtrarConductores);
 
         // Carga inicial de datos en combos y tablas
         cargarDatos();
@@ -77,6 +81,23 @@ public final class GestionItinerariosControlador {
             // Manejo silencioso o log si al iniciar aún no hay datos
         }
     }
+
+    private void filtrarUnidades(String criterio) {
+        if (criterio == null || criterio.isBlank()) {
+            vista.cargarUnidades(servicio.getUnidadRepositorio().listarTodos());
+        } else {
+            servicio.getUnidadRepositorio().buscarPorPlaca(criterio).ifPresentOrElse(unidad -> vista.cargarUnidades(List.of(unidad)), () -> vista.cargarUnidades(List.of()));
+    }
+}
+
+private void filtrarConductores(String criterio) {
+    if (criterio == null || criterio.isBlank()) {
+        vista.cargarConductores(servicio.getConductorRepositorio().listarTodos());
+    } else {
+        List<Conductor> resultados = servicio.getConductorRepositorio().buscarPorNombre(criterio);
+        vista.cargarConductores(resultados);
+    }
+}
 
     private void regresar() {
         vista.cerrar();

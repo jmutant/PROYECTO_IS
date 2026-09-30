@@ -52,6 +52,8 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
         setSize(800, 520);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(5, 5));
+        comboUnidades.setEditable(true);
+        comboConductores.setEditable(true);
 
         // 1. PANEL FORMULARIO DE ITINERARIOS
         JPanel panelFormulario = new JPanel(new GridLayout(7, 2, 3, 3));
@@ -185,6 +187,26 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
     @Override
     public void mostrar() {
         setVisible(true);
+    }
+
+    public void setAccionBuscarUnidad(java.util.function.Consumer<String> buscador) {
+        javax.swing.JTextField editor = (javax.swing.JTextField) comboUnidades.getEditor().getEditorComponent();
+        editor.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent e) {
+                buscador.accept(editor.getText());
+            }
+        });
+    }
+
+    public void setAccionBuscarConductor(java.util.function.Consumer<String> buscador) {
+        javax.swing.JTextField editor = (javax.swing.JTextField) comboConductores.getEditor().getEditorComponent();
+        editor.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent e) {
+                buscador.accept(editor.getText());
+            }
+        });
     }
 
     @Override
