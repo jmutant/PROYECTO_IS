@@ -28,6 +28,10 @@ public interface GestionItinerariosVista {
 
     void setAccionRegresar(Runnable accion);
 
+    void setAccionBuscarUnidad(java.util.function.Consumer<String> buscador);
+
+    void setAccionBuscarConductor(java.util.function.Consumer<String> buscador);
+
     void mostrarItinerarios(List<Itinerario> itinerarios);
 
     void cargarUnidades(List<Unidad> unidades);
