@@ -12,7 +12,7 @@ public final class Unidad {
     private final String modelo;
     private final int capacidad;
     private final EstadoUnidad estado;
-    private static final String REGEX_PLACA = "^[a-zA-Z0-9]{6,6}$"; // 
+    private static final String REGEX_PLACA = "^[a-zA-Z0-9]{6,7}$"; // 
 
  //Constructor con validación de restricciones de negocio para la creación de la entidad.
 
@@ -23,15 +23,15 @@ public final class Unidad {
 
         String placaLimpia = placa.trim();
         if (!placaLimpia.matches(REGEX_PLACA)) {
-            throw new IllegalArgumentException("La placa debe ser alfanumérica y tener exactamente 6 caracteres.");
+            throw new IllegalArgumentException("La placa debe ser alfanumérica y tener entre 6 y 7 caracteres.");
         }
 
         if (modelo == null || modelo.isBlank()) {
             throw new IllegalArgumentException("El modelo es obligatorio");
         }
 
-        if (capacidad <= 0) {
-            throw new IllegalArgumentException("La capacidad debe ser mayor a cero y numerico");
+        if (capacidad <= 5 || capacidad > 65 ) {
+            throw new IllegalArgumentException("La cantidad de puestos debe estar entre 5 y 65.");
         }
         this.placa = normalizarPlaca(placa);
         this.modelo = modelo.trim();
