@@ -15,8 +15,7 @@ public final class Itinerario {
     private final String placaUnidad;
     private final String licenciaConductor;
 
-    public Itinerario(String origen, String destino, DayOfWeek diaSemana, LocalTime horaSalida,
-                      TipoRuta tipoRuta, String placaUnidad, String licenciaConductor) {
+    public Itinerario(String origen, String destino, DayOfWeek diaSemana, LocalTime horaSalida, TipoRuta tipoRuta, String placaUnidad, String licenciaConductor) {
         if (origen == null || origen.isBlank()) {
             throw new IllegalArgumentException("El origen es obligatorio");
         }
