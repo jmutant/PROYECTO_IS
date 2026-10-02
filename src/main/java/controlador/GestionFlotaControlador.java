@@ -1,54 +1,81 @@
 package controlador;
 
+import modelo.FlotaServicio;
+import modelo.Usuario;
 import vista.GestionFlotaVista;
+
+
+ // Controlador que orquesta la interacción de la interfaz Swing con los servicios de dominio.
 
 public class GestionFlotaControlador {
 
     private final GestionFlotaVista vista;
+    private final FlotaServicio flotaServicio;
+    private final Usuario usuarioActual;
 
-    public GestionFlotaControlador(GestionFlotaVista vista) {
+
+     // Registra listeners y carga los datos iniciales al instanciar el controlador.
+
+    public GestionFlotaControlador(GestionFlotaVista vista, FlotaServicio flotaServicio, Usuario usuarioActual) {
         this.vista = vista;
-        this.vista.setAccionRegresar(this::regresar);
+        this.flotaServicio = flotaServicio;
+        this.usuarioActual = usuarioActual;
+
+        // Vínculo entre eventos de interfaz y métodos del controlador
+        this.vista.setAccionRegistrar(this::registrarUnidad);
+        this.vista.setAccionModificarEstado(this::modificarEstado);
+        this.vista.setAccionRegresar(this.vista::cerrar);
+
+        cargarUnidades();
     }
 
-    private void regresar() {
-        vista.cerrar();
-    }
-}
-/* package controlador;
 
-import java.util.Objects;
-import modelo.Usuario;
-import modelo.UnidadDuplicadaException;
-import modelo.FlotaServicio;
-import vista.GestionFlotaVista;
+     // Procesa la solicitud de modificación de estado enviada desde la vista
 
-public final class GestionFlotaControlador {
-
-    private final GestionFlotaVista vista;
-    private final FlotaServicio servicio;
-    private final Usuario usuario;
-
-    public GestionFlotaControlador(GestionFlotaVista vista, FlotaServicio servicio, Usuario usuario) {
-        this.vista = Objects.requireNonNull(vista);
-        this.servicio = Objects.requireNonNull(servicio);
-        this.usuario = Objects.requireNonNull(usuario);
-        vista.setAccionRegistrar(this::registrar);
-        actualizarTabla();
-    }
-
-    private void registrar() {
+    private void modificarEstado() {
         try {
-            servicio.registrar(vista.getPlaca(), vista.getModelo(), vista.getCapacidad(),
-                    vista.getEstado(), usuario);
-            vista.mostrarExito("Unidad registrada correctamente.");
-            actualizarTabla();
-        } catch (UnidadDuplicadaException | IllegalArgumentException e) {
-            vista.mostrarError(e.getMessage());
+            String placa = vista.getPlaca();
+            var nuevoEstado = vista.getEstado();
+
+            if (placa.isEmpty()) {
+                vista.mostrarError("Seleccione una unidad de la tabla.");
+                return;
+            }
+
+            flotaServicio.actualizarEstadoUnidad(placa, nuevoEstado, usuarioActual);
+            
+            vista.mostrarExito("Estado actualizado correctamente.");
+            cargarUnidades();
+            vista.limpiarFormulario(); // Limpia los inputs tras completar la acción
+        } catch (Exception e) {
+            vista.mostrarError("Error al actualizar el estado: " + e.getMessage());
         }
     }
 
-    private void actualizarTabla() {
-        vista.mostrarUnidades(servicio.listar(usuario));
+
+     // Procesa y valida los campos recibidos para la creación de una nueva unidad.
+
+    private void registrarUnidad() {
+        try {
+            flotaServicio.registrar(
+                vista.getPlaca(),
+                vista.getModelo(),
+                vista.getCapacidad(),
+                vista.getEstado(),
+                usuarioActual
+            );
+            vista.mostrarExito("Unidad registrada con éxito.");
+            cargarUnidades();
+            vista.limpiarFormulario(); // Limpia los inputs tras completar la acción
+        } catch (Exception e) {
+            vista.mostrarError("Error al registrar unidad: " + e.getMessage());
+        }
     }
-} */
+
+
+     // Consulta las unidades vigentes a la capa de servicio y re-dibuja la tabla en la vista.
+
+    private void cargarUnidades() { 
+        vista.mostrarUnidades(flotaServicio.listar(usuarioActual)); 
+    }
+}

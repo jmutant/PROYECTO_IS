@@ -4,10 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -18,19 +20,38 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
-import util.Mensajes;
-import java.awt.Graphics;
 
-/** Pantalla de inicio de sesión de Campus Express (Swing). */
+
 public class LoginVentana extends JFrame implements LoginVista {
 
     private static final long serialVersionUID = 1L;
     private static final Color COLOR_ERROR = new Color(0xB0, 0x00, 0x20);
 
-    private final JTextField campoUsuario = new JTextField(20);
-    private final JPasswordField campoContrasena = new JPasswordField(20);
-    private final JButton botonIniciarSesion = new JButton(Mensajes.get("login.boton"));
-    private final JButton botonRegistrarse = new JButton("Registrarse");
+    private final JTextField campoUsuario = new JTextField(20) {
+        Image fondo = new ImageIcon(getClass().getResource("/imagenes/userButton.png")).getImage();
+        @Override
+        protected void paintComponent(Graphics g) {
+            g.drawImage(fondo, 0, 0, getWidth(), getHeight(), this);
+            super.paintComponent(g);
+        }
+    };
+    
+    private final JPasswordField campoContrasena = new JPasswordField(20) {
+        Image fondo = new ImageIcon(getClass().getResource("/imagenes/passwordButton.png")).getImage();
+        @Override
+        protected void paintComponent(Graphics g) {
+            g.drawImage(fondo, 0, 0, getWidth(), getHeight(), this);
+            super.paintComponent(g);
+        }
+    };
+
+    //private final JTextField campoUsuario = new JTextField(20);
+    //private final JPasswordField campoContrasena = new JPasswordField(20);
+    //private final JButton botonIniciarSesion = new JButton(Mensajes.get("login.boton"));
+    //private final JButton botonRegistrarse = new JButton("Registrarse");
+    //Hover detectará el mouse y cambiará la imagen del boton
+    private final JButton botonIniciarSesion = crearBotonConImagen("/imagenes/Login1.png", "/imagenes/Login2.png", 130, 40);;
+    private final JButton botonRegistrarse = crearBotonConImagen("/imagenes/Register1.png", "/imagenes/Register2.png", 130, 40);
     private final JLabel etiquetaError = new JLabel(" ", SwingConstants.CENTER);
 
     public LoginVentana() {
@@ -140,6 +161,38 @@ public class LoginVentana extends JFrame implements LoginVista {
         pack();
         setLocationRelativeTo(null);
     }
+
+        private JButton crearBotonConImagen(String rutaImagenNormal, String rutaImagenHover, int ancho, int alto) {
+        JButton boton = new JButton();
+        
+        // Redimensiona la imagen originaal
+        ImageIcon iconoOriginal = new ImageIcon(getClass().getResource(rutaImagenNormal));
+        Image imgNormal = iconoOriginal.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+        ImageIcon iconoNormal = new ImageIcon(imgNormal);
+        
+        // Cargar y redimensionar la imagen hover 
+        ImageIcon iconoHoverOriginal = new ImageIcon(getClass().getResource(rutaImagenHover));
+        Image imgHover = iconoHoverOriginal.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+        ImageIcon iconoHover = new ImageIcon(imgHover);
+        
+        // Asignar los iconos redimensionados
+        boton.setIcon(iconoNormal);
+        boton.setRolloverIcon(iconoHover);
+        boton.setPressedIcon(iconoHover);
+        
+        // Forzar el tamaño del boton
+        boton.setPreferredSize(new Dimension(ancho, alto));
+        
+        // Quitar bordes y fondos
+        boton.setBorderPainted(false);
+        boton.setContentAreaFilled(false);
+        boton.setFocusPainted(false);
+        boton.setOpaque(false);
+        
+        boton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        
+        return boton;
+        }
 
     @Override public String getNombreUsuario() { return campoUsuario.getText(); }
     @Override public char[] getContrasena() { return campoContrasena.getPassword(); }

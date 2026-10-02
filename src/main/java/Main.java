@@ -1,4 +1,18 @@
-import java.nio.file.Path;
+/*
+########################################################################################################################
+##                                                                                                                    ##
+##                                              UNIVERSIDAD CENTRAL DE VENEZUELA                                      ##
+##                                                                                                                    ##
+##                                         INGENIERÍA DE SOFTWARE SEMESTRE 1-2026                                     ##
+##                                                                                                                    ##
+##                                                                                                                    ##
+##                                               ENTREGA 2 : SPRINT 1                                                 ##
+##                                                                                                                    ##
+##                                         Ángel Rosamilia - Jesús Hiraola - Samuel Mendoza                           ##
+##                                                                                                                    ##
+########################################################################################################################
+*/
+
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -19,7 +33,7 @@ import modelo.UnidadRepositorioArchivo;
 import modelo.UsuarioRepositorio;
 import modelo.UsuarioRepositorioArchivo;
 
-/** Punto de entrada de Campus Express. Java 17 + Swing, sin librerías de ejecución externas. */
+
 public final class Main {
 
     private Main() {
@@ -57,3 +71,12 @@ public final class Main {
         }
     }
 }
+
+
+
+
+
+
+
+
+//╰(*°▽°*)╯

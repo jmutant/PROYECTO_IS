@@ -46,17 +46,16 @@ public final class GestionItinerariosControlador {
         }
 
         try {
-            // Nota: Si tu clase Conductor usa getLicencia(), cámbialo aquí
-            String licencia = conductor.getNumeroLicencia(); 
+            String licencia = conductor.getNumeroLicencia();
 
             servicio.registrar(
-                    vista.getOrigen(), 
-                    vista.getDestino(), 
-                    vista.getDiaSemana(), 
+                    vista.getOrigen(),
+                    vista.getDestino(),
+                    vista.getDiaSemana(),
                     vista.getHoraSalida(),
-                    vista.getTipoRuta(), 
-                    unidad.getPlaca(), 
-                    licencia, 
+                    vista.getTipoRuta(),
+                    unidad.getPlaca(),
+                    licencia,
                     usuario
             );
 
@@ -73,12 +72,25 @@ public final class GestionItinerariosControlador {
     }
 
     private void cargarDatos() {
+        // 1. Cargar unidades
         try {
             vista.cargarUnidades(servicio.getUnidadRepositorio().listarTodos());
+        } catch (Exception e) {
+            System.err.println("Error o repositorio vacío al cargar unidades: " + e.getMessage());
+        }
+
+        // 2. Cargar conductores
+        try {
             vista.cargarConductores(servicio.getConductorRepositorio().listarTodos());
+        } catch (Exception e) {
+            System.err.println("Error o repositorio vacío al cargar conductores: " + e.getMessage());
+        }
+
+        // 3. Cargar itinerarios en la tabla (HU-003)
+        try {
             vista.mostrarItinerarios(servicio.listar(usuario));
         } catch (Exception e) {
-            // Manejo silencioso o log si al iniciar aún no hay datos
+            System.err.println("Error al cargar itinerarios en la tabla: " + e.getMessage());
         }
     }
 
@@ -86,16 +98,29 @@ public final class GestionItinerariosControlador {
         if (criterio == null || criterio.isBlank()) {
             vista.cargarUnidades(servicio.getUnidadRepositorio().listarTodos());
         } else {
-            servicio.getUnidadRepositorio().buscarPorPlaca(criterio).ifPresentOrElse(unidad -> vista.cargarUnidades(List.of(unidad)), () -> vista.cargarUnidades(List.of()));
+            String query = criterio.trim().toLowerCase();
+            List<Unidad> filtrados = servicio.getUnidadRepositorio().listarTodos().stream().filter(u -> u.getPlaca().toLowerCase().contains(query)).toList();
+            vista.cargarUnidades(filtrados);
+        }
     }
-}
 
-private void filtrarConductores(String criterio) {
+    private void filtrarConductores(String criterio) {
     if (criterio == null || criterio.isBlank()) {
         vista.cargarConductores(servicio.getConductorRepositorio().listarTodos());
     } else {
-        List<Conductor> resultados = servicio.getConductorRepositorio().buscarPorNombre(criterio);
-        vista.cargarConductores(resultados);
+        String query = criterio.trim().toLowerCase();
+        List<Conductor> filtrados = servicio.getConductorRepositorio().listarTodos().stream().filter(c -> {
+                    // 1. Busca en el método toString() (que es lo que el usuario ve en pantalla)
+                    boolean coincideString = c.toString() != null && c.toString().toLowerCase().contains(query);
+                    // 2. Busca en el nombre por si acaso
+                    boolean coincideNombre = c.getNombreCompleto() != null && c.getNombreCompleto().toLowerCase().contains(query);
+                    // 3. Busca en la cédula/licencia
+                    boolean coincideLicencia = c.getNumeroLicencia() != null && c.getNumeroLicencia().toLowerCase().contains(query);
+                    
+                    return coincideString || coincideNombre || coincideLicencia;
+                })
+                .toList();
+        vista.cargarConductores(filtrados);
     }
 }
 

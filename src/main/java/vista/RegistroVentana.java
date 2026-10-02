@@ -20,7 +20,7 @@ import modelo.AutenticacionServicio;
 import modelo.Rol;
 import modelo.UsuarioDuplicadoException;
 
-/** Formulario Swing para registrar usuarios persistentes. */
+// Registro persistente de usuarios 
 public class RegistroVentana extends JFrame {
     private static final long serialVersionUID = 1L;
 
