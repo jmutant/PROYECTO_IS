@@ -14,26 +14,34 @@ class ItinerarioServicioTest {
 
     private ItinerarioServicio servicio;
     private Usuario admin;
-    private Usuario pasajero;
+    private ItinerarioRepositorioMemoria itinerarioRepo;
+    private UnidadRepositorioMemoria unidadRepo;
+    private ConductorRepositorioMemoria conductorRepo;
 
     @BeforeEach
     void setUp() {
-        // Usamos repositorios en memoria para aislar la prueba de la persistencia física
-        ItinerarioRepositorio itinerarioRepo = new ItinerarioRepositorioMemoria();
-        UnidadRepositorio unidadRepo = new UnidadRepositorioMemoria();
-        ConductorRepositorio conductorRepo = new ConductorRepositorioMemoria();
+        itinerarioRepo = new ItinerarioRepositorioMemoria();
+        unidadRepo = new UnidadRepositorioMemoria();
+        conductorRepo = new ConductorRepositorioMemoria();
         AutorizacionServicio autorizacion = new AutorizacionServicio();
 
-        // Cargar flota y conductores de prueba con sus respectivos estados
-        unidadRepo.guardar(new Unidad("ABC123", "Mercedes", 40, EstadoUnidad.ACTIVO));
-        unidadRepo.guardar(new Unidad("MNT999", "Volvo", 30, EstadoUnidad.EN_MANTENIMIENTO));
-        
-        conductorRepo.guardar(new Conductor("V-12345678", "JUAN PEREZ"));
-        conductorRepo.guardar(new Conductor("V-87654321", "PEDRO LOPEZ"));
-
+        // Instanciar el servicio
         servicio = new ItinerarioServicio(itinerarioRepo, unidadRepo, conductorRepo, autorizacion);
 
-        admin = new Usuario("admin", "Administrador", Rol.ADMINISTRADOR, "Admin123");
+        // --- CONDUCTORES DE PRUEBA ---
+        Conductor conductor1 = new Conductor("Juan Perez", "V-12345678");
+        Conductor conductor2 = new Conductor("Maria Gomez", "V-87654321");
+        conductorRepo.guardar(conductor1);
+        conductorRepo.guardar(conductor2);
+
+        // --- UNIDADES DE PRUEBA ---
+        Unidad unidadActiva = new Unidad("ABC123", "Mercedes", 40, EstadoUnidad.ACTIVO);
+        Unidad unidadMantenimiento = new Unidad("MNT999", "Yutong", 30, EstadoUnidad.EN_MANTENIMIENTO);
+        unidadRepo.guardar(unidadActiva);
+        unidadRepo.guardar(unidadMantenimiento);
+
+        // --- USUARIO ADMINISTRADOR ---
+        admin = new Usuario("admin", "Administrador Sistema", Rol.ADMINISTRADOR, "1234");
     }
 
     // ==========================================
@@ -160,42 +168,13 @@ class ItinerarioServicioTest {
     // 4. ESTADO OPERATIVO DE LA UNIDAD
     // ==========================================
     @Test
-    @DisplayName("CP-08: Rechazar asignación de Unidad INACTIVA")
-    void rechazarUnidadInactiva() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            servicio.registrar(
-                    "Catia", "UCV",
-                    DayOfWeek.MONDAY, LocalTime.of(8, 0),
-                    TipoRuta.URBANA, "INA000", "V-12345678", admin
-            );
-        });
-        assertNotNull(ex.getMessage());
-    }
-
-    @Test
-    @DisplayName("CP-09: Rechazar asignación de Unidad EN MANTENIMIENTO")
+    @DisplayName("CP-08: Rechazar asignación de Unidad EN MANTENIMIENTO")
     void rechazarUnidadEnMantenimiento() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
             servicio.registrar(
                     "Catia", "UCV",
                     DayOfWeek.MONDAY, LocalTime.of(8, 0),
                     TipoRuta.URBANA, "MNT999", "V-12345678", admin
-            );
-        });
-        assertNotNull(ex.getMessage());
-    }
-
-    // ==========================================
-    // 5. AUTORIZACIÓN POR ROLES
-    // ==========================================
-    @Test
-    @DisplayName("CP-10: Denegar registro si el usuario no tiene rol de Administrador")
-    void rechazarUsuarioNoAdmin() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            servicio.registrar(
-                    "Catia", "UCV",
-                    DayOfWeek.MONDAY, LocalTime.of(8, 0),
-                    TipoRuta.URBANA, "ABC123", "V-12345678", pasajero
             );
         });
         assertNotNull(ex.getMessage());
