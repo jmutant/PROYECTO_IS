@@ -10,7 +10,7 @@
     <packaging>jar</packaging>
 
     <name>SGTU - Campus Express</name>
-    <description>Sistema de Gestión de Transporte Universitario - Ingeniería del Software (UCV), Equipo 4</description>
+    <description>Sistema de Gestión de Transporte Universitario - Ingeniería del Software (UCV), Equipo 3</description>
 
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
@@ -18,7 +18,23 @@
         <clase.principal>Main</clase.principal>
     </properties>
 
-    <!-- No hay dependencias de ejecución externas: Java 17 + Swing. -->
+    <dependencies>
+        <!-- JUnit Jupiter API para escribir los tests -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.10.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Engine para poder ejecutar las pruebas -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.10.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
