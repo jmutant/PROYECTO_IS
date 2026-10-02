@@ -10,6 +10,7 @@ import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -57,6 +58,19 @@ public class LoginVentana extends JFrame implements LoginVista {
     public LoginVentana() {
         super("Sistema de Gestión de Transporte Universitario");
         construirInterfaz();
+
+        campoUsuario.setOpaque(false); // DEBE estar en false para que se vea tu imagen
+    
+        campoUsuario.setBorder(BorderFactory.createEmptyBorder(15, 50, 15, 15)); 
+        
+        campoUsuario.setForeground(Color.WHITE); 
+        // type y tamaño de la letra
+        campoUsuario.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        campoContrasena.setOpaque(false);
+        campoContrasena.setBorder(BorderFactory.createEmptyBorder(15, 50, 15, 15));
+        campoContrasena.setForeground(Color.WHITE);
+        campoContrasena.setFont(new Font("Arial", Font.PLAIN, 14));
     }
 
     private void construirInterfaz() {

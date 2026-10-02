@@ -26,7 +26,8 @@ public abstract class PrincipalVentanaBase extends JFrame implements PrincipalVi
 
     private static final long serialVersionUID = 1L;
 
-    private final JButton botonCerrarSesion = new JButton(Mensajes.get("principal.cerrarSesion"));
+    //private final JButton botonCerrarSesion = new JButton(Mensajes.get("principal.cerrarSesion"));
+    private final JButton botonCerrarSesion = crearBotonConImagen("/imagenes/logOutButton1.png", "/imagenes/logOutButton2.png", 140, 40);
 
     protected PrincipalVentanaBase(String tituloPantalla) {
         super(Mensajes.get("app.nombre") + " - " + tituloPantalla);

@@ -13,8 +13,8 @@ import vista.RegistroVentana;
 /**
  * Controlador de la pantalla de inicio de sesión (HU-001).
  *
- * <p>Escenario 1: credenciales correctas, se autentica y se redirige a la pantalla del rol.<br>
- * Escenario 2: credenciales incorrectas, se muestra "Usuario o contraseña incorrectos".</p>
+ * Escenario 1: credenciales correctas, se autentica y se redirige a la pantalla del rol
+ * Escenario 2: credenciales incorrectas, se muestra "Usuario o contraseña incorrectos"
  */
 public class LoginControlador {
 
@@ -47,7 +47,7 @@ public class LoginControlador {
     }
     */
 
-    /** Se ejecuta cuando el usuario presiona "Iniciar Sesión". */
+    //Se ejecuta cuando el usuario presiona "Iniciar Sesión"
     public void iniciarSesion() {
         char[] contrasena = vista.getContrasena();
         Usuario usuario;
@@ -67,7 +67,7 @@ public class LoginControlador {
         vista.cerrar();
     }
 
-    /** Abre primero la pantalla nueva y después cierra el login, para que siempre haya una ventana abierta. */
+    //Abre primero la pantalla nueva y después cierra el login, para que siempre haya una ventana abierta.
     private void redirigirSegunRol(Usuario usuario) {
         if (autorizacion.esAdministrador(usuario)) {
             navegador.mostrarPantallaAdministrador(usuario);
