@@ -23,9 +23,7 @@ public class ItinerarioServicio {
         this.autorizacion = Objects.requireNonNull(autorizacion);
     }
 
-    public Itinerario registrar(String origen, String destino, DayOfWeek dia, LocalTime hora,
-                                TipoRuta tipoRuta, String placaUnidad, String licenciaConductor,
-                                Usuario usuario) {
+    public Itinerario registrar(String origen, String destino, DayOfWeek dia, LocalTime hora, TipoRuta tipoRuta, String placaUnidad, String licenciaConductor, Usuario usuario) {
         autorizacion.exigirAdministrador(usuario);
         if (unidadRepositorio.buscarPorPlaca(placaUnidad).isEmpty()) {
             throw new IllegalArgumentException("La unidad seleccionada no existe");
@@ -39,17 +37,13 @@ public class ItinerarioServicio {
         }
 
         Itinerario nuevo = new Itinerario(origen, destino, dia, hora, tipoRuta, placaUnidad, licenciaConductor);
-        boolean conflicto = itinerarioRepositorio.listarTodos().stream().anyMatch(actual ->
-                actual.coincideHorario(nuevo)
-                        && (actual.getPlacaUnidad().equals(nuevo.getPlacaUnidad())
-                        || actual.getLicenciaConductor().equals(nuevo.getLicenciaConductor())));
+        boolean conflicto = itinerarioRepositorio.listarTodos().stream().anyMatch(actual -> actual.coincideHorario(nuevo) && (actual.getPlacaUnidad().equals(nuevo.getPlacaUnidad()) || actual.getLicenciaConductor().equals(nuevo.getLicenciaConductor())));
         if (conflicto) {
             throw new ConflictoHorarioException();
         }
         itinerarioRepositorio.guardar(nuevo);
         return nuevo;
     }
-
     public List<Itinerario> listar(Usuario usuario) {
         autorizacion.exigirAdministrador(usuario);
         return itinerarioRepositorio.listarTodos();
