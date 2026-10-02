@@ -1,3 +1,19 @@
+/*
+########################################################################################################################
+##                                                                                                                    ##
+##                                              UNIVERSIDAD CENTRAL DE VENEZUELA                                      ##
+##                                                                                                                    ##
+##                                         INGENIERÍA DE SOFTWARE SEMESTRE 1-2026                                     ##
+##                                                                                                                    ##
+##                                                                                                                    ##
+##                                               ENTREGA 2 : SPRINT 1                                                 ##
+##                                                                                                                    ##
+##                                         Ángel Rosamilia - Jesús Hiraola - Samuel Mendoza                           ##
+##                                                                                                                    ##
+########################################################################################################################
+*/
+
+
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -55,3 +71,12 @@ public final class Main {
         }
     }
 }
+
+
+
+
+
+
+
+
+//╰(*°▽°*)╯

@@ -1,12 +1,14 @@
 package vista;
 
 import java.awt.Color;
+
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
+
 import modelo.Usuario;
 import util.Mensajes;
 
-/** Pantalla principal de los pasajeros (Estudiante, Empleado, Profesor y Público General). */
+// Pantalla principal de los pasajeros (Estudiante, Empleado, Profesor y Público General)
 public class PrincipalPasajeroVentana extends PrincipalVentanaBase {
 
     private static final long serialVersionUID = 1L;

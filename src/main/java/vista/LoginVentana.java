@@ -49,6 +49,7 @@ public class LoginVentana extends JFrame implements LoginVista {
     //private final JPasswordField campoContrasena = new JPasswordField(20);
     //private final JButton botonIniciarSesion = new JButton(Mensajes.get("login.boton"));
     //private final JButton botonRegistrarse = new JButton("Registrarse");
+    //Hover detectará el mouse y cambiará la imagen del boton
     private final JButton botonIniciarSesion = crearBotonConImagen("/imagenes/Login1.png", "/imagenes/Login2.png", 130, 40);;
     private final JButton botonRegistrarse = crearBotonConImagen("/imagenes/Register1.png", "/imagenes/Register2.png", 130, 40);
     private final JLabel etiquetaError = new JLabel(" ", SwingConstants.CENTER);
@@ -164,12 +165,12 @@ public class LoginVentana extends JFrame implements LoginVista {
         private JButton crearBotonConImagen(String rutaImagenNormal, String rutaImagenHover, int ancho, int alto) {
         JButton boton = new JButton();
         
-        // Cargar y redimensionar la imagen normal
+        // Redimensiona la imagen originaal
         ImageIcon iconoOriginal = new ImageIcon(getClass().getResource(rutaImagenNormal));
         Image imgNormal = iconoOriginal.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
         ImageIcon iconoNormal = new ImageIcon(imgNormal);
         
-        // Cargar y redimensionar la imagen hover
+        // Cargar y redimensionar la imagen hover 
         ImageIcon iconoHoverOriginal = new ImageIcon(getClass().getResource(rutaImagenHover));
         Image imgHover = iconoHoverOriginal.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
         ImageIcon iconoHover = new ImageIcon(imgHover);
@@ -179,7 +180,7 @@ public class LoginVentana extends JFrame implements LoginVista {
         boton.setRolloverIcon(iconoHover);
         boton.setPressedIcon(iconoHover);
         
-        // Forzar el tamaño del botón
+        // Forzar el tamaño del boton
         boton.setPreferredSize(new Dimension(ancho, alto));
         
         // Quitar bordes y fondos

@@ -20,6 +20,15 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
 
     private static final long serialVersionUID = 1L;
 
+    // Nombres de los días en español (índice 0 = lunes ... 6 = domingo)
+    private static final String[] DIAS_ES =
+            {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
+
+    // Convierte un DayOfWeek (MONDAY, TUESDAY...) a su nombre en español con inicial mayúscula
+    private static String nombreDia(DayOfWeek dia) {
+        return DIAS_ES[dia.getValue() - 1]; // DayOfWeek: 1 = lunes ... 7 = domingo
+    }
+
     // Componentes visuales
     private final JButton botonRegresar = new JButton("Regresar");
     private final JButton botonRegistrar = new JButton("Registrar Itinerario");
@@ -75,9 +84,8 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
             public java.awt.Component getListCellRendererComponent(
                     javax.swing.JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof java.time.DayOfWeek dia) {
-                    String nombre = dia.getDisplayName(java.time.format.TextStyle.FULL, new java.util.Locale("es", "ES"));
-                    setText(nombre.substring(0, 1).toUpperCase() + nombre.substring(1));
+                if (value instanceof DayOfWeek dia) {
+                    setText(nombreDia(dia));
                 }
                 return this;
             }
@@ -196,7 +204,7 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
                 Object[] fila = {
                     it.getOrigen(),
                     it.getDestino(),
-                    it.getDiaSemana(),
+                    nombreDia(it.getDiaSemana()),
                     it.getHoraSalida(),
                     it.getTipoRuta(),
                     it.getPlacaUnidad() != null ? it.getPlacaUnidad() : "",
