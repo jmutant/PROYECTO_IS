@@ -63,13 +63,13 @@ public class LoginVentana extends JFrame implements LoginVista {
     
         campoUsuario.setBorder(BorderFactory.createEmptyBorder(15, 50, 15, 15)); 
         
-        campoUsuario.setForeground(Color.WHITE); 
+        campoUsuario.setForeground(Color.BLACK); 
         // type y tamaño de la letra
         campoUsuario.setFont(new Font("Arial", Font.PLAIN, 14));
 
         campoContrasena.setOpaque(false);
         campoContrasena.setBorder(BorderFactory.createEmptyBorder(15, 50, 15, 15));
-        campoContrasena.setForeground(Color.WHITE);
+        campoContrasena.setForeground(Color.BLACK);
         campoContrasena.setFont(new Font("Arial", Font.PLAIN, 14));
     }
 
