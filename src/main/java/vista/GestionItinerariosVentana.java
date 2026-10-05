@@ -232,9 +232,13 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
             editor.setText(texto);
             try { editor.setCaretPosition(Math.min(pos, texto.length())); } catch (Exception ignored) {}
 
-            // Mantiene el desplegable abierto si hay resultados
-            boolean tieneUnidades = unidades != null && !unidades.isEmpty();
-            comboUnidades.setPopupVisible(tieneUnidades);
+            // Mantiene el desplegable abierto si hay resultados mientras el usuario escribe.
+            // Solo se toca el popup si el combo ya está en pantalla: abrirlo antes (carga inicial,
+            // ventana aún no visible) lanza IllegalComponentStateException.
+            if (comboUnidades.isShowing()) {
+                boolean tieneUnidades = unidades != null && !unidades.isEmpty();
+                comboUnidades.setPopupVisible(tieneUnidades && editor.hasFocus());
+            }
         }
     }
 
@@ -255,9 +259,12 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
             editor.setText(texto);
             try { editor.setCaretPosition(Math.min(pos, texto.length())); } catch (Exception ignored) {}
 
-            // Mantiene el desplegable abierto si hay resultados
-            boolean tieneConductores = conductores != null && !conductores.isEmpty();
-            comboConductores.setPopupVisible(tieneConductores);
+            // Mantiene el desplegable abierto si hay resultados mientras el usuario escribe.
+            // Solo se toca el popup si el combo ya está en pantalla (ver cargarUnidades).
+            if (comboConductores.isShowing()) {
+                boolean tieneConductores = conductores != null && !conductores.isEmpty();
+                comboConductores.setPopupVisible(tieneConductores && editor.hasFocus());
+            }
         }
     }
 

@@ -94,9 +94,9 @@ public class RegistroVentana extends JFrame {
 
     private void registrar() {
         try {
-            /*
-             * Este es el flujo solicitado:
-             */
+            
+            //Este es el flujo solicitado:
+            
             autenticacionServicio.registrarUsuario(
                     txtNombre.getText(),
                     txtApellido.getText(),

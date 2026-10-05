@@ -11,7 +11,7 @@ import vista.LoginVentana;
 import vista.PrincipalAdministradorVentana;
 import vista.PrincipalPasajeroVentana;
 
-/** Implementación real de Navegador: crea las ventanas Swing y sus controladores. */
+//Implementación real de Navegador: crea las ventanas Swing y sus controladores.
 public class NavegadorSwing implements Navegador {
 
     private final AutenticacionServicio autenticacion;
