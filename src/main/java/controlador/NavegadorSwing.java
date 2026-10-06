@@ -1,5 +1,8 @@
 package controlador;
 
+import javax.swing.JOptionPane;
+
+import modelo.AccesoDenegadoException;
 import modelo.AutenticacionServicio;
 import modelo.AutorizacionServicio;
 import modelo.FlotaServicio;
@@ -10,6 +13,7 @@ import vista.GestionItinerariosVentana;
 import vista.LoginVentana;
 import vista.PrincipalAdministradorVentana;
 import vista.PrincipalPasajeroVentana;
+import vista.RegistroVentana;
 
 //Implementación real de Navegador: crea las ventanas Swing y sus controladores.
 public class NavegadorSwing implements Navegador {
@@ -50,6 +54,7 @@ public class NavegadorSwing implements Navegador {
         new PrincipalControlador(ventana, this);
         ventana.setAccionGestionFlota(this::mostrarGestionFlota);
         ventana.setAccionGestionItinerarios(this::mostrarGestionItinerarios);
+        ventana.setAccionCrearAdministrador(this::mostrarCrearAdministrador);
         ventana.mostrar();
     }
 
@@ -57,6 +62,16 @@ public class NavegadorSwing implements Navegador {
         GestionFlotaVentana ventana = new GestionFlotaVentana();
         new GestionFlotaControlador(ventana, flota,usuarioActual );
         ventana.mostrar();
+    }
+
+    private void mostrarCrearAdministrador() {
+        try {
+            autorizacion.exigirAdministrador(usuarioActual);
+        } catch (AccesoDenegadoException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Acceso denegado", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        new RegistroVentana(autenticacion, true).mostrar();
     }
 
     private void mostrarGestionItinerarios() {

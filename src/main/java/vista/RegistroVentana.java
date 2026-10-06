@@ -5,6 +5,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -15,16 +16,18 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.AbstractDocument;
 
 import modelo.AutenticacionServicio;
 import modelo.Rol;
 import modelo.UsuarioDuplicadoException;
 
-// Registro persistente de usuarios 
+// Registro persistente de usuarios (público, o creación de Administradores si modoAdministrador = true)
 public class RegistroVentana extends JFrame {
     private static final long serialVersionUID = 1L;
 
     private final AutenticacionServicio autenticacionServicio;
+    private final boolean modoAdministrador;
 
     private final JTextField txtNombre = new JTextField(20);
     private final JTextField txtApellido = new JTextField(20);
@@ -40,8 +43,16 @@ public class RegistroVentana extends JFrame {
     });
 
     public RegistroVentana(AutenticacionServicio autenticacionServicio) {
-        super("Campus Express - Registro de usuario");
+        this(autenticacionServicio, false);
+    }
+
+    /** @param modoAdministrador true para crear un usuario con rol Administrador (el selector de rol solo muestra Administrador). */
+    public RegistroVentana(AutenticacionServicio autenticacionServicio, boolean modoAdministrador) {
+        super(modoAdministrador
+                ? "Campus Express - Crear Administrador"
+                : "Campus Express - Registro de usuario");
         this.autenticacionServicio = autenticacionServicio;
+        this.modoAdministrador = modoAdministrador;
         construirInterfaz();
     }
 
@@ -53,11 +64,18 @@ public class RegistroVentana extends JFrame {
         agregar(formulario, "Nombre:", txtNombre, 0);
         agregar(formulario, "Apellido:", txtApellido, 1);
         agregar(formulario, "Cédula:", txtCedula, 2);
+        // La cédula solo admite hasta 8 dígitos (el rango 10000000-99999999 lo valida el servicio).
+        ((AbstractDocument) txtCedula.getDocument()).setDocumentFilter(new FiltroCedula());
+        if (modoAdministrador) {
+            // En este modo el único rol disponible es Administrador (el combo queda fijo).
+            comboRoles.setModel(new DefaultComboBoxModel<>(new Rol[] { Rol.ADMINISTRADOR }));
+            comboRoles.setEnabled(false);
+        }
         agregar(formulario, "Rol:", comboRoles, 3);
         agregar(formulario, "Usuario:", txtUsername, 4);
         agregar(formulario, "Contraseña:", txtPassword, 5);
 
-        JButton botonRegistrar = new JButton("Registrar");
+        JButton botonRegistrar = new JButton(modoAdministrador ? "Crear Administrador" : "Registrar");
         JButton botonCancelar = new JButton("Cancelar");
 
         botonRegistrar.addActionListener(e -> registrar());
@@ -97,17 +115,29 @@ public class RegistroVentana extends JFrame {
             
             //Este es el flujo solicitado:
             
-            autenticacionServicio.registrarUsuario(
-                    txtNombre.getText(),
-                    txtApellido.getText(),
-                    txtCedula.getText(),
-                    (Rol) comboRoles.getSelectedItem(),
-                    txtUsername.getText(),
-                    new String(txtPassword.getPassword())
-            );
+            if (modoAdministrador) {
+                autenticacionServicio.registrarAdministrador(
+                        txtNombre.getText(),
+                        txtApellido.getText(),
+                        txtCedula.getText(),
+                        txtUsername.getText(),
+                        new String(txtPassword.getPassword())
+                );
+            } else {
+                autenticacionServicio.registrarUsuario(
+                        txtNombre.getText(),
+                        txtApellido.getText(),
+                        txtCedula.getText(),
+                        (Rol) comboRoles.getSelectedItem(),
+                        txtUsername.getText(),
+                        new String(txtPassword.getPassword())
+                );
+            }
 
             JOptionPane.showMessageDialog(this,
-                    "Usuario registrado correctamente.",
+                    modoAdministrador
+                            ? "Administrador creado correctamente."
+                            : "Usuario registrado correctamente.",
                     "Registro exitoso",
                     JOptionPane.INFORMATION_MESSAGE);
             limpiar();

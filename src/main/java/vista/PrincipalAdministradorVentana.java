@@ -1,5 +1,7 @@
 package vista;
 
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -16,6 +18,7 @@ public class PrincipalAdministradorVentana extends PrincipalVentanaBase {
     // botones
     private final JButton btnGestionFlota;
     private final JButton btnGestionItinerarios;
+    private final JButton btnCrearAdministrador = new JButton("Crear Administrador");
     //Punto de integración de HU-002 (Gestión de Flota de Unidades) y Punto de integración de HU-003 (Gestionar Itinerarios).
 
     public PrincipalAdministradorVentana(Usuario usuario) {
@@ -50,6 +53,16 @@ public class PrincipalAdministradorVentana extends PrincipalVentanaBase {
         gbc.gridx = 1;
         panelBotones.add(btnGestionItinerarios, gbc);
 
+        // boton de Crear Administrador: segunda fila, centrado debajo de los botones "Gestionar..."
+        btnCrearAdministrador.setFont(btnCrearAdministrador.getFont().deriveFont(Font.BOLD, 16f));
+        btnCrearAdministrador.setPreferredSize(new Dimension(320, 50));
+        btnCrearAdministrador.setFocusPainted(false);
+        btnCrearAdministrador.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;
+        panelBotones.add(btnCrearAdministrador, gbc);
+
         armarVentana(usuario, panelBotones);
     }
 
@@ -61,6 +74,10 @@ public class PrincipalAdministradorVentana extends PrincipalVentanaBase {
 
     public void setAccionGestionItinerarios(Runnable accion) {
         btnGestionItinerarios.addActionListener(evento -> accion.run());
+    }
+
+    public void setAccionCrearAdministrador(Runnable accion) {
+        btnCrearAdministrador.addActionListener(evento -> accion.run());
     }
 }
 
