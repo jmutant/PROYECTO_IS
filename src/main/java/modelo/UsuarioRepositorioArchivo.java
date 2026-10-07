@@ -1,21 +1,14 @@
 package modelo;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+//import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Repositorio persistente de usuarios.
- *
- * <p>Guarda los usuarios en data/usuarios.db. La contraseña se conserva en
- * texto plano porque este proyecto académico no utiliza una dependencia de
- * cifrado/hash externa. Los demás campos se codifican en Base64 para que
- * caracteres como "|" o acentos no rompan el formato del archivo.</p>
- */
+// Usuarios persistidos en un archivo de texto plano, uno por línea, con campos separados por '|'
 public class UsuarioRepositorioArchivo implements UsuarioRepositorio {
     private static final String ARCHIVO = "usuarios.db";
     private final AlmacenDatosLocal almacen;
@@ -25,7 +18,7 @@ public class UsuarioRepositorioArchivo implements UsuarioRepositorio {
         inicializar();
     }
 
-    /** Compatibilidad con código anterior que entregaba directamente una ruta. */
+//Compatibilidad con otros metodos que reciben una ruta de archivo específica, por ejemplo para pruebas unitarias. Así funcionan en unisono
     public UsuarioRepositorioArchivo(Path rutaArchivo) {
         this.almacen = new AlmacenDatosLocal(
                 rutaArchivo.toAbsolutePath().normalize().getParent() == null

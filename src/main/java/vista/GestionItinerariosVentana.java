@@ -207,14 +207,64 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
         return (TipoRuta) comboTipoRuta.getSelectedItem();
     }
 
+    // Los combos son editables: getSelectedItem() puede devolver un String (texto escrito o placa/licencia
+    // cargada desde la tabla) en vez de un Unidad/Conductor. Por eso se busca el objeto en la lista.
     @Override
     public Unidad getUnidad() {
-        return (Unidad) comboUnidades.getSelectedItem();
+        Object seleccion = comboUnidades.getSelectedItem();
+        if (seleccion instanceof Unidad unidad) {
+            return unidad;
+        }
+        String texto = (seleccion != null) ? seleccion.toString() : textoEditor(comboUnidades);
+        return buscarUnidad(texto);
     }
 
     @Override
     public Conductor getConductor() {
-        return (Conductor) comboConductores.getSelectedItem();
+        Object seleccion = comboConductores.getSelectedItem();
+        if (seleccion instanceof Conductor conductor) {
+            return conductor;
+        }
+        String texto = (seleccion != null) ? seleccion.toString() : textoEditor(comboConductores);
+        return buscarConductor(texto);
+    }
+
+    private String textoEditor(javax.swing.JComboBox<?> combo) {
+        return ((javax.swing.JTextField) combo.getEditor().getEditorComponent()).getText();
+    }
+
+    /** Busca en la lista del combo la unidad cuya placa (o texto completo) coincide con lo indicado. */
+    private Unidad buscarUnidad(String texto) {
+        if (texto == null || texto.isBlank()) {
+            return null;
+        }
+        String buscado = texto.trim();
+        javax.swing.ComboBoxModel<Unidad> modelo = comboUnidades.getModel();
+        for (int i = 0; i < modelo.getSize(); i++) {
+            Unidad u = modelo.getElementAt(i);
+            if (u.getPlaca().equalsIgnoreCase(buscado) || u.toString().equalsIgnoreCase(buscado)) {
+                return u;
+            }
+        }
+        return null;
+    }
+
+    /** Busca en la lista del combo el conductor cuya licencia, nombre o texto completo coincide con lo indicado. */
+    private Conductor buscarConductor(String texto) {
+        if (texto == null || texto.isBlank()) {
+            return null;
+        }
+        String buscado = texto.trim();
+        javax.swing.ComboBoxModel<Conductor> modelo = comboConductores.getModel();
+        for (int i = 0; i < modelo.getSize(); i++) {
+            Conductor c = modelo.getElementAt(i);
+            if (c.getNumeroLicencia().equalsIgnoreCase(buscado)
+                    || c.getNombreCompleto().equalsIgnoreCase(buscado)
+                    || c.toString().equalsIgnoreCase(buscado)) {
+                return c;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -390,8 +440,11 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
         }
 
         comboTipoRuta.setSelectedItem(itinerario.getTipoRuta());
-        comboUnidades.setSelectedItem(itinerario.getPlacaUnidad());
-        comboConductores.setSelectedItem(itinerario.getLicenciaConductor());
+        // Se selecciona el objeto real de la lista (no el texto) para que getUnidad()/getConductor() funcionen.
+        Unidad unidadActual = buscarUnidad(itinerario.getPlacaUnidad());
+        comboUnidades.setSelectedItem(unidadActual != null ? unidadActual : itinerario.getPlacaUnidad());
+        Conductor conductorActual = buscarConductor(itinerario.getLicenciaConductor());
+        comboConductores.setSelectedItem(conductorActual != null ? conductorActual : itinerario.getLicenciaConductor());
     }
 
     @Override
