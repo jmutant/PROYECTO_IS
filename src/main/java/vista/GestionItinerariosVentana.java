@@ -1,14 +1,17 @@
 package vista;
 
+import java.awt.BorderLayout;
 import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import modelo.Conductor;
@@ -136,17 +139,27 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
         comboConductores.setEditable(true);
         panelFormulario.add(comboConductores, gbc);
 
-        // ---------------- BOTONES (CENTRO) ----------------
-        javax.swing.JPanel panelBotones = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 15, 10));
-        panelBotones.add(botonRegistrar);
-        panelBotones.add(botonModificar);
-        panelBotones.add(botonEliminar);
-        panelBotones.add(botonRegresar);
-
         // Panel superior contenedor (Formulario + Botones)
-        javax.swing.JPanel panelNorte = new javax.swing.JPanel(new java.awt.BorderLayout());
-        panelNorte.add(panelFormulario, java.awt.BorderLayout.CENTER);
-        panelNorte.add(panelBotones, java.awt.BorderLayout.SOUTH);
+        javax.swing.JPanel panelNorte = new javax.swing.JPanel(new BorderLayout());
+        panelNorte.add(panelFormulario, BorderLayout.CENTER);
+
+        // ---------------- BOTONES ----------------
+        JPanel panelBotones = new JPanel(new BorderLayout());
+        panelBotones.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10)); // Márgenes externos
+
+        // 1. Subpanel para las acciones principales (Centradas)
+        JPanel panelAccionesCentrales = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 15, 0));
+        panelAccionesCentrales.add(botonRegistrar);
+        panelAccionesCentrales.add(botonModificar);
+        panelAccionesCentrales.add(botonEliminar);
+
+        // 2. Subpanel para la salida/navegación (Alineado a la Derecha)
+        JPanel panelNavegacion = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 0, 0));
+        panelNavegacion.add(botonRegresar);
+
+        // 3. Ensamblar en el panel principal de botones
+        panelBotones.add(panelAccionesCentrales, BorderLayout.CENTER);
+        panelBotones.add(panelNavegacion, BorderLayout.EAST);
 
         // ---------------- TABLA DE ITINERARIOS (ABAJO) ----------------
         String[] columnas = {"Origen", "Destino", "Día", "Hora", "Tipo", "Unidad", "Conductor"};
@@ -162,6 +175,7 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
         // Unir paneles al principal
         panelPrincipal.add(panelNorte, java.awt.BorderLayout.NORTH);
         panelPrincipal.add(scrollTabla, java.awt.BorderLayout.CENTER);
+        panelPrincipal.add(panelBotones, java.awt.BorderLayout.SOUTH);
 
         setContentPane(panelPrincipal);
     }
@@ -209,12 +223,22 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
 
     @Override
     public Unidad getUnidad() {
-        return (Unidad) comboUnidades.getSelectedItem();
+        Object seleccionado = comboUnidades.getSelectedItem();
+        if (seleccionado instanceof Unidad unidad) {
+            return unidad;
+        }
+        // Si el combo contiene Strings o un placeholder vacío
+        return null;
     }
 
     @Override
     public Conductor getConductor() {
-        return (Conductor) comboConductores.getSelectedItem();
+        Object seleccionado = comboConductores.getSelectedItem();
+        if (seleccionado instanceof Conductor conductor) {
+            return conductor;
+        }
+        // Si el combo contiene Strings o un placeholder vacío
+        return null;
     }
 
     @Override
@@ -390,8 +414,41 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
         }
 
         comboTipoRuta.setSelectedItem(itinerario.getTipoRuta());
-        comboUnidades.setSelectedItem(itinerario.getPlacaUnidad());
-        comboConductores.setSelectedItem(itinerario.getLicenciaConductor());
+        seleccionarUnidadPorPlaca(itinerario.getPlacaUnidad());
+        seleccionarConductorPorLicenciaONombre(itinerario.getLicenciaConductor());
+    }
+
+    public void seleccionarUnidadPorPlaca(String placa) {
+        if (placa == null) return;
+        javax.swing.ComboBoxModel<Unidad> model = comboUnidades.getModel();
+        for (int i = 0; i < model.getSize(); i++) {
+            Unidad u = model.getElementAt(i);
+            if (u != null && placa.equalsIgnoreCase(u.getPlaca())) {
+                comboUnidades.setSelectedIndex(i);
+                return;
+            }
+        }
+    }
+
+    public void seleccionarConductorPorLicenciaONombre(String identificador) {
+        if (identificador == null || comboConductores == null) return;
+        
+        javax.swing.ComboBoxModel<Conductor> model = comboConductores.getModel();
+        
+        for (int i = 0; i < model.getSize(); i++) {
+            Conductor c = model.getElementAt(i);
+            if (c != null) {
+                // Compara insensible a mayúsculas/minúsculas por licencia, nombre o representación toString()
+                boolean coincideLicencia = c.getNumeroLicencia() != null && c.getNumeroLicencia().equalsIgnoreCase(identificador);
+                boolean coincideNombre = c.getNombreCompleto() != null && c.getNombreCompleto().equalsIgnoreCase(identificador);
+                boolean coincideString = c.toString() != null && c.toString().toUpperCase().contains(identificador.toUpperCase());
+
+                if (coincideLicencia || coincideNombre || coincideString) {
+                    comboConductores.setSelectedIndex(i);
+                    return;
+                }
+            }
+        }
     }
 
     @Override

@@ -4,6 +4,7 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
+
 import modelo.Conductor;
 import modelo.ConflictoHorarioException;
 import modelo.Itinerario;
@@ -161,6 +162,8 @@ public final class GestionItinerariosControlador {
         // e ingresar los nuevos valores en la base de datos a través del servicio
         servicio.modificar(
             seleccionado.getPlacaUnidad(),
+            seleccionado.getDiaSemana(),
+            seleccionado.getHoraSalida(),
             origen,
             destino,
             dia,

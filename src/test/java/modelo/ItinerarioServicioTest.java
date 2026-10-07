@@ -1,14 +1,16 @@
 package modelo;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 class ItinerarioServicioTest {
 
@@ -36,8 +38,10 @@ class ItinerarioServicioTest {
 
         // --- UNIDADES DE PRUEBA ---
         Unidad unidadActiva = new Unidad("ABC123", "Mercedes", 40, EstadoUnidad.ACTIVO);
+        Unidad unidadActiva2 = new Unidad("PQR987", "Volvo", 35, EstadoUnidad.ACTIVO);
         Unidad unidadMantenimiento = new Unidad("MNT999", "Yutong", 30, EstadoUnidad.EN_MANTENIMIENTO);
         unidadRepo.guardar(unidadActiva);
+        unidadRepo.guardar(unidadActiva2);
         unidadRepo.guardar(unidadMantenimiento);
 
         // --- USUARIO ADMINISTRADOR ---
@@ -178,5 +182,93 @@ class ItinerarioServicioTest {
             );
         });
         assertNotNull(ex.getMessage());
+    }
+
+    // =========================================================================
+    // PRUEBAS UNITARIAS: MODIFICACIÓN DE ITINERARIOS
+    // =========================================================================
+
+    @Test
+    @DisplayName("Debe modificar un itinerario exitosamente")
+    void testModificarItinerarioExitoso() {
+        // 1. Datos originales del itinerario a registrar
+        String placaOriginal = "ABC123";
+        DayOfWeek diaOriginal = DayOfWeek.MONDAY;
+        LocalTime horaOriginal = LocalTime.of(8, 0);
+
+        // Registrar itinerario base
+        servicio.registrar(
+            "Catia", "UCV", diaOriginal, horaOriginal, TipoRuta.URBANA, placaOriginal, "V-12345678", admin
+        );
+
+        // 2. Modificar invocando al servicio con la clave ORIGINAL y los NUEVOS valores
+        LocalTime nuevaHora = LocalTime.of(10, 0);
+        String nuevoDestino = "La Guaira";
+
+        servicio.modificar(
+            placaOriginal, diaOriginal, horaOriginal, // Clave de búsqueda original
+            "Catia", nuevoDestino, diaOriginal, nuevaHora, TipoRuta.URBANA, placaOriginal, "V-12345678", admin
+        );
+
+        // 3. Verificación buscando en la lista completa obtenida del servicio
+        Itinerario modificado = servicio.listar(admin).stream()
+            .filter(i -> i.getPlacaUnidad().equalsIgnoreCase(placaOriginal) && i.getDiaSemana() == diaOriginal && i.getHoraSalida().equals(nuevaHora))
+            .findFirst()
+            .orElse(null);
+
+        assertNotNull(modificado, "El itinerario modificado debe existir en la lista");
+        assertEquals(nuevoDestino, modificado.getDestino());
+        assertEquals(nuevaHora, modificado.getHoraSalida());
+    }
+
+    @Test
+    @DisplayName("Rechazar modificación por conflicto de horario")
+    void testModificarItinerarioConConflictoHorario() {
+        // 1. Crear un itinerario A de 8:00 a 9:00 en el día MONDAY con la unidad ABC123
+        servicio.registrar("Caracas", "UCV", DayOfWeek.MONDAY, LocalTime.of(8, 0), TipoRuta.URBANA, "ABC123", "V-12345678", admin);
+
+        // 2. Crear un itinerario B a las 10:00 con la misma unidad
+        servicio.registrar("Caracas", "Guarenas", DayOfWeek.MONDAY, LocalTime.of(10, 0), TipoRuta.URBANA, "ABC123", "V-12345678", admin);
+
+        // 3. Intentar modificar el itinerario B para moverlo a las 8:00 (mismo día y unidad que el itinerario A)
+        assertThrows(ConflictoHorarioException.class, () -> {
+            servicio.modificar(
+                "ABC123", DayOfWeek.MONDAY, LocalTime.of(10, 0), // Datos del itinerario B a cambiar
+                "Caracas", "Guarenas", DayOfWeek.MONDAY, LocalTime.of(8, 0), // Intentar mover a las 8:00
+                TipoRuta.URBANA, "ABC123", "V-12345678", admin
+            );
+        });
+    }
+
+    // =========================================================================
+    // PRUEBAS UNITARIAS: ELIMINACIÓN DE ITINERARIOS
+    // =========================================================================
+
+    @Test
+    @DisplayName("Debe eliminar un itinerario exitosamente por sus campos clave")
+    void testEliminarItinerarioExitoso() {
+        // 1. Datos del itinerario a registrar
+        String placa = "ABC123";
+        DayOfWeek dia = DayOfWeek.MONDAY;
+        LocalTime hora = LocalTime.of(8, 0);
+
+        // Registrar el itinerario base
+        servicio.registrar(
+            "Catia", "UCV", dia, hora, TipoRuta.URBANA, placa, "V-12345678", admin
+        );
+
+        // 2. Invocar al método eliminar del servicio pasando la clave/parámetros reales
+        servicio.eliminar(placa, dia, hora, admin);
+
+        // 3. Verificar que el itinerario ya no existe en la lista del sistema
+        List<Itinerario> lista = servicio.listar(admin);
+        
+        assertFalse(
+            lista.stream().anyMatch(i -> i.getPlacaUnidad().equals(placa)
+                && i.getDiaSemana() == dia
+                && i.getHoraSalida().equals(hora)
+            ),
+            "El itinerario eliminado no debería figurar en la lista del servicio"
+        );
     }
 }
