@@ -3,24 +3,18 @@ package modelo;
 import java.util.List;
 import java.util.Objects;
 
-
- // Servicio de capa de negocio encargado del procesamiento de flota (HU-002).
-
+/**
+ * Servicio de capa de negocio encargado del procesamiento de flota.
+ */
 public class FlotaServicio {
 
     private final UnidadRepositorio repositorio;
     private final AutorizacionServicio autorizacion;
 
-
-     // Constructor para inyección de dependencias del repositorio y el módulo de autorización.
-
     public FlotaServicio(UnidadRepositorio repositorio, AutorizacionServicio autorizacion) {
         this.repositorio = Objects.requireNonNull(repositorio);
         this.autorizacion = Objects.requireNonNull(autorizacion);
     }
-
-
-     // Valida permisos, verifica duplicados y registra una nueva unidad en la base de datos.
 
     public Unidad registrar(String placa, String modelo, int capacidad, EstadoUnidad estado, Usuario usuario) {
         autorizacion.exigirAdministrador(usuario);
@@ -32,14 +26,28 @@ public class FlotaServicio {
         return unidad;
     }
 
-     // Retorna la lista global de unidades registradas tras validar permisos de administrador.
+    /**
+     * Valida permisos y actualiza todos los datos de la unidad, re-claveando en caso de cambio de placa.
+     */
+    public void actualizarUnidad(String placaOriginal, String nuevaPlaca, String modelo, int capacidad, EstadoUnidad estado, Usuario usuario) {
+        autorizacion.exigirAdministrador(usuario);
+
+        // Si la placa cambió, se verifica que la nueva placa no exista ya asignada a otra unidad
+        if (!placaOriginal.equalsIgnoreCase(nuevaPlaca) && repositorio.existePorPlaca(nuevaPlaca)) {
+            throw new IllegalArgumentException("La nueva placa " + nuevaPlaca + " ya pertenece a otra unidad registrada.");
+        }
+
+        // Se crea el nuevo objeto Unidad (ejecuta validaciones de placa de 6 caracteres y capacidad entre 10 y 65)
+        Unidad unidadEditada = new Unidad(nuevaPlaca, modelo, capacidad, estado);
+
+        // Se persiste la actualización utilizando la placa original para hacer el re-keying en el repositorio
+        repositorio.actualizar(placaOriginal, unidadEditada);
+    }
 
     public List<Unidad> listar(Usuario usuario) {
         autorizacion.exigirAdministrador(usuario);
         return repositorio.listarTodos();
     }
-
-     // Busca una unidad por placa, crea una versión actualizada con su nuevo estado
 
     public void actualizarEstadoUnidad(String placa, EstadoUnidad nuevoEstado, Usuario usuario) {
         autorizacion.exigirAdministrador(usuario);

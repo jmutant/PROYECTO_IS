@@ -16,17 +16,16 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
-import javax.swing.text.AttributeSet;
-
 
 import modelo.EstadoUnidad;
 import modelo.Unidad;
 
-
- //Ventana Swing para la gestión del inventario de flota vehicular.
-
+/**
+ * Ventana Swing para la gestión del inventario de flota vehicular.
+ */
 public class GestionFlotaVentana extends JFrame implements GestionFlotaVista {
 
     private static final long serialVersionUID = 1L;
@@ -39,7 +38,7 @@ public class GestionFlotaVentana extends JFrame implements GestionFlotaVista {
 
     // Botones de acción
     private final JButton botonRegistrar = new JButton("Registrar Unidad");
-    private final JButton botonModificar = new JButton("Modificar Estado");
+    private final JButton botonModificar = new JButton("Guardar Cambios");
     private final JButton botonRegresar = new JButton("Regresar");
 
     // Configuración de tabla (celdas no editables directamente)
@@ -53,9 +52,9 @@ public class GestionFlotaVentana extends JFrame implements GestionFlotaVista {
     };
     private final JTable tablaUnidades = new JTable(modeloTabla);
 
-
-     // Constructor principal: Inicializa el título y la estructura visual de la ventana.
-
+    /**
+     * Constructor principal: Inicializa la estructura visual de la ventana.
+     */
     public GestionFlotaVentana() {
         super("Campus Express - Gestión de Flota");
         construirInterfaz();
@@ -63,19 +62,20 @@ public class GestionFlotaVentana extends JFrame implements GestionFlotaVista {
         aplicarFiltroPlaca();
     }
 
-
-     // Ensambla los componentes gráficos dentro del marco de la ventana Swing.
-
-    private void construirInterfaz() {
+private void construirInterfaz() {
     setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-    setSize(620, 500);
+    setSize(620, 520);
     setLocationRelativeTo(null);
 
-    // Panel principal
-    JPanel panelPrincipal = new JPanel(new BorderLayout(15, 15));
-    panelPrincipal.setBorder(new javax.swing.border.EmptyBorder(20, 20, 20, 20));
+    // Panel principal con BorderLayout
+    JPanel panelPrincipal = new JPanel(new BorderLayout(10, 10));
+    panelPrincipal.setBorder(new javax.swing.border.EmptyBorder(15, 15, 15, 15));
 
-    //  Formulario de entrada
+    // BARRA SUPERIOR: Botón Regresar alineado totalmente a la izquierda
+    JPanel panelBarraSuperior = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    panelBarraSuperior.add(botonRegresar);
+
+    // FORMULARIO DE ENTRADA (Campos de texto y combos)
     JPanel panelFormulario = new JPanel(new GridLayout(4, 2, 8, 8));
     panelFormulario.add(new JLabel("Placa:"));
     panelFormulario.add(txtPlaca);
@@ -86,27 +86,26 @@ public class GestionFlotaVentana extends JFrame implements GestionFlotaVista {
     panelFormulario.add(new JLabel("Estado:"));
     panelFormulario.add(comboEstado);
 
-    //  Panel de botones
-    JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-    panelBotones.add(botonRegistrar);
-    panelBotones.add(botonModificar);
-    panelBotones.add(botonRegresar);
+    // panel botones de accion (Registrar / Modificar)
+    JPanel panelBotonesAccion = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+    panelBotonesAccion.add(botonRegistrar);
+    panelBotonesAccion.add(botonModificar);
 
-    //  Agrupar Formulario + Botones en la sección superior
+    // agrupacion superior: Junta la barra superior, el formulario y los botones de acción
     JPanel panelSuperior = new JPanel(new BorderLayout(10, 10));
+    panelSuperior.add(panelBarraSuperior, BorderLayout.NORTH);
     panelSuperior.add(panelFormulario, BorderLayout.CENTER);
-    panelSuperior.add(panelBotones, BorderLayout.SOUTH);
+    panelSuperior.add(panelBotonesAccion, BorderLayout.SOUTH);
 
-    //  Agregar todo al panel principal
+    // ENSAMBLAJE FINAL EN EL PANEL PRINCIPAL
     panelPrincipal.add(panelSuperior, BorderLayout.NORTH);
     panelPrincipal.add(new JScrollPane(tablaUnidades), BorderLayout.CENTER);
 
-    // Asignar el panel principal como el contenido de la ventana
     this.setContentPane(panelPrincipal);
 }
 
-
-     // Listener para capturar el clic sobre la tabla y cargar sus datos en los inputs del formulario.
+    
+     // Captura el clic sobre la tabla y carga sus datos en los inputs para edición.
 
     private void configurarSeleccionTabla() {
         tablaUnidades.getSelectionModel().addListSelectionListener(e -> {
@@ -117,31 +116,40 @@ public class GestionFlotaVentana extends JFrame implements GestionFlotaVista {
                     txtModelo.setText(modeloTabla.getValueAt(fila, 1).toString());
                     txtCapacidad.setText(modeloTabla.getValueAt(fila, 2).toString());
                     comboEstado.setSelectedItem(modeloTabla.getValueAt(fila, 3));
-                    txtPlaca.setEditable(false); // La clave primaria no se modifica durante una actualización
+                    txtPlaca.setEditable(true); // Permite modificar la placa si el usuario lo desea
                 }
             }
         });
     }
 
     private void aplicarFiltroPlaca() {
-    ((AbstractDocument) txtPlaca.getDocument()).setDocumentFilter(new DocumentFilter() {
-        @Override
-        public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr) throws BadLocationException {
-            if (text != null && text.matches("[a-zA-Z0-9]+")) {
-                super.insertString(fb, offset, text.toUpperCase(), attr);
+        ((AbstractDocument) txtPlaca.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr) throws BadLocationException {
+                if (text != null && text.matches("[a-zA-Z0-9]+")) {
+                    super.insertString(fb, offset, text.toUpperCase(), attr);
+                }
             }
-        }
 
-        @Override
-        public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
-            if (text != null && text.matches("[a-zA-Z0-9]+")) {
-                super.replace(fb, offset, length, text.toUpperCase(), attrs);
-            } else if (text != null && text.isEmpty()) {
-                super.replace(fb, offset, length, text, attrs);
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                if (text != null && text.matches("[a-zA-Z0-9]+")) {
+                    super.replace(fb, offset, length, text.toUpperCase(), attrs);
+                } else if (text != null && text.isEmpty()) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
             }
-        }
-    } ); 
-}
+        }); 
+    }
+
+    public JTable getTablaUnidades() {
+        return tablaUnidades;
+    }
+
+    public DefaultTableModel getModeloTabla() {
+        return modeloTabla;
+    }
+
     @Override
     public String getPlaca() {
         return txtPlaca.getText().trim();
@@ -171,7 +179,6 @@ public class GestionFlotaVentana extends JFrame implements GestionFlotaVista {
         botonRegistrar.addActionListener(e -> accion.run());
     }
 
-    // Modificar estado de la unidad luego de registrada
     @Override
     public void setAccionModificarEstado(Runnable accion) {
         botonModificar.addActionListener(e -> accion.run());
@@ -182,7 +189,6 @@ public class GestionFlotaVentana extends JFrame implements GestionFlotaVista {
         botonRegresar.addActionListener(e -> accion.run());
     }
 
-    // Muestra lista de unidades
     @Override
     public void mostrarUnidades(List<Unidad> unidades) {
         modeloTabla.setRowCount(0);
@@ -193,19 +199,16 @@ public class GestionFlotaVentana extends JFrame implements GestionFlotaVista {
         }
     }
 
-    // Mensaje de registro exitoso
     @Override
     public void mostrarExito(String mensaje) {
         JOptionPane.showMessageDialog(this, mensaje, "Éxito", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    // MENSAJE DE ERROR EN REGISTRO
     @Override
     public void mostrarError(String mensaje) {
         JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
-    // Limpiar el formulario luego de cada accion
     @Override
     public void limpiarFormulario() {
         txtPlaca.setText("");

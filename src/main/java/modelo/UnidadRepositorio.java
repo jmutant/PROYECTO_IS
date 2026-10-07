@@ -8,4 +8,6 @@ public interface UnidadRepositorio {
     List<Unidad> listarTodos();
     void guardar(Unidad unidad);
     boolean existePorPlaca(String placa);
+    void actualizar(String placaOriginal, Unidad unidadActualizada);
 }
+
