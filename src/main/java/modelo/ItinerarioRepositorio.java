@@ -7,4 +7,9 @@ public interface ItinerarioRepositorio {
     void guardar(Itinerario itinerario);
 
     List<Itinerario> listarTodos();
+
+    // Nuevos métodos
+    void eliminar(Itinerario itinerario);
+    
+    void actualizar(Itinerario antiguo, Itinerario nuevo);
 }

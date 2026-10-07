@@ -1,9 +1,9 @@
 package vista;
 
 import java.time.DayOfWeek;
-import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -32,10 +32,13 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
     // Componentes visuales
     private final JButton botonRegresar = new JButton("Regresar");
     private final JButton botonRegistrar = new JButton("Registrar Itinerario");
+    private final javax.swing.JButton botonModificar = new JButton("Modificar");
+    private final javax.swing.JButton botonEliminar = new JButton("Eliminar");
     
     private final JTextField campoOrigen = new JTextField();
     private final JTextField campoDestino = new JTextField();
-    private final JTextField campoHoraSalida = new JTextField("08:00"); // Formato HH:mm
+    private final JComboBox<String> cbHora = new JComboBox<>(generarHoras());
+    private final JComboBox<String> cbMinuto = new JComboBox<>(new String[]{"00", "15", "30", "45"});
     
     private final JComboBox<DayOfWeek> comboDiaSemana = new JComboBox<>(DayOfWeek.values());
     private final JComboBox<TipoRuta> comboTipoRuta = new JComboBox<>(TipoRuta.values());
@@ -43,6 +46,7 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
     private final JComboBox<Conductor> comboConductores = new JComboBox<>();
     private javax.swing.JTable tablaItinerarios;
     private javax.swing.table.DefaultTableModel modeloTabla;
+    private final List<Itinerario> listaItinerariosActual = new ArrayList<>();
 
     public GestionItinerariosVentana() {
         super("Campus Express - Gestionar Itinerarios");
@@ -53,6 +57,10 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
         setSize(850, 650);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+        java.awt.Dimension tamanoComboHora = new java.awt.Dimension(50, 20);
+        cbHora.setPreferredSize(tamanoComboHora);
+        cbMinuto.setPreferredSize(tamanoComboHora);
 
         javax.swing.JPanel panelPrincipal = new javax.swing.JPanel(new java.awt.BorderLayout(10, 10));
         panelPrincipal.setBorder(javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15));
@@ -92,11 +100,21 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
         });
         panelFormulario.add(comboDiaSemana, gbc);
 
-        // Fila 3: Hora Salida
+        // // Fila 3: Hora Salida (Mejora pedida para el Sprint 2 para eliminar hora manual)
         gbc.gridx = 0; gbc.gridy = 3; gbc.weightx = 0.3;
-        panelFormulario.add(new javax.swing.JLabel("Hora Salida (HH:mm):"), gbc);
+        panelFormulario.add(new javax.swing.JLabel("Hora Salida:"), gbc);
+
+        // Contenedor horizontal para la hora y los minutos
+        javax.swing.JPanel panelHora = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 8, 0));
+        cbHora.setPreferredSize(new java.awt.Dimension(50, 20));
+        cbMinuto.setPreferredSize(new java.awt.Dimension(50, 20));
+
+        panelHora.add(cbHora);
+        panelHora.add(new javax.swing.JLabel(":"));
+        panelHora.add(cbMinuto);
+
         gbc.gridx = 1; gbc.weightx = 0.7;
-        panelFormulario.add(campoHoraSalida, gbc);
+        panelFormulario.add(panelHora, gbc);
 
         // Fila 4: Tipo de Ruta
         gbc.gridx = 0; gbc.gridy = 4; gbc.weightx = 0.3;
@@ -121,6 +139,8 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
         // ---------------- BOTONES (CENTRO) ----------------
         javax.swing.JPanel panelBotones = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 15, 10));
         panelBotones.add(botonRegistrar);
+        panelBotones.add(botonModificar);
+        panelBotones.add(botonEliminar);
         panelBotones.add(botonRegresar);
 
         // Panel superior contenedor (Formulario + Botones)
@@ -146,6 +166,15 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
         setContentPane(panelPrincipal);
     }
 
+    // Método auxiliar de horas (Parte de la mejora)
+    private static String[] generarHoras() {
+        String[] horas = new String[24];
+        for (int i = 0; i < 24; i++) {
+            horas[i] = String.format("%02d", i); // "00", "01", ..., "23"
+        }
+        return horas;
+    }
+
     // --- IMPLEMENTACIÓN DE MÉTODOS DE LA INTERFAZ ---
     @Override
     public String getOrigen() {
@@ -163,11 +192,13 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
     }
 
     @Override
-    public LocalTime getHoraSalida() {
+    public java.time.LocalTime getHoraSalida() {
         try {
-            return LocalTime.parse(campoHoraSalida.getText().trim());
-        } catch (DateTimeParseException e) {
-            return null; // El controlador validará si es nulo
+            int h = Integer.parseInt((String) cbHora.getSelectedItem());
+            int m = Integer.parseInt((String) cbMinuto.getSelectedItem());
+            return java.time.LocalTime.of(h, m);
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 
@@ -198,20 +229,24 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
 
     @Override
     public void mostrarItinerarios(List<Itinerario> itinerarios) {
-        modeloTabla.setRowCount(0); // Limpia las filas anteriores
+        this.listaItinerariosActual.clear();
         if (itinerarios != null) {
-            for (Itinerario it : itinerarios) {
-                Object[] fila = {
-                    it.getOrigen(),
-                    it.getDestino(),
-                    nombreDia(it.getDiaSemana()),
-                    it.getHoraSalida(),
-                    it.getTipoRuta(),
-                    it.getPlacaUnidad() != null ? it.getPlacaUnidad() : "",
-                    it.getLicenciaConductor() != null ? it.getLicenciaConductor() : ""
-                };
-                modeloTabla.addRow(fila);
-            }
+            this.listaItinerariosActual.addAll(itinerarios);
+        }
+
+        if (modeloTabla == null) return;
+        modeloTabla.setRowCount(0); // Limpia las filas anteriores
+        for (Itinerario it : this.listaItinerariosActual) {
+            Object[] fila = {
+                it.getOrigen(),
+                it.getDestino(),
+                nombreDia(it.getDiaSemana()),
+                it.getHoraSalida(),
+                it.getTipoRuta(),
+                it.getPlacaUnidad() != null ? it.getPlacaUnidad() : "",
+                it.getLicenciaConductor() != null ? it.getLicenciaConductor() : ""
+            };
+        modeloTabla.addRow(fila);
         }
     }
 
@@ -226,18 +261,19 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
             defaultModel.removeAllElements();
             if (unidades != null) {
                 for (Unidad u : unidades) {
-                    defaultModel.addElement(u);
+                    // FILTRO: Solo agregar las unidades cuya condición/estado sea ACTIVO (Mejora con relación al Sprint 1)
+                    if (u.getEstado() == modelo.EstadoUnidad.ACTIVO) {
+                        defaultModel.addElement(u);
+                    }
                 }
             }
             editor.setText(texto);
             try { editor.setCaretPosition(Math.min(pos, texto.length())); } catch (Exception ignored) {}
 
             // Mantiene el desplegable abierto si hay resultados mientras el usuario escribe.
-            // Solo se toca el popup si el combo ya está en pantalla: abrirlo antes (carga inicial,
-            // ventana aún no visible) lanza IllegalComponentStateException.
             if (comboUnidades.isShowing()) {
                 boolean tieneUnidades = unidades != null && !unidades.isEmpty();
-                comboUnidades.setPopupVisible(tieneUnidades && editor.hasFocus());
+            comboUnidades.setPopupVisible(tieneUnidades && editor.hasFocus());
             }
         }
     }
@@ -303,6 +339,59 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
                 buscador.accept(editor.getText());
             }
         });
+    }
+
+    @Override
+    public void setAccionModificar(Runnable accion) {
+        botonModificar.addActionListener(e -> accion.run());
+    }
+
+    @Override
+    public void setAccionEliminar(Runnable accion) {
+        botonEliminar.addActionListener(e -> accion.run());
+    }
+
+    @Override
+    public void setAccionSeleccionTabla(Consumer<Itinerario> alSeleccionar) {
+        tablaItinerarios.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                Itinerario seleccionado = getItinerarioSeleccionado();
+                if (seleccionado != null) {
+                    alSeleccionar.accept(seleccionado);
+                }
+            }
+        });
+    }
+
+    @Override
+    public Itinerario getItinerarioSeleccionado() {
+        int fila = tablaItinerarios.getSelectedRow();
+        if (fila != -1 && listaItinerariosActual != null && fila < listaItinerariosActual.size()) {
+            return listaItinerariosActual.get(fila);
+        }
+        return null;
+    }
+
+    @Override
+    public void cargarFormulario(Itinerario itinerario) {
+        if (itinerario == null) return;
+
+        campoOrigen.setText(itinerario.getOrigen());
+        campoDestino.setText(itinerario.getDestino());
+        comboDiaSemana.setSelectedItem(itinerario.getDiaSemana());
+
+        // Cargar la hora de salida en los desplegables cbHora y cbMinuto
+        if (itinerario.getHoraSalida() != null) {
+            String horaStr = String.format("%02d", itinerario.getHoraSalida().getHour());
+            String minutoStr = String.format("%02d", itinerario.getHoraSalida().getMinute());
+        
+            cbHora.setSelectedItem(horaStr);
+            cbMinuto.setSelectedItem(minutoStr);
+        }
+
+        comboTipoRuta.setSelectedItem(itinerario.getTipoRuta());
+        comboUnidades.setSelectedItem(itinerario.getPlacaUnidad());
+        comboConductores.setSelectedItem(itinerario.getLicenciaConductor());
     }
 
     @Override

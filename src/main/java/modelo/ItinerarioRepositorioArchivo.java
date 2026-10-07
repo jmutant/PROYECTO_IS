@@ -33,6 +33,23 @@ public class ItinerarioRepositorioArchivo implements ItinerarioRepositorio {
                 .toList();
     }
 
+    @Override
+    public synchronized void actualizar(Itinerario antiguo, Itinerario nuevo) {
+        itinerarios.removeIf(it -> it.getPlacaUnidad().equals(antiguo.getPlacaUnidad())
+            && it.getDiaSemana().equals(antiguo.getDiaSemana())
+            && it.getHoraSalida().equals(antiguo.getHoraSalida()));
+        itinerarios.add(nuevo);
+        persistir();
+    }
+
+    @Override
+    public synchronized void eliminar(Itinerario itinerario) {
+        itinerarios.removeIf(it -> it.getPlacaUnidad().equals(itinerario.getPlacaUnidad())
+            && it.getDiaSemana().equals(itinerario.getDiaSemana())
+            && it.getHoraSalida().equals(itinerario.getHoraSalida()));
+        persistir();
+    }
+
     private void cargar() {
         for (String linea : almacen.leer(ARCHIVO)) {
             if (linea.isBlank()) {

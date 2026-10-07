@@ -3,6 +3,7 @@ package vista;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
+
 import modelo.Conductor;
 import modelo.Itinerario;
 import modelo.TipoRuta;
@@ -31,6 +32,16 @@ public interface GestionItinerariosVista {
     void setAccionBuscarUnidad(java.util.function.Consumer<String> buscador);
 
     void setAccionBuscarConductor(java.util.function.Consumer<String> buscador);
+
+    void setAccionModificar(Runnable accion);
+
+    void setAccionEliminar(Runnable accion);
+
+    void setAccionSeleccionTabla(java.util.function.Consumer<Itinerario> alSeleccionar);
+
+    Itinerario getItinerarioSeleccionado();
+    
+    void cargarFormulario(Itinerario itinerario);
 
     void mostrarItinerarios(List<Itinerario> itinerarios);
 
