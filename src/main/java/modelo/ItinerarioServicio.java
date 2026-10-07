@@ -56,4 +56,71 @@ public class ItinerarioServicio {
     public ConductorRepositorio getConductorRepositorio() {
         return conductorRepositorio;
     }
+
+    //Mejoras con respecto a Sprint 1
+    // --- MODIFICAR ITINERARIO ---
+    public void modificar(String id, String origen, String destino, DayOfWeek dia, LocalTime hora, TipoRuta tipoRuta, String placaUnidad, String licenciaConductor, Usuario usuarioActual) {
+        
+        // 1. Validar permisos de Administrador
+        autorizacion.exigirAdministrador(usuarioActual);
+
+        // 2. Buscar itinerario existente
+        Itinerario itinerarioExistente = itinerarioRepositorio.listarTodos().stream()
+        .filter(it -> it.getPlacaUnidad().equals(placaUnidad) && it.getDiaSemana() == dia && it.getHoraSalida().equals(hora))
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("El itinerario a modificar no existe."));
+
+        // 3. Validar existencia y estado de la Unidad y Conductor
+        Unidad unidad = unidadRepositorio.buscarPorPlaca(placaUnidad).orElse(null);
+        if (unidad == null || unidad.getEstado() != EstadoUnidad.ACTIVO) {
+            throw new IllegalArgumentException("La unidad seleccionada no está disponible o no existe.");
+        }
+
+        Conductor conductor = conductorRepositorio.buscarPorLicencia(licenciaConductor).orElse(null);
+        if (conductor == null) {
+            throw new IllegalArgumentException("El conductor seleccionado no existe.");
+        }
+
+        // 4. Validar conflicto de horario (excluyendo el propio itinerario que estamos modificando)
+        boolean conflicto = itinerarioRepositorio.listarTodos().stream()
+        // Excluimos el itinerario original usando los datos de itinerarioExistente:
+        .filter(i -> !(i.getDiaSemana().equals(itinerarioExistente.getDiaSemana()) && i.getHoraSalida().equals(itinerarioExistente.getHoraSalida())
+        && (i.getPlacaUnidad().equals(itinerarioExistente.getPlacaUnidad()) || i.getLicenciaConductor().equals(itinerarioExistente.getLicenciaConductor()))))
+        // Validamos si alguno de los DEMÁS entra en conflicto con las NUEVAS variables/datos:
+        .anyMatch(i -> i.getDiaSemana().equals(dia) && i.getHoraSalida().equals(hora) &&
+        (i.getPlacaUnidad().equals(placaUnidad) || i.getLicenciaConductor().equals(licenciaConductor)));
+
+        if (conflicto) {
+            throw new ConflictoHorarioException();
+        }
+
+        // 5. Crear el nuevo itinerario actualizado
+        Itinerario itinerarioActualizado = new Itinerario(
+            origen,
+            destino,
+            dia,
+            hora,
+            tipoRuta,
+            placaUnidad,
+            licenciaConductor
+        );
+
+        // Eliminar el viejo antes de guardar el nuevo:
+        itinerarioRepositorio.eliminar(itinerarioExistente);
+        itinerarioRepositorio.guardar(itinerarioActualizado);
+    }
+
+    // --- ELIMINAR ITINERARIO ---
+    public void eliminar(String placaUnidad, DayOfWeek dia, LocalTime hora, Usuario usuarioActual) {
+        // Validar permisos
+        autorizacion.exigirAdministrador(usuarioActual);
+
+        // Buscar itinerario a eliminar por sus claves
+        Itinerario itinerarioAEliminar = itinerarioRepositorio.listarTodos().stream().filter(it -> it.getPlacaUnidad().equals(placaUnidad) && it.getDiaSemana().equals(dia) && it.getHoraSalida().equals(hora))
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("El itinerario a eliminar no existe."));
+
+        // Eliminar el objeto del repositorio
+        itinerarioRepositorio.eliminar(itinerarioAEliminar);
+    }
 }

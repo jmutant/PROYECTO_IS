@@ -1,10 +1,14 @@
 package controlador;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
 import modelo.Conductor;
 import modelo.ConflictoHorarioException;
+import modelo.Itinerario;
 import modelo.ItinerarioServicio;
+import modelo.TipoRuta;
 import modelo.Unidad;
 import modelo.Usuario;
 import vista.GestionItinerariosVista;
@@ -26,6 +30,17 @@ public final class GestionItinerariosControlador {
         // --- TAREA 3: Suscripción a Búsquedas Dinámicas ---
         this.vista.setAccionBuscarUnidad(this::filtrarUnidades);
         this.vista.setAccionBuscarConductor(this::filtrarConductores);
+        vista.setAccionSeleccionTabla(itinerario -> vista.cargarFormulario(itinerario));
+
+        // Escuchar las acciones de Modificar y Eliminar
+        this.vista.setAccionModificar(() -> {
+            // Aquí llamas al método de tu controlador para modificar:
+            modificarItinerario(); 
+        });
+        this.vista.setAccionEliminar(() -> {
+            // Aquí llamas al método de tu controlador para eliminar:
+            eliminarItinerario();
+        });
 
         // Carga inicial de datos en combos y tablas
         cargarDatos();
@@ -121,6 +136,75 @@ public final class GestionItinerariosControlador {
                 })
                 .toList();
         vista.cargarConductores(filtrados);
+    }
+}
+
+    private void modificarItinerario() {
+    // 1. Obtener el itinerario seleccionado actualmente en la tabla
+    Itinerario seleccionado = vista.getItinerarioSeleccionado();
+    if (seleccionado == null) {
+        vista.mostrarError("Seleccione un itinerario de la lista para modificar.");
+        return;
+    }
+
+    try {
+        // 2. Extraer los NUEVOS valores ingresados en el formulario de la vista
+        String origen = vista.getOrigen();
+        String destino = vista.getDestino();
+        DayOfWeek dia = vista.getDiaSemana();
+        LocalTime hora = vista.getHoraSalida();
+        TipoRuta tipo = vista.getTipoRuta();
+        String placa = (vista.getUnidad() != null) ? vista.getUnidad().getPlaca() : "";
+        String licencia = (vista.getConductor() != null) ? vista.getConductor().getNumeroLicencia() : "";
+
+        // 3. Modificar utilizando la clave original (placa, día, hora original)
+        // e ingresar los nuevos valores en la base de datos a través del servicio
+        servicio.modificar(
+            seleccionado.getPlacaUnidad(),
+            origen,
+            destino,
+            dia,
+            hora,
+            tipo,
+            placa,
+            licencia,
+            usuario
+        );
+
+        // 4. Mensaje de éxito + Refrescar tabla desde BD + Limpiar campos
+        vista.mostrarExito("Itinerario modificado con éxito.");
+        cargarDatos(); 
+        vista.cargarFormulario(null);
+
+    } catch (Exception e) {
+        vista.mostrarError("Error al modificar: " + e.getMessage());
+    }
+}
+
+private void eliminarItinerario() {
+    // 1. Obtener el itinerario seleccionado
+    Itinerario seleccionado = vista.getItinerarioSeleccionado();
+    if (seleccionado == null) {
+        vista.mostrarError("Seleccione un itinerario de la lista para eliminar.");
+        return;
+    }
+
+    try {
+        // 2. Eliminar de la base de datos (.db) a través del servicio
+        servicio.eliminar(
+            seleccionado.getPlacaUnidad(),
+            seleccionado.getDiaSemana(),
+            seleccionado.getHoraSalida(),
+            usuario
+        );
+
+        // 3. Mensaje de éxito + Refrescar la tabla + Limpiar campos
+        vista.mostrarExito("Itinerario eliminado con éxito.");
+        cargarDatos();
+        vista.cargarFormulario(null);
+
+    } catch (Exception e) {
+        vista.mostrarError("Error al eliminar: " + e.getMessage());
     }
 }
 
