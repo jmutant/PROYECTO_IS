@@ -2,8 +2,8 @@ package modelo;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,5 +34,15 @@ public class UnidadRepositorioMemoria implements UnidadRepositorio {
         return new ArrayList<>(unidades.values()).stream()
                 .sorted(Comparator.comparing(Unidad::getPlaca))
                 .toList();
+    }
+
+    @Override
+    public void actualizar(String placaOriginal, Unidad unidadNueva) {
+        // Si la clave primaria (placa) cambió en la actualización:
+        if (!placaOriginal.equalsIgnoreCase(unidadNueva.getPlaca())) {
+            unidades.remove(placaOriginal.toUpperCase());
+        }
+        // Guardar o reemplazar el objeto actualizado con la nueva clave
+        unidades.put(unidadNueva.getPlaca().toUpperCase(), unidadNueva);
     }
 }
