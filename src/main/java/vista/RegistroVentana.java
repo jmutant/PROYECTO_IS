@@ -1,136 +1,110 @@
 package vista;
 
-import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.Color;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.event.ActionEvent;
 
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
-import javax.swing.border.EmptyBorder;
-import javax.swing.text.AbstractDocument;
 
 import modelo.AutenticacionServicio;
-import modelo.Rol;
 import modelo.UsuarioDuplicadoException;
 
-// Registro persistente de usuarios (público, o creación de Administradores si modoAdministrador = true)
+/**
+ * Ventana de registro (público, o creación de Administradores si modoAdministrador = true).
+ * El diseño y los campos están en {@link RegistroPanel}; aquí solo se arma la ventana y se
+ * conecta el formulario con el servicio de autenticación.
+ */
 public class RegistroVentana extends JFrame {
     private static final long serialVersionUID = 1L;
 
-    private final AutenticacionServicio autenticacionServicio;
+    private final transient AutenticacionServicio autenticacionServicio;
     private final boolean modoAdministrador;
-
-    private final JTextField txtNombre = new JTextField(20);
-    private final JTextField txtApellido = new JTextField(20);
-    private final JTextField txtCedula = new JTextField(20);
-    private final JTextField txtUsername = new JTextField(20);
-    private final JPasswordField txtPassword = new JPasswordField(20);
-
-    private final JComboBox<Rol> comboRoles = new JComboBox<>(new Rol[] {
-            Rol.ESTUDIANTE,
-            Rol.EMPLEADO,
-            Rol.PROFESOR,
-            Rol.PUBLICO_GENERAL
-    });
+    private final RegistroPanel panel;
 
     public RegistroVentana(AutenticacionServicio autenticacionServicio) {
         this(autenticacionServicio, false);
     }
 
-    /** @param modoAdministrador true para crear un usuario con rol Administrador (el selector de rol solo muestra Administrador). */
+    /** @param modoAdministrador true para crear un usuario Administrador (el selector de rol solo muestra Administrador). */
     public RegistroVentana(AutenticacionServicio autenticacionServicio, boolean modoAdministrador) {
         super(modoAdministrador
                 ? "Campus Express - Crear Administrador"
                 : "Campus Express - Registro de usuario");
         this.autenticacionServicio = autenticacionServicio;
         this.modoAdministrador = modoAdministrador;
+        this.panel = new RegistroPanel(modoAdministrador);
         construirInterfaz();
     }
 
     private void construirInterfaz() {
+        setUndecorated(true); // la "X" del diseño reemplaza al botón Cancelar y al cierre de la ventana
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        aplicarFondoTransparente(); // debe hacerse antes de mostrar la ventana
 
-        JPanel formulario = new JPanel(new GridBagLayout());
-        formulario.setBorder(new EmptyBorder(20, 24, 20, 24));
-        agregar(formulario, "Nombre:", txtNombre, 0);
-        agregar(formulario, "Apellido:", txtApellido, 1);
-        agregar(formulario, "Cédula:", txtCedula, 2);
-        // La cédula solo admite hasta 8 dígitos (el rango 10000000-99999999 lo valida el servicio).
-        ((AbstractDocument) txtCedula.getDocument()).setDocumentFilter(new FiltroCedula());
-        if (modoAdministrador) {
-            // En este modo el único rol disponible es Administrador (el combo queda fijo).
-            comboRoles.setModel(new DefaultComboBoxModel<>(new Rol[] { Rol.ADMINISTRADOR }));
-            comboRoles.setEnabled(false);
-        }
-        agregar(formulario, "Rol:", comboRoles, 3);
-        agregar(formulario, "Usuario:", txtUsername, 4);
-        agregar(formulario, "Contraseña:", txtPassword, 5);
+        panel.setAccionRegistrar(this::registrar);
+        panel.setAccionCerrar(this::dispose);
 
-        JButton botonRegistrar = new JButton(modoAdministrador ? "Crear Administrador" : "Registrar");
-        JButton botonCancelar = new JButton("Cancelar");
+        setContentPane(panel);
+        getRootPane().setDefaultButton(panel.getBotonRegistrar());
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke("ESCAPE"), "cerrarRegistro");
+        getRootPane().getActionMap().put("cerrarRegistro", new AbstractAction() {
+            private static final long serialVersionUID = 1L;
 
-        botonRegistrar.addActionListener(e -> registrar());
-        botonCancelar.addActionListener(e -> dispose());
-
-        JPanel botones = new JPanel();
-        botones.add(botonRegistrar);
-        botones.add(botonCancelar);
-
-        JPanel principal = new JPanel(new BorderLayout(0, 10));
-        principal.add(formulario, BorderLayout.CENTER);
-        principal.add(botones, BorderLayout.SOUTH);
-        setContentPane(principal);
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
 
         setResizable(false);
         pack();
         setLocationRelativeTo(null);
     }
 
-
-    private void agregar(JPanel panel, String texto, java.awt.Component componente, int fila) {
-        GridBagConstraints etiqueta = new GridBagConstraints();
-        etiqueta.gridx = 0; etiqueta.gridy = fila;
-        etiqueta.anchor = GridBagConstraints.WEST;
-        etiqueta.insets = new Insets(5, 5, 5, 10);
-        panel.add(new JLabel(texto), etiqueta);
-
-        GridBagConstraints campo = new GridBagConstraints();
-        campo.gridx = 1; campo.gridy = fila;
-        campo.weightx = 1; campo.fill = GridBagConstraints.HORIZONTAL;
-        campo.insets = new Insets(5, 5, 5, 5);
-        panel.add(componente, campo);
+    /**
+     * Ventana sin fondo: translúcida por píxel (color de fondo con alpha 0) y panel no opaco, de modo que
+     * solo se ven la tarjeta, los campos y la "X". Si el sistema no lo soporta, se usa el fondo normal.
+     */
+    private void aplicarFondoTransparente() {
+        boolean transparente = false;
+        try {
+            GraphicsDevice pantalla = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+            if (pantalla.isWindowTranslucencySupported(GraphicsDevice.WindowTranslucency.PERPIXEL_TRANSLUCENT)) {
+                setBackground(new Color(0, 0, 0, 0));
+                getRootPane().setOpaque(false);
+                transparente = true;
+            }
+        } catch (RuntimeException ex) {
+            transparente = false; // si algo falla, queda el fondo normal
+        }
+        panel.setFondoTransparente(transparente);
     }
 
     private void registrar() {
         try {
-            
-            //Este es el flujo solicitado:
-            
             if (modoAdministrador) {
                 autenticacionServicio.registrarAdministrador(
-                        txtNombre.getText(),
-                        txtApellido.getText(),
-                        txtCedula.getText(),
-                        txtUsername.getText(),
-                        new String(txtPassword.getPassword())
+                        panel.getNombre(),
+                        panel.getApellido(),
+                        panel.getCedula(),
+                        panel.getUsername(),
+                        panel.getPassword()
                 );
             } else {
                 autenticacionServicio.registrarUsuario(
-                        txtNombre.getText(),
-                        txtApellido.getText(),
-                        txtCedula.getText(),
-                        (Rol) comboRoles.getSelectedItem(),
-                        txtUsername.getText(),
-                        new String(txtPassword.getPassword())
+                        panel.getNombre(),
+                        panel.getApellido(),
+                        panel.getCedula(),
+                        panel.getRolSeleccionado(),
+                        panel.getUsername(),
+                        panel.getPassword()
                 );
             }
 
@@ -140,7 +114,7 @@ public class RegistroVentana extends JFrame {
                             : "Usuario registrado correctamente.",
                     "Registro exitoso",
                     JOptionPane.INFORMATION_MESSAGE);
-            limpiar();
+            panel.limpiar();
             dispose();
 
         } catch (UsuarioDuplicadoException ex) {
@@ -156,16 +130,8 @@ public class RegistroVentana extends JFrame {
         }
     }
 
-    private void limpiar() {
-        txtNombre.setText("");
-        txtApellido.setText("");
-        txtCedula.setText("");
-        txtUsername.setText("");
-        txtPassword.setText("");
-    }
-
     public void mostrar() {
         setVisible(true);
-        txtNombre.requestFocusInWindow();
+        panel.enfocarPrimerCampo();
     }
 }

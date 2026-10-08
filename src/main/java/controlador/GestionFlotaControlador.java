@@ -2,58 +2,59 @@ package controlador;
 
 import modelo.FlotaServicio;
 import modelo.Usuario;
-import vista.GestionFlotaVista;
+import vista.GestionFlotaVentana;
 
-
- // Controlador que orquesta la interacción de la interfaz Swing con los servicios de dominio.
-
+/**
+ * Controlador que orquesta la interacción de la interfaz Swing con los servicios de dominio.
+ */
 public class GestionFlotaControlador {
 
-    private final GestionFlotaVista vista;
+    private final GestionFlotaVentana vista;
     private final FlotaServicio flotaServicio;
     private final Usuario usuarioActual;
 
-
-     // Registra listeners y carga los datos iniciales al instanciar el controlador.
-
-    public GestionFlotaControlador(GestionFlotaVista vista, FlotaServicio flotaServicio, Usuario usuarioActual) {
+    public GestionFlotaControlador(GestionFlotaVentana vista, FlotaServicio flotaServicio, Usuario usuarioActual) {
         this.vista = vista;
         this.flotaServicio = flotaServicio;
         this.usuarioActual = usuarioActual;
 
-        // Vínculo entre eventos de interfaz y métodos del controlador
+        // Vínculo entre eventos de la vista y acciones del controlador
         this.vista.setAccionRegistrar(this::registrarUnidad);
-        this.vista.setAccionModificarEstado(this::modificarEstado);
+        this.vista.setAccionModificarEstado(this::modificarUnidad);
         this.vista.setAccionRegresar(this.vista::cerrar);
 
         cargarUnidades();
     }
 
-
-     // Procesa la solicitud de modificación de estado enviada desde la vista
-
-    private void modificarEstado() {
+    
+     // Procesa la modificación completa (placa, modelo, capacidad, estado) de la unidad seleccionada.
+  
+    private void modificarUnidad() {
         try {
-            String placa = vista.getPlaca();
-            var nuevoEstado = vista.getEstado();
-
-            if (placa.isEmpty()) {
-                vista.mostrarError("Seleccione una unidad de la tabla.");
+            int filaSeleccionada = vista.getTablaUnidades().getSelectedRow();
+            if (filaSeleccionada == -1) {
+                vista.mostrarError("Seleccione una unidad de la tabla para modificar.");
                 return;
             }
 
-            flotaServicio.actualizarEstadoUnidad(placa, nuevoEstado, usuarioActual);
-            
-            vista.mostrarExito("Estado actualizado correctamente.");
+            // Obtiene la placa original de la fila seleccionada antes de la edición
+            String placaOriginal = vista.getModeloTabla().getValueAt(filaSeleccionada, 0).toString();
+
+            String nuevaPlaca = vista.getPlaca();
+            String nuevoModelo = vista.getModelo();
+            int nuevaCapacidad = vista.getCapacidad();
+            var nuevoEstado = vista.getEstado();
+
+            // Llama a la capa de servicio pasando la placa original y los nuevos valores
+            flotaServicio.actualizarUnidad(placaOriginal, nuevaPlaca, nuevoModelo, nuevaCapacidad, nuevoEstado, usuarioActual);
+
+            vista.mostrarExito("Unidad actualizada correctamente.");
             cargarUnidades();
-            vista.limpiarFormulario(); // Limpia los inputs tras completar la acción
+            vista.limpiarFormulario();
         } catch (Exception e) {
-            vista.mostrarError("Error al actualizar el estado: " + e.getMessage());
+            vista.mostrarError("Error al actualizar la unidad: " + e.getMessage());
         }
     }
-
-
-     // Procesa y valida los campos recibidos para la creación de una nueva unidad.
 
     private void registrarUnidad() {
         try {
@@ -66,14 +67,11 @@ public class GestionFlotaControlador {
             );
             vista.mostrarExito("Unidad registrada con éxito.");
             cargarUnidades();
-            vista.limpiarFormulario(); // Limpia los inputs tras completar la acción
+            vista.limpiarFormulario();
         } catch (Exception e) {
             vista.mostrarError("Error al registrar unidad: " + e.getMessage());
         }
     }
-
-
-     // Consulta las unidades vigentes a la capa de servicio y re-dibuja la tabla en la vista.
 
     private void cargarUnidades() { 
         vista.mostrarUnidades(flotaServicio.listar(usuarioActual)); 

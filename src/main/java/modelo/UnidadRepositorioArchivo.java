@@ -21,13 +21,34 @@ public class UnidadRepositorioArchivo implements UnidadRepositorio {
 
     @Override
     public synchronized void guardar(Unidad unidad) {
-        unidades.put(unidad.getPlaca(), unidad);
+        unidades.put(Unidad.normalizarPlaca(unidad.getPlaca()), unidad);
+        persistir();
+    }
+
+    @Override
+    public synchronized void actualizar(String placaOriginal, Unidad unidadActualizada) {
+        if (placaOriginal == null || unidadActualizada == null) {
+            return;
+        }
+
+        String claveOriginal = Unidad.normalizarPlaca(placaOriginal);
+        String claveNueva = Unidad.normalizarPlaca(unidadActualizada.getPlaca());
+
+        // Si la placa cambió, eliminamos el registro previo bajo la clave anterior
+        if (!claveOriginal.equals(claveNueva)) {
+            unidades.remove(claveOriginal);
+        }
+
+        // Guardamos la unidad editada usando la clave normalizada
+        unidades.put(claveNueva, unidadActualizada);
+
+        // Guardamos los cambios inmediatamente en unidades.db
         persistir();
     }
 
     @Override
     public Optional<Unidad> buscarPorPlaca(String placa) {
-        if (placa == null) {
+        if (placa == null || placa.isBlank()) {
             return Optional.empty();
         }
         return Optional.ofNullable(unidades.get(Unidad.normalizarPlaca(placa)));
@@ -60,7 +81,9 @@ public class UnidadRepositorioArchivo implements UnidadRepositorio {
                         TextoSeguro.decodificar(partes[1]),
                         Integer.parseInt(partes[2]),
                         EstadoUnidad.valueOf(partes[3]));
-                unidades.put(unidad.getPlaca(), unidad);
+                
+                // Normalizamos la clave para que la búsqueda/actualización posterior coincida siempre
+                unidades.put(Unidad.normalizarPlaca(unidad.getPlaca()), unidad);
             } catch (RuntimeException e) {
                 throw new IllegalStateException("No se pudo cargar una unidad desde " + ARCHIVO, e);
             }

@@ -31,7 +31,10 @@ public final class GestionItinerariosControlador {
         // --- TAREA 3: Suscripción a Búsquedas Dinámicas ---
         this.vista.setAccionBuscarUnidad(this::filtrarUnidades);
         this.vista.setAccionBuscarConductor(this::filtrarConductores);
-        vista.setAccionSeleccionTabla(itinerario -> vista.cargarFormulario(itinerario));
+        vista.setAccionSeleccionTabla(itinerario -> {
+            recargarCombos(); // listas completas, por si el combo estaba filtrado por lo escrito antes
+            vista.cargarFormulario(itinerario);
+        });
 
         // Escuchar las acciones de Modificar y Eliminar
         this.vista.setAccionModificar(() -> {
@@ -110,6 +113,15 @@ public final class GestionItinerariosControlador {
         }
     }
 
+    private void recargarCombos() {
+        try {
+            vista.cargarUnidades(servicio.getUnidadRepositorio().listarTodos());
+            vista.cargarConductores(servicio.getConductorRepositorio().listarTodos());
+        } catch (Exception e) {
+            System.err.println("Error al recargar unidades/conductores: " + e.getMessage());
+        }
+    }
+
     private void filtrarUnidades(String criterio) {
         if (criterio == null || criterio.isBlank()) {
             vista.cargarUnidades(servicio.getUnidadRepositorio().listarTodos());
@@ -155,8 +167,14 @@ public final class GestionItinerariosControlador {
         DayOfWeek dia = vista.getDiaSemana();
         LocalTime hora = vista.getHoraSalida();
         TipoRuta tipo = vista.getTipoRuta();
-        String placa = (vista.getUnidad() != null) ? vista.getUnidad().getPlaca() : "";
-        String licencia = (vista.getConductor() != null) ? vista.getConductor().getNumeroLicencia() : "";
+        Unidad unidadElegida = vista.getUnidad();
+        Conductor conductorElegido = vista.getConductor();
+        if (unidadElegida == null || conductorElegido == null) {
+            vista.mostrarError("Seleccione una unidad activa y un conductor válidos de la lista.");
+            return;
+        }
+        String placa = unidadElegida.getPlaca();
+        String licencia = conductorElegido.getNumeroLicencia();
 
         // 3. Modificar utilizando la clave original (placa, día, hora original)
         // e ingresar los nuevos valores en la base de datos a través del servicio
