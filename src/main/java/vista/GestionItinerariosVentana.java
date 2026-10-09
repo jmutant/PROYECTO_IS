@@ -1,14 +1,17 @@
 package vista;
 
+import java.awt.BorderLayout;
 import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import modelo.Conductor;
@@ -136,17 +139,27 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
         comboConductores.setEditable(true);
         panelFormulario.add(comboConductores, gbc);
 
-        // ---------------- BOTONES (CENTRO) ----------------
-        javax.swing.JPanel panelBotones = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 15, 10));
-        panelBotones.add(botonRegistrar);
-        panelBotones.add(botonModificar);
-        panelBotones.add(botonEliminar);
-        panelBotones.add(botonRegresar);
-
         // Panel superior contenedor (Formulario + Botones)
-        javax.swing.JPanel panelNorte = new javax.swing.JPanel(new java.awt.BorderLayout());
-        panelNorte.add(panelFormulario, java.awt.BorderLayout.CENTER);
-        panelNorte.add(panelBotones, java.awt.BorderLayout.SOUTH);
+        javax.swing.JPanel panelNorte = new javax.swing.JPanel(new BorderLayout());
+        panelNorte.add(panelFormulario, BorderLayout.CENTER);
+
+        // ---------------- BOTONES ----------------
+        JPanel panelBotones = new JPanel(new BorderLayout());
+        panelBotones.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10)); // Márgenes externos
+
+        // 1. Subpanel para las acciones principales (Centradas)
+        JPanel panelAccionesCentrales = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 15, 0));
+        panelAccionesCentrales.add(botonRegistrar);
+        panelAccionesCentrales.add(botonModificar);
+        panelAccionesCentrales.add(botonEliminar);
+
+        // 2. Subpanel para la salida/navegación (Alineado a la Derecha)
+        JPanel panelNavegacion = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 0, 0));
+        panelNavegacion.add(botonRegresar);
+
+        // 3. Ensamblar en el panel principal de botones
+        panelBotones.add(panelAccionesCentrales, BorderLayout.CENTER);
+        panelBotones.add(panelNavegacion, BorderLayout.EAST);
 
         // ---------------- TABLA DE ITINERARIOS (ABAJO) ----------------
         String[] columnas = {"Origen", "Destino", "Día", "Hora", "Tipo", "Unidad", "Conductor"};
@@ -162,6 +175,7 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
         // Unir paneles al principal
         panelPrincipal.add(panelNorte, java.awt.BorderLayout.NORTH);
         panelPrincipal.add(scrollTabla, java.awt.BorderLayout.CENTER);
+        panelPrincipal.add(panelBotones, java.awt.BorderLayout.SOUTH);
 
         setContentPane(panelPrincipal);
     }

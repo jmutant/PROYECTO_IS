@@ -59,18 +59,20 @@ public class ItinerarioServicio {
 
     //Mejoras con respecto a Sprint 1
     // --- MODIFICAR ITINERARIO ---
-    public void modificar(String id, String origen, String destino, DayOfWeek dia, LocalTime hora, TipoRuta tipoRuta, String placaUnidad, String licenciaConductor, Usuario usuarioActual) {
-        
+    public void modificar(
+        String placaOriginal, DayOfWeek diaOriginal, LocalTime horaOriginal,
+        String origen, String destino, DayOfWeek dia, LocalTime hora, TipoRuta tipoRuta, String placaUnidad, String licenciaConductor, Usuario usuarioActual) {
+
         // 1. Validar permisos de Administrador
         autorizacion.exigirAdministrador(usuarioActual);
 
-        // 2. Buscar itinerario existente
+        // 2. Buscar itinerario existente usando la clave ORIGINAL
         Itinerario itinerarioExistente = itinerarioRepositorio.listarTodos().stream()
-        .filter(it -> it.getPlacaUnidad().equals(placaUnidad) && it.getDiaSemana() == dia && it.getHoraSalida().equals(hora))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("El itinerario a modificar no existe."));
+            .filter(it -> it.getPlacaUnidad().equals(placaOriginal) && it.getDiaSemana() == diaOriginal && it.getHoraSalida().equals(horaOriginal))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("El itinerario a modificar no existe."));
 
-        // 3. Validar existencia y estado de la Unidad y Conductor
+        // 3. Validar existencia y estado de la nueva Unidad y Conductor
         Unidad unidad = unidadRepositorio.buscarPorPlaca(placaUnidad).orElse(null);
         if (unidad == null || unidad.getEstado() != EstadoUnidad.ACTIVO) {
             throw new IllegalArgumentException("La unidad seleccionada no está disponible o no existe.");
@@ -81,33 +83,26 @@ public class ItinerarioServicio {
             throw new IllegalArgumentException("El conductor seleccionado no existe.");
         }
 
-        // 4. Validar conflicto de horario (excluyendo el propio itinerario que estamos modificando)
+        // 4. Crear el nuevo objeto Itinerario actualizado
+        Itinerario itinerarioActualizado = new Itinerario(
+            origen, destino, dia, hora, tipoRuta, placaUnidad, licenciaConductor
+        );
+
         boolean conflicto = itinerarioRepositorio.listarTodos().stream()
-        // Excluimos el itinerario original usando los datos de itinerarioExistente:
-        .filter(i -> !(i.getDiaSemana().equals(itinerarioExistente.getDiaSemana()) && i.getHoraSalida().equals(itinerarioExistente.getHoraSalida())
-        && (i.getPlacaUnidad().equals(itinerarioExistente.getPlacaUnidad()) || i.getLicenciaConductor().equals(itinerarioExistente.getLicenciaConductor()))))
-        // Validamos si alguno de los DEMÁS entra en conflicto con las NUEVAS variables/datos:
-        .anyMatch(i -> i.getDiaSemana().equals(dia) && i.getHoraSalida().equals(hora) &&
-        (i.getPlacaUnidad().equals(placaUnidad) || i.getLicenciaConductor().equals(licenciaConductor)));
+        .filter(actual -> !(actual.getPlacaUnidad().equalsIgnoreCase(placaOriginal)
+                        && actual.getDiaSemana() == diaOriginal
+                        && actual.getHoraSalida().equals(horaOriginal))) // Excluir el itinerario actual
+        .anyMatch(actual -> actual.getDiaSemana() == dia
+                        && actual.getHoraSalida().equals(hora)
+                        && (actual.getPlacaUnidad().equalsIgnoreCase(placaUnidad)
+                        || actual.getLicenciaConductor().equalsIgnoreCase(licenciaConductor)));
 
         if (conflicto) {
             throw new ConflictoHorarioException();
         }
 
-        // 5. Crear el nuevo itinerario actualizado
-        Itinerario itinerarioActualizado = new Itinerario(
-            origen,
-            destino,
-            dia,
-            hora,
-            tipoRuta,
-            placaUnidad,
-            licenciaConductor
-        );
-
-        // Eliminar el viejo antes de guardar el nuevo:
-        itinerarioRepositorio.eliminar(itinerarioExistente);
-        itinerarioRepositorio.guardar(itinerarioActualizado);
+        // 5. Reemplazar en el repositorio (elimina el viejo y guarda el nuevo)
+        itinerarioRepositorio.actualizar(itinerarioExistente, itinerarioActualizado);
     }
 
     // --- ELIMINAR ITINERARIO ---
