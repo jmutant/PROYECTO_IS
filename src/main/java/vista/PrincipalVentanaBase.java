@@ -54,8 +54,9 @@ public abstract class PrincipalVentanaBase extends JFrame implements PrincipalVi
         // BORDERLAYOUT, pie de pagina pero con elementos separados por si se mueve esto?
         JPanel pie = new JPanel(new BorderLayout());
         pie.setOpaque(false);
-        pie.add(rol, BorderLayout.WEST); // anclado a la eqn inferior izq
-        pie.add(botonCerrarSesion, BorderLayout.EAST); // <-- El botón se queda en la esquina inferior derecha
+        pie.add(rol, BorderLayout.WEST); // anclado a la esquina inferior izquierda
+
+        pie.add(botonCerrarSesion, BorderLayout.EAST); // El botón queda en la esquina inferior derecha
 
         // 5. Panel Contenedor Principal (con la imagen de fondo)
         JPanel contenido = new JPanel(new BorderLayout(0, 16)) {

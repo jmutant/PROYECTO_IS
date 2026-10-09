@@ -3,9 +3,9 @@ package modelo;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Servicio de capa de negocio encargado del procesamiento de flota.
- */
+
+//Servicio de capa de negocio encargado del procesamiento de flota.
+
 public class FlotaServicio {
 
     private final UnidadRepositorio repositorio;

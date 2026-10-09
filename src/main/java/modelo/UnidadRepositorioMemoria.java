@@ -17,6 +17,22 @@ public class UnidadRepositorioMemoria implements UnidadRepositorio {
     }
 
     @Override
+    public void actualizar(String placa, Unidad unidad) {
+        if (placa == null || unidad == null) {
+            return;
+        }
+
+        String placaNormalizada = Unidad.normalizarPlaca(placa);
+        String placaUnidad = Unidad.normalizarPlaca(unidad.getPlaca());
+
+        if (unidades.containsKey(placaNormalizada)) {
+            unidades.put(placaNormalizada, unidad);
+        } else {
+            unidades.put(placaUnidad, unidad);
+        }
+    }
+
+    @Override
     public Optional<Unidad> buscarPorPlaca(String placa) {
         if (placa == null) {
             return Optional.empty();

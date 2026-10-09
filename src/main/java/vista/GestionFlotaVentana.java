@@ -23,9 +23,8 @@ import javax.swing.text.DocumentFilter;
 import modelo.EstadoUnidad;
 import modelo.Unidad;
 
-/**
- * Ventana Swing para la gestión del inventario de flota vehicular.
- */
+//Ventana Swing para la gestión del inventario de flota vehicular.
+
 public class GestionFlotaVentana extends JFrame implements GestionFlotaVista {
 
     private static final long serialVersionUID = 1L;
@@ -52,9 +51,9 @@ public class GestionFlotaVentana extends JFrame implements GestionFlotaVista {
     };
     private final JTable tablaUnidades = new JTable(modeloTabla);
 
-    /**
-     * Constructor principal: Inicializa la estructura visual de la ventana.
-     */
+    
+    //Constructor principal: Inicializa la estructura visual de la ventana.
+    
     public GestionFlotaVentana() {
         super("Campus Express - Gestión de Flota");
         construirInterfaz();

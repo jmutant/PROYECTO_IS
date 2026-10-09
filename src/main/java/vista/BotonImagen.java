@@ -8,6 +8,8 @@ import java.awt.RenderingHints;
 
 import javax.swing.JButton;
 
+
+// Desativa los Tooltips de botonnes (indicador de que hace x elemento sobre el hover del mouse)
 public class BotonImagen extends JButton {
 
     private static final long serialVersionUID = 1L;
@@ -27,7 +29,7 @@ public class BotonImagen extends JButton {
         setFocusPainted(false);
         setOpaque(false);
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        setToolTipText(descripcion);
+        setToolTipText(null); // Desactiva el tooltip
         getAccessibleContext().setAccessibleName(descripcion);
     }
 
