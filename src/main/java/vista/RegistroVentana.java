@@ -68,10 +68,7 @@ public class RegistroVentana extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    /**
-     * Ventana sin fondo: translúcida por píxel (color de fondo con alpha 0) y panel no opaco, de modo que
-     * solo se ven la tarjeta, los campos y la "X". Si el sistema no lo soporta, se usa el fondo normal.
-     */
+    // Ventana con fodno transparente
     private void aplicarFondoTransparente() {
         boolean transparente = false;
         try {

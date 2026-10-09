@@ -44,10 +44,10 @@ public class UsuarioRepositorioArchivo implements UsuarioRepositorio {
             throw new IllegalStateException("No se pudo preparar " + archivo, e);
         }
     }
-
+/* 
     private Path rutaArchivo() {
         return almacen.getDirectorio().resolve(ARCHIVO);
-    }
+    } */
 
     @Override
     public Optional<Usuario> buscarPorUsername(String username) {
@@ -151,8 +151,7 @@ public class UsuarioRepositorioArchivo implements UsuarioRepositorio {
         if (password == null) {
             return "";
         }
-        // La contraseña se mantiene en texto plano. Solo se evita que una línea
-        // de contraseña pueda romper el archivo por saltos de línea o '|'.
+        // La contraseña se mantiene en texto plano. Solo se evita que una línea en contraseña pueda romper el archivo por saltos de línea o '|'.
         return password.replace("|", " ").replace("\n", " ").replace("\r", " ");
     }
 }

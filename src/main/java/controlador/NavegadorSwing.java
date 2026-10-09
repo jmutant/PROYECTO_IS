@@ -3,14 +3,19 @@ package controlador;
 import javax.swing.JOptionPane;
 
 import modelo.AccesoDenegadoException;
+import modelo.AlmacenDatosLocal;
 import modelo.AutenticacionServicio;
 import modelo.AutorizacionServicio;
 import modelo.FlotaServicio;
 import modelo.ItinerarioServicio;
+import modelo.MonederoRepositorio;
+import modelo.MonederoRepositorioArchivo;
+import modelo.MonederoServicio;
 import modelo.Usuario;
 import vista.GestionFlotaVentana;
 import vista.GestionItinerariosVentana;
 import vista.LoginVentana;
+import vista.MonederoVentana;
 import vista.PrincipalAdministradorVentana;
 import vista.PrincipalPasajeroVentana;
 import vista.RegistroVentana;
@@ -20,17 +25,27 @@ public class NavegadorSwing implements Navegador {
 
     private final AutenticacionServicio autenticacion;
     private final AutorizacionServicio autorizacion;
-    @SuppressWarnings("unused")
     private final FlotaServicio flota;
-    @SuppressWarnings("unused")
     private final ItinerarioServicio itinerarios;
+    private final MonederoServicio monedero;
     private Usuario usuarioActual;
 
-    public NavegadorSwing(AutenticacionServicio autenticacion, AutorizacionServicio autorizacion, FlotaServicio flota, ItinerarioServicio itinerarios) {
+    //Constructor principal con persistencia del monedero
+    public NavegadorSwing(AutenticacionServicio autenticacion, AutorizacionServicio autorizacion,
+                        FlotaServicio flota, ItinerarioServicio itinerarios,
+                        MonederoRepositorio monederoRepositorio) {
         this.autenticacion = autenticacion;
         this.autorizacion = autorizacion;
         this.flota = flota;
         this.itinerarios = itinerarios;
+        this.monedero = new MonederoServicio(monederoRepositorio);
+    }
+
+    
+    public NavegadorSwing(AutenticacionServicio autenticacion, AutorizacionServicio autorizacion,
+                        FlotaServicio flota, ItinerarioServicio itinerarios) {
+        this(autenticacion, autorizacion, flota, itinerarios,
+                new MonederoRepositorioArchivo(AlmacenDatosLocal.porDefecto()));
     }
 
     @Override
@@ -42,8 +57,10 @@ public class NavegadorSwing implements Navegador {
 
     @Override
     public void mostrarPantallaPasajero(Usuario usuario) {
+        this.usuarioActual = usuario;
         PrincipalPasajeroVentana ventana = new PrincipalPasajeroVentana(usuario);
         new PrincipalControlador(ventana, this);
+        ventana.setAccionMonedero(this::mostrarMonedero);
         ventana.mostrar();
     }
 
@@ -55,6 +72,16 @@ public class NavegadorSwing implements Navegador {
         ventana.setAccionGestionFlota(this::mostrarGestionFlota);
         ventana.setAccionGestionItinerarios(this::mostrarGestionItinerarios);
         ventana.setAccionCrearAdministrador(this::mostrarCrearAdministrador);
+        ventana.setAccionMonedero(this::mostrarMonedero);
+        ventana.mostrar();
+    }
+
+    private void mostrarMonedero() {
+        if (usuarioActual == null) {
+            return;
+        }
+        MonederoVentana ventana = new MonederoVentana(usuarioActual);
+        new MonederoControlador(ventana, monedero, usuarioActual);
         ventana.mostrar();
     }
 

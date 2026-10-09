@@ -50,6 +50,7 @@ public class LoginVentana extends JFrame implements LoginVista {
     //private final JPasswordField campoContrasena = new JPasswordField(20);
     //private final JButton botonIniciarSesion = new JButton(Mensajes.get("login.boton"));
     //private final JButton botonRegistrarse = new JButton("Registrarse");
+
     //Hover detectará el mouse y cambiará la imagen del boton
     private final JButton botonIniciarSesion = crearBotonConImagen("/imagenes/Login1.png", "/imagenes/Login2.png", 130, 40);;
     private final JButton botonRegistrarse = crearBotonConImagen("/imagenes/Register1.png", "/imagenes/Register2.png", 130, 40);
@@ -59,7 +60,7 @@ public class LoginVentana extends JFrame implements LoginVista {
         super("Sistema de Gestión de Transporte Universitario");
         construirInterfaz();
 
-        campoUsuario.setOpaque(false); // DEBE estar en false para que se vea tu imagen
+        campoUsuario.setOpaque(false); // DEBE estar en false para que se vea l
     
         campoUsuario.setBorder(BorderFactory.createEmptyBorder(15, 50, 15, 15)); 
         
@@ -77,20 +78,16 @@ public class LoginVentana extends JFrame implements LoginVista {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new Dimension(800, 450));
         
-        JPanel panelPrincipal = new JPanel(new BorderLayout());
-
-        // Panel Izquierdo para la Imagen y Fondo
-        JPanel panelImagen = new JPanel(new BorderLayout()) {
-            private Image backgroundImage;
+        //Pinta el fondo en toda la ventanaa
+        
+        JPanel panelPrincipal = new JPanel(new BorderLayout()) {
+            private static final long serialVersionUID = 1L;
+            private transient Image backgroundImage;
 
             {
-                try {
-                    java.net.URL bgURL = getClass().getResource("/imagenes/CE_BackgroundSolidColorImage.png");
-                    if (bgURL != null) {
-                        backgroundImage = new ImageIcon(bgURL).getImage();
-                    }
-                } catch (Exception e) {
-                    System.err.println("No se pudo cargar la imagen de fondo: " + e.getMessage());
+                java.net.URL bgURL = getClass().getResource("/imagenes/BackgroundPantallaCAMPUS.png");
+                if (bgURL != null) {
+                    backgroundImage = new ImageIcon(bgURL).getImage();
                 }
             }
 
@@ -105,6 +102,10 @@ public class LoginVentana extends JFrame implements LoginVista {
                 }
             }
         };
+
+        // Panel Izquierdo para la Imagen y Fondo
+        JPanel panelImagen = new JPanel(new BorderLayout());
+        panelImagen.setOpaque(false);
         panelImagen.setPreferredSize(new Dimension(500, 450));
         
         JPanel contentLogoPanel = new JPanel(new BorderLayout());
@@ -143,7 +144,7 @@ public class LoginVentana extends JFrame implements LoginVista {
 
         // Panel Derecho para Login
         JPanel panelLogin = new JPanel(new GridBagLayout());
-        panelLogin.setBackground(new Color(245, 245, 245));
+        panelLogin.setOpaque(false); // sin fondo gris: se ve el degradado de la ventana
         panelLogin.setBorder(new EmptyBorder(24, 32, 24, 32));
         GridBagConstraints c = new GridBagConstraints();
         c.gridx = 0; c.weightx = 1.0; c.fill = GridBagConstraints.HORIZONTAL;
@@ -174,6 +175,7 @@ public class LoginVentana extends JFrame implements LoginVista {
         getRootPane().setDefaultButton(botonIniciarSesion);
         pack();
         setLocationRelativeTo(null);
+        setResizable(false);
     }
 
         private JButton crearBotonConImagen(String rutaImagenNormal, String rutaImagenHover, int ancho, int alto) {

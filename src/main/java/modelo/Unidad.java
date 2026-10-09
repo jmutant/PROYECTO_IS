@@ -30,8 +30,8 @@ public final class Unidad {
             throw new IllegalArgumentException("El modelo es obligatorio");
         }
 
-        if (capacidad <= 5 || capacidad > 65 ) {
-            throw new IllegalArgumentException("La cantidad de puestos debe estar entre 5 y 65.");
+        if (capacidad < 1 || capacidad > 65 ) {
+            throw new IllegalArgumentException("La cantidad de puestos debe estar entre 1 y 65.");
         }
         this.placa = normalizarPlaca(placa);
         this.modelo = modelo.trim();

@@ -1,14 +1,14 @@
 /*
 ########################################################################################################################
 ##                                                                                                                    ##
-##                                              UNIVERSIDAD CENTRAL DE VENEZUELA                                      ##
+##                                            UNIVERSIDAD CENTRAL DE VENEZUELA                                        ##
 ##                                                                                                                    ##
 ##                                         INGENIERÍA DE SOFTWARE SEMESTRE 1-2026                                     ##
 ##                                                                                                                    ##
 ##                                                                                                                    ##
-##                                               ENTREGA 2 : SPRINT 1                                                 ##
+##                                                 ENTREGA 2 : SPRINT 1                                               ##
 ##                                                                                                                    ##
-##                                         Ángel Rosamilia - Jesús Hiraola - Samuel Mendoza                           ##
+##                                      Ángel Rosamilia - Jesús Hiraola - Samuel Mendoza                              ##
 ##                                                                                                                    ##
 ########################################################################################################################
 */
@@ -28,6 +28,8 @@ import modelo.FlotaServicio;
 import modelo.ItinerarioRepositorio;
 import modelo.ItinerarioRepositorioArchivo;
 import modelo.ItinerarioServicio;
+import modelo.MonederoRepositorio;
+import modelo.MonederoRepositorioArchivo;
 import modelo.UnidadRepositorio;
 import modelo.UnidadRepositorioArchivo;
 import modelo.UsuarioRepositorio;
@@ -40,7 +42,7 @@ public final class Main {
     }
 
     public static void main(String[] args) {
-        // Todos los datos persistentes usan una única carpeta: data/.
+        // Todos los datos persistentes usan una única carpeta: data/
         // Esto evita que el login lea un archivo diferente según cómo se ejecute el programa.
         AlmacenDatosLocal almacen = AlmacenDatosLocal.porDefecto();
 
@@ -48,6 +50,7 @@ public final class Main {
         UnidadRepositorio unidades = new UnidadRepositorioArchivo(almacen);
         ConductorRepositorio conductores = new ConductorRepositorioArchivo(almacen);
         ItinerarioRepositorio itinerarios = new ItinerarioRepositorioArchivo(almacen);
+        MonederoRepositorio monederos = new MonederoRepositorioArchivo(almacen);
 
         AutenticacionServicio autenticacion = new AutenticacionServicio(usuarios);
         AutorizacionServicio autorizacion = new AutorizacionServicio();
@@ -59,7 +62,7 @@ public final class Main {
 
         SwingUtilities.invokeLater(() -> {
             usarAparienciaDelSistema();
-            new NavegadorSwing(autenticacion, autorizacion, flota, itinerario).mostrarLogin();
+            new NavegadorSwing(autenticacion, autorizacion, flota, itinerario, monederos).mostrarLogin();
         });
     }
 

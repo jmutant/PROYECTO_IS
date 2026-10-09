@@ -1,6 +1,6 @@
 package modelo;
 
-/** Tipo de ruta contemplado por HU-003. */
+//Tipo de ruta contemplado por HU-003
 public enum TipoRuta {
     URBANA("Urbana"),
     EXTRAURBANA("Extraurbana");

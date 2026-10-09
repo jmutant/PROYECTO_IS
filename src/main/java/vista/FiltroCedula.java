@@ -6,10 +6,9 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 
-/**
- * Filtro para campos de cédula: solo deja escribir (o pegar) dígitos, con un máximo de 8.
- * El rango válido (10000000 a 99999999) lo valida AutenticacionServicio.
- */
+
+//Filtro para campos de cédula: solo deja escribir (o pegar) dígitos, con un máximo de 8. El rango válido (10000000 a 99999999) lo valida AutenticacionServicio.
+
 public class FiltroCedula extends DocumentFilter {
 
     public static final int LONGITUD_MAXIMA = 8;
