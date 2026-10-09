@@ -51,14 +51,4 @@ public class UnidadRepositorioMemoria implements UnidadRepositorio {
                 .sorted(Comparator.comparing(Unidad::getPlaca))
                 .toList();
     }
-
-    @Override
-    public void actualizar(String placaOriginal, Unidad unidadNueva) {
-        // Si la clave primaria (placa) cambió en la actualización:
-        if (!placaOriginal.equalsIgnoreCase(unidadNueva.getPlaca())) {
-            unidades.remove(placaOriginal.toUpperCase());
-        }
-        // Guardar o reemplazar el objeto actualizado con la nueva clave
-        unidades.put(unidadNueva.getPlaca().toUpperCase(), unidadNueva);
-    }
 }
