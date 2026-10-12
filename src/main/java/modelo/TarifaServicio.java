@@ -3,37 +3,39 @@ package modelo;
 import java.util.Objects;
 
 public class TarifaServicio {
-
     private final TarifaRepositorio tarifaRepositorio;
     public TarifaServicio(TarifaRepositorio tarifaRepositorio) {
         this.tarifaRepositorio = Objects.requireNonNull(tarifaRepositorio);
     }
-    
-    // Podrías almacenar una tarifa base o usar un repositorio si se guarda en archivos (ej. tarifas.db)
-    private double tarifaBase = 0.0;
 
-    public void guardarTarifaBase(String ruta, double monto) {
+    public void guardarTarifaBase(double monto, double pctEstudiante, double pctEmpleado) {
         if (monto <= 0) {
-            throw new IllegalArgumentException("La tarifa ingresada debe ser un monto mayor a cero.");
+            throw new IllegalArgumentException("La tarifa base debe ser mayor a cero.");
         }
-        // Lógica para guardar la tarifa base (en memoria o archivo)
-        this.tarifaBase = monto;
+        if (pctEstudiante < 10 || pctEstudiante > 20) {
+            throw new IllegalArgumentException("El porcentaje para estudiantes debe estar entre 10% y 20%.");
+        }
+        if (pctEmpleado < 30 || pctEmpleado > 60) {
+            throw new IllegalArgumentException("El porcentaje para empleados/profesores debe estar entre 30% y 60%.");
+        }
+
+        tarifaRepositorio.guardar(monto);
     }
 
-    public double calcularTarifaPorRol(String rol, double tarifaBase) {
+    public double calcularTarifaPorRol(String rol, double tarifaBase, double porcentajePersonalizado) {
         switch (rol != null ? rol.toLowerCase() : "") {
             case "estudiante":
-                return tarifaBase * 0.20; // Ejemplo: 20% de la base
+                return tarifaBase * (porcentajePersonalizado / 100.0);
             case "empleado":
             case "profesor":
-                return tarifaBase * 0.50; // Ejemplo: 50% de la base
+                return tarifaBase * (porcentajePersonalizado / 100.0);
             case "publico general":
             default:
-                return tarifaBase;       // 100% de la base
+                return tarifaBase; // 100%
         }
     }
     
     public double getTarifaBase() {
-        return tarifaBase;
+        return tarifaRepositorio.obtenerTarifa();
     }
 }

@@ -21,10 +21,11 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
-
 public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionTarifaVista {
 
     private JTextField txtMontoTarifaBase;
+    private JTextField txtPctEstudiante;
+    private JTextField txtPctEmpleado;
     private JComboBox<String> comboRutaExtraurbana;
     private JButton btnGuardarTarifa;
     private JButton btnRegresar;
@@ -38,7 +39,7 @@ public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionT
 
     private void construirInterfaz() {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        setSize(650, 450);
+        setSize(700, 520);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
 
@@ -57,22 +58,40 @@ public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionT
         panelFormulario.add(new JLabel("Ruta Extraurbana:"), gbc);
 
         gbc.gridx = 1; gbc.gridy = 0;
-        String[] rutas = {"Seleccionar...", "Ruta Caracas - Maracay", "Ruta Caracas - Valencia", "Ruta Caracas - Tejerías"};
+        String[] rutas = {"Seleccionar...", "Ruta Caracas - Maracay", "Ruta Caracas - Valencia", "Ruta Caracas - Los Teques", "Ruta Caracas - Guarenas", "Ruta Caracas - La Guaira"};
         comboRutaExtraurbana = new JComboBox<>(rutas);
         comboRutaExtraurbana.setPreferredSize(new Dimension(250, 28));
         panelFormulario.add(comboRutaExtraurbana, gbc);
 
         // Tarifa Base (T_base)
         gbc.gridx = 0; gbc.gridy = 1;
-        panelFormulario.add(new JLabel("Tarifa Base Municipal (T_base) $:"), gbc);
+        panelFormulario.add(new JLabel("Tarifa Base Municipal en Bs:"), gbc);
 
         gbc.gridx = 1; gbc.gridy = 1;
         txtMontoTarifaBase = new JTextField();
         txtMontoTarifaBase.setPreferredSize(new Dimension(250, 28));
         panelFormulario.add(txtMontoTarifaBase, gbc);
 
-        // Botón Guardar
+        // % Estudiante (Rango 10% - 20%)
+        gbc.gridx = 0; gbc.gridy = 2;
+        panelFormulario.add(new JLabel("% Subsidio Estudiante (10% - 20%):"), gbc);
+
         gbc.gridx = 1; gbc.gridy = 2;
+        txtPctEstudiante = new JTextField("15"); // Valor por defecto en rango
+        txtPctEstudiante.setPreferredSize(new Dimension(250, 26));
+        panelFormulario.add(txtPctEstudiante, gbc);
+
+        // % Empleado / Profesor (Rango 30% - 60%)
+        gbc.gridx = 0; gbc.gridy = 3;
+        panelFormulario.add(new JLabel("% Subsidio Empleado/Prof. (30% - 60%):"), gbc);
+
+        gbc.gridx = 1; gbc.gridy = 3;
+        txtPctEmpleado = new JTextField("50"); // Valor por defecto en rango
+        txtPctEmpleado.setPreferredSize(new Dimension(250, 26));
+        panelFormulario.add(txtPctEmpleado, gbc);
+
+        // Botón Guardar
+        gbc.gridx = 1; gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.EAST;
         btnGuardarTarifa = new JButton("Guardar Tarifa Base");
         btnGuardarTarifa.setBackground(new Color(40, 167, 69));
@@ -80,7 +99,7 @@ public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionT
         panelFormulario.add(btnGuardarTarifa, gbc);
 
         // ---------------- 2. TABLA DE SUBSIDIOS Y DESCUENTOS (CENTRO) ----------------
-        String[] columnas = {"Tipo de Usuario", "Porcentaje de Subsidio / Descuento", "Monto a Pagar ($)"};
+        String[] columnas = {"Tipo de Usuario", "Porcentaje de Subsidio / Descuento", "Monto a Pagar (Bs)"};
         modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -89,8 +108,8 @@ public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionT
         };
 
         // Datos iniciales de demostración visual
-        modeloTabla.addRow(new Object[]{"Estudiante", "80% Subsidio (Paga 20%)", "-"});
-        modeloTabla.addRow(new Object[]{"Empleado / Profesor", "50% Subsidio (Paga 50%)", "-"});
+        modeloTabla.addRow(new Object[]{"Estudiante", "-"});
+        modeloTabla.addRow(new Object[]{"Empleado / Profesor",  "-"});
         modeloTabla.addRow(new Object[]{"Público General", "0% Subsidio (Paga 100%)", "-"});
 
         tablaTarifasCalculadas = new JTable(modeloTabla);
@@ -112,6 +131,14 @@ public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionT
     @Override
     public String getMontoTarifaBase() {
         return txtMontoTarifaBase.getText().trim();
+    }
+
+    public String getPctEstudiante() {
+        return txtPctEstudiante.getText().trim();
+    }
+
+    public String getPctEmpleado() {
+        return txtPctEmpleado.getText().trim();
     }
 
     @Override
