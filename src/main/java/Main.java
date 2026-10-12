@@ -30,6 +30,9 @@ import modelo.ItinerarioRepositorioArchivo;
 import modelo.ItinerarioServicio;
 import modelo.MonederoRepositorio;
 import modelo.MonederoRepositorioArchivo;
+import modelo.TarifaRepositorio;
+import modelo.TarifaRepositorioArchivo;
+import modelo.TarifaServicio;
 import modelo.UnidadRepositorio;
 import modelo.UnidadRepositorioArchivo;
 import modelo.UsuarioRepositorio;
@@ -51,6 +54,8 @@ public final class Main {
         ConductorRepositorio conductores = new ConductorRepositorioArchivo(almacen);
         ItinerarioRepositorio itinerarios = new ItinerarioRepositorioArchivo(almacen);
         MonederoRepositorio monederos = new MonederoRepositorioArchivo(almacen);
+        TarifaRepositorio tarifaRepo = new TarifaRepositorioArchivo(almacen);
+        TarifaServicio tarifaServicio = new TarifaServicio(tarifaRepo);
 
         AutenticacionServicio autenticacion = new AutenticacionServicio(usuarios);
         AutorizacionServicio autorizacion = new AutorizacionServicio();
@@ -62,7 +67,7 @@ public final class Main {
 
         SwingUtilities.invokeLater(() -> {
             usarAparienciaDelSistema();
-            new NavegadorSwing(autenticacion, autorizacion, flota, itinerario, monederos).mostrarLogin();
+            new NavegadorSwing(autenticacion, autorizacion, flota, itinerario, monederos, tarifaServicio).mostrarLogin();
         });
     }
 

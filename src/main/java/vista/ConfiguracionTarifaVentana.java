@@ -22,7 +22,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
-public class ConfiguracionTarifaVentana extends JFrame {
+public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionTarifaVista {
 
     private JTextField txtMontoTarifaBase;
     private JComboBox<String> comboRutaExtraurbana;
@@ -109,27 +109,57 @@ public class ConfiguracionTarifaVentana extends JFrame {
     }
 
     // Getters y Setters de acciones para conectar con el Controlador
-    public String getMontoTarifa() {
+    @Override
+    public String getMontoTarifaBase() {
         return txtMontoTarifaBase.getText().trim();
     }
 
+    @Override
     public String getRutaSeleccionada() {
         return (String) comboRutaExtraurbana.getSelectedItem();
     }
 
-    public void setAccionGuardar(Runnable accion) {
+    @Override
+    public void setAccionGuardarTarifa(Runnable accion) {
         btnGuardarTarifa.addActionListener(e -> accion.run());
     }
 
+    @Override
     public void setAccionRegresar(Runnable accion) {
         btnRegresar.addActionListener(e -> accion.run());
     }
 
-    public void mostrarMensaje(String mensaje) {
+    @Override
+    public void mostrarTarifasCalculadas(java.util.Map<String, Double> tarifasCalculadas) {
+        if (modeloTabla != null && tarifasCalculadas != null) {
+            modeloTabla.setRowCount(0); // Limpiar filas anteriores
+            for (var entry : tarifasCalculadas.entrySet()) {
+                modeloTabla.addRow(new Object[]{
+                    entry.getKey(),
+                    "Calculado por rol",
+                    String.format("%.2f", entry.getValue())
+                });
+            }
+        }
+    }
+
+    @Override
+    public void mostrarExito(String mensaje) {
         JOptionPane.showMessageDialog(this, mensaje, "Información", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    public void mostrarError(String error) {
-        JOptionPane.showMessageDialog(this, error, "Error de Validación", JOptionPane.ERROR_MESSAGE);
+    @Override
+    public void mostrarError(String mensaje) {
+        JOptionPane.showMessageDialog(this, mensaje, "Error de Validación", JOptionPane.ERROR_MESSAGE);
+    }
+
+    @Override
+    public void mostrar() {
+        setVisible(true);
+    }
+
+    @Override
+    public void cerrar() {
+        dispose();
     }
 }

@@ -11,7 +11,9 @@ import modelo.ItinerarioServicio;
 import modelo.MonederoRepositorio;
 import modelo.MonederoRepositorioArchivo;
 import modelo.MonederoServicio;
+import modelo.TarifaServicio;
 import modelo.Usuario;
+import vista.ConfiguracionTarifaVentana;
 import vista.GestionFlotaVentana;
 import vista.GestionItinerariosVentana;
 import vista.LoginVentana;
@@ -28,24 +30,26 @@ public class NavegadorSwing implements Navegador {
     private final FlotaServicio flota;
     private final ItinerarioServicio itinerarios;
     private final MonederoServicio monedero;
+    private final TarifaServicio tarifaServicio;
     private Usuario usuarioActual;
 
     //Constructor principal con persistencia del monedero
     public NavegadorSwing(AutenticacionServicio autenticacion, AutorizacionServicio autorizacion,
                         FlotaServicio flota, ItinerarioServicio itinerarios,
-                        MonederoRepositorio monederoRepositorio) {
+                        MonederoRepositorio monederoRepositorio, TarifaServicio tarifaServicio) {
         this.autenticacion = autenticacion;
         this.autorizacion = autorizacion;
         this.flota = flota;
         this.itinerarios = itinerarios;
         this.monedero = new MonederoServicio(monederoRepositorio);
+        this.tarifaServicio = tarifaServicio;
     }
 
     
     public NavegadorSwing(AutenticacionServicio autenticacion, AutorizacionServicio autorizacion,
-                        FlotaServicio flota, ItinerarioServicio itinerarios) {
+                        FlotaServicio flota, ItinerarioServicio itinerarios, TarifaServicio tarifaServicio) {
         this(autenticacion, autorizacion, flota, itinerarios,
-                new MonederoRepositorioArchivo(AlmacenDatosLocal.porDefecto()));
+                new MonederoRepositorioArchivo(AlmacenDatosLocal.porDefecto()), tarifaServicio);
     }
 
     @Override
@@ -73,6 +77,7 @@ public class NavegadorSwing implements Navegador {
         ventana.setAccionGestionItinerarios(this::mostrarGestionItinerarios);
         ventana.setAccionCrearAdministrador(this::mostrarCrearAdministrador);
         ventana.setAccionMonedero(this::mostrarMonedero);
+        ventana.setAccionConfigurarTarifa(this::mostrarConfigurarTarifa);
         ventana.mostrar();
     }
 
@@ -85,9 +90,14 @@ public class NavegadorSwing implements Navegador {
         ventana.mostrar();
     }
 
+    private void mostrarConfigurarTarifa() {
+        ConfiguracionTarifaVentana ventana = new ConfiguracionTarifaVentana();
+        new TarifaControlador(ventana, tarifaServicio, usuarioActual);
+        ventana.mostrar();
+    }
     private void mostrarGestionFlota() {
         GestionFlotaVentana ventana = new GestionFlotaVentana();
-        new GestionFlotaControlador(ventana, flota,usuarioActual );
+        new GestionFlotaControlador(ventana, flota, usuarioActual);
         ventana.mostrar();
     }
 
