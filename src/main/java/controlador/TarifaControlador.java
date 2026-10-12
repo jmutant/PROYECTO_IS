@@ -2,7 +2,6 @@ package controlador;
 
 import java.util.Map;
 import java.util.Objects;
-
 import modelo.TarifaServicio;
 import modelo.Usuario;
 import vista.ConfiguracionTarifaVista;
@@ -28,28 +27,37 @@ public final class TarifaControlador {
 
     private void guardarTarifa() {
         try {
+            String ruta = vista.getRutaSeleccionada();
             String montoStr = vista.getMontoTarifaBase();
-            if (montoStr == null || montoStr.isBlank()) {
-                vista.mostrarError("Debe ingresar un monto para la tarifa base.");
+            String pctEstStr = vista.getPctEstudiante();
+            String pctEmpStr = vista.getPctEmpleado();
+            
+            if (ruta == null || ruta.equals("Seleccionar...") || ruta.isBlank()) {
+                vista.mostrarError("Debe seleccionar una ruta extraurbana.");
                 return;
             }
 
-            String ruta = vista.getRutaSeleccionada();
+            if (montoStr.isBlank() || pctEstStr.isBlank() || pctEmpStr.isBlank()) {
+                vista.mostrarError("Todos los campos de monto y porcentajes son obligatorios.");
+                return;
+            }
 
             double monto = Double.parseDouble(montoStr.trim());
+            double pctEstudiante = Double.parseDouble(pctEstStr.trim());
+            double pctEmpleado = Double.parseDouble(pctEmpStr.trim());
+            
             if (monto <= 0) {
                 vista.mostrarError("La tarifa base debe ser mayor a cero.");
                 return;
             }
 
-            // Guardar mediante el servicio (lo persiste en el archivo .db)
-            tarifaServicio.guardarTarifaBase(ruta, monto);
+            tarifaServicio.guardarTarifaBase(monto, pctEstudiante, pctEmpleado);
 
-            // Calcular y reflejar los montos subsidiados por rol en la vista (HU-004)
+            // Cálculo dinámico de cobro solidario
             Map<String, Double> calculadas = Map.of(
-                "Estudiante", tarifaServicio.calcularTarifaPorRol("estudiante", monto),
-                "Empleado / Profesor", tarifaServicio.calcularTarifaPorRol("empleado", monto),
-                "Público General", tarifaServicio.calcularTarifaPorRol("publico general", monto)
+                "Estudiante (" + pctEstudiante + "%)", tarifaServicio.calcularTarifaPorRol("estudiante", monto, pctEstudiante),
+                "Empleado / Profesor (" + pctEmpleado + "%)", tarifaServicio.calcularTarifaPorRol("empleado", monto, pctEmpleado),
+                "Público General (100%)", tarifaServicio.calcularTarifaPorRol("publico general", monto, 100.0)
             );
 
             vista.mostrarTarifasCalculadas(calculadas);
@@ -57,6 +65,8 @@ public final class TarifaControlador {
 
         } catch (NumberFormatException e) {
             vista.mostrarError("El monto ingresado no tiene un formato numérico válido.");
+        } catch (IllegalArgumentException e) {
+            vista.mostrarError(e.getMessage());
         } catch (Exception e) {
             vista.mostrarError("Error al guardar la tarifa: " + e.getMessage());
         }
@@ -67,9 +77,9 @@ public final class TarifaControlador {
             double tarifaActual = tarifaServicio.getTarifaBase();
             if (tarifaActual > 0) {
                 Map<String, Double> calculadas = Map.of(
-                    "Estudiante", tarifaServicio.calcularTarifaPorRol("estudiante", tarifaActual),
-                    "Empleado / Profesor", tarifaServicio.calcularTarifaPorRol("empleado", tarifaActual),
-                    "Público General", tarifaServicio.calcularTarifaPorRol("publico general", tarifaActual)
+                    "Estudiante (15%)", tarifaServicio.calcularTarifaPorRol("estudiante", tarifaActual, 15.0),
+                    "Empleado / Profesor (50%)", tarifaServicio.calcularTarifaPorRol("empleado", tarifaActual, 50.0),
+                    "Público General (100%)", tarifaServicio.calcularTarifaPorRol("publico general", tarifaActual, 100.0)
                 );
                 vista.mostrarTarifasCalculadas(calculadas);
             }

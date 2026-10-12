@@ -7,6 +7,10 @@ public interface ConfiguracionTarifaVista {
     // Obtiene el monto ingresado para la Tarifa Base (T_base) en formato texto para su posterior parseo y validación.
     String getMontoTarifaBase();
 
+    String getPctEstudiante();
+
+    String getPctEmpleado();
+
     // Obtiene la ruta extraurbana seleccionada en la vista.
     String getRutaSeleccionada();
 
