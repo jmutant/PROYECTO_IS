@@ -6,7 +6,7 @@ public class AutenticacionServicio {
     public static final int LONGITUD_MINIMA_CONTRASENA = 6;
 
     /** La cédula debe ser un número de 8 dígitos entre CEDULA_MINIMA y CEDULA_MAXIMA (inclusive). */
-    public static final int CEDULA_MINIMA = 10_000_000;
+    public static final int CEDULA_MINIMA = 1_000_000;
     public static final int CEDULA_MAXIMA = 99_999_999;
     public static final String MENSAJE_CEDULA_INVALIDA =
             "La cédula debe ser un número entre " + CEDULA_MINIMA + " y " + CEDULA_MAXIMA + ".";
@@ -60,7 +60,7 @@ public class AutenticacionServicio {
      * lo invoca es Administrador la hace el navegador con AutorizacionServicio.
      */
     public void registrarAdministrador(String nombre, String apellido, String cedula,
-                                       String username, String password) {
+                                        String username, String password) {
         validarCamposObligatorios(nombre, apellido, cedula, username, password);
         validarCedula(cedula);
         validarPassword(password);
@@ -106,7 +106,7 @@ public class AutenticacionServicio {
     }
 
     private void validarCamposObligatorios(String nombre, String apellido, String cedula,
-                                           String username, String password) {
+                                            String username, String password) {
         if (nombre == null || nombre.isBlank() || apellido == null || apellido.isBlank()
                 || cedula == null || cedula.isBlank() || username == null || username.isBlank()
                 || password == null || password.isBlank()) {
@@ -114,10 +114,9 @@ public class AutenticacionServicio {
         }
     }
 
-    /** Solo acepta 8 dígitos ASCII cuyo valor esté entre CEDULA_MINIMA y CEDULA_MAXIMA. */
     static void validarCedula(String cedula) {
         String limpia = cedula == null ? "" : cedula.trim();
-        if (!limpia.matches("[0-9]{8}")) {
+        if (!limpia.matches("[0-9]{7,8}")) {
             throw new IllegalArgumentException(MENSAJE_CEDULA_INVALIDA);
         }
         int valor = Integer.parseInt(limpia);

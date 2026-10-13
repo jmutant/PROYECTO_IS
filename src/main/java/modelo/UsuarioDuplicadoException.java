@@ -1,6 +1,6 @@
 package modelo;
 
-/** Ya existe un usuario registrado con ese nombre de usuario. */
+//Ya existe un usuario registrado con ese nombre de usuario
 public class UsuarioDuplicadoException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;

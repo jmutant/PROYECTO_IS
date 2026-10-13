@@ -2,7 +2,7 @@ package controlador;
 
 import vista.PrincipalVista;
 
-/** Controlador de las pantallas principales (pasajero y administrador): por ahora solo cierra la sesión. */
+//Controlador de las pantallas principales (pasajero y administrador): por ahora solo cierra la sesión
 public class PrincipalControlador {
 
     private final PrincipalVista vista;

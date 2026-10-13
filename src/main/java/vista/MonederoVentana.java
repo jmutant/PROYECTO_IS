@@ -7,18 +7,18 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.util.function.Consumer;
 
 import javax.swing.BorderFactory;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.JComponent;
+import javax.swing.KeyStroke;
+import javax.swing.AbstractAction;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
@@ -51,6 +51,10 @@ public class MonederoVentana extends JFrame implements MonederoVista {
 
     private final JLabel labelSaldo = new JLabel("0.00", SwingConstants.RIGHT);
 
+    // Segunda pantalla: formulario de recarga (se muestra en esta misma ventana)
+    private final RecargaPanel panelRecarga = new RecargaPanel();
+    private JPanel panelMonedero;
+
     public MonederoVentana(Usuario usuario) {
         super("Campus Express - Monedero Virtual");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -58,6 +62,26 @@ public class MonederoVentana extends JFrame implements MonederoVista {
         setResizable(false);
 
         construirInterfaz();
+        configurarPantallaRecarga();
+    }
+
+    private void configurarPantallaRecarga() {
+        botonRecargar.addActionListener(evento -> mostrarPantallaRecarga());
+        panelRecarga.setAccionVolver(this::mostrarPantallaMonedero);
+
+        // ESC también regresa al monedero
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke("ESCAPE"), "volverMonedero");
+        getRootPane().getActionMap().put("volverMonedero", new AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (getContentPane() == panelRecarga) {
+                    mostrarPantallaMonedero();
+                }
+            }
+        });
     }
 
     private void construirInterfaz() {
@@ -147,14 +171,20 @@ public class MonederoVentana extends JFrame implements MonederoVista {
         tarjeta.add(acciones, BorderLayout.SOUTH);
 
         fondoPanel.add(tarjeta, BorderLayout.CENTER);
+        panelMonedero = fondoPanel;
         setContentPane(fondoPanel);
         setSize(ANCHO, ALTO);
         setLocationRelativeTo(null);
     }
 
     @Override
-    public void setAccionRecargarSaldo(Runnable accion) {
-        botonRecargar.addActionListener(evento -> accion.run());
+    public void setAccionAceptarRecarga(Consumer<MonederoRecargaDatos> accion) {
+        panelRecarga.setAccionAceptar(() -> accion.accept(new MonederoRecargaDatos(
+                panelRecarga.getMonto(),
+                panelRecarga.getTelefono(),
+                panelRecarga.getCedula(),
+                panelRecarga.getBanco(),
+                panelRecarga.getReferencia())));
     }
 
     @Override
@@ -172,63 +202,21 @@ public class MonederoVentana extends JFrame implements MonederoVista {
     }
 
     @Override
-    public MonederoRecargaDatos solicitarDatosRecarga(Usuario usuario) {
-        JPanel formulario = new JPanel(new GridBagLayout());
-        formulario.setBorder(new EmptyBorder(5, 5, 5, 5));
-
-        JTextField telefono = new JTextField(14);
-        JTextField cedula = new JTextField(12);
-        JTextField banco = new JTextField(18);
-        JTextField referencia = new JTextField(15);
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 6, 6, 6);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.WEST;
-
-        agregarCampo(formulario, gbc, 0, "Teléfono (11 dígitos):", telefono);
-        agregarCampo(formulario, gbc, 1, "Cédula (8 dígitos):", cedula);
-        agregarCampo(formulario, gbc, 2, "Banco:", banco);
-        agregarCampo(formulario, gbc, 3, "Referencia (13 dígitos):", referencia);
-
-        JLabel monto = new JLabel("Monto fijo de recarga: Bs 1.200,00");
-        monto.setFont(monto.getFont().deriveFont(Font.BOLD));
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.gridwidth = 2;
-        formulario.add(monto, gbc);
-
-        JOptionPane optionPane = new JOptionPane(
-                formulario,
-                JOptionPane.PLAIN_MESSAGE,
-                JOptionPane.OK_CANCEL_OPTION);
-
-        JDialog dialogo = optionPane.createDialog(this, "Recargar saldo");
-        dialogo.setModal(true);
-        dialogo.setResizable(false);
-        dialogo.setLocationRelativeTo(this);
-        dialogo.setVisible(true);
-
-        Object seleccion = optionPane.getValue();
-        if (!(seleccion instanceof Integer) || ((Integer) seleccion) != JOptionPane.OK_OPTION) {
-            return null;
-        }
-
-        return new MonederoRecargaDatos(
-                telefono.getText(),
-                cedula.getText(),
-                banco.getText(),
-                referencia.getText());
+    public void mostrarPantallaMonedero() {
+        getRootPane().setDefaultButton(null);
+        setContentPane(panelMonedero);
+        revalidate();
+        repaint();
     }
 
-    private void agregarCampo(JPanel panel, GridBagConstraints gbc, int fila,
-                            String etiqueta, JTextField campo) {
-        gbc.gridx = 0;
-        gbc.gridy = fila;
-        gbc.gridwidth = 1;
-        panel.add(new JLabel(etiqueta), gbc);
-        gbc.gridx = 1;
-        panel.add(campo, gbc);
+    @Override
+    public void mostrarPantallaRecarga() {
+        panelRecarga.limpiar();
+        setContentPane(panelRecarga);
+        getRootPane().setDefaultButton(panelRecarga.getBotonAceptar());
+        revalidate();
+        repaint();
+        panelRecarga.enfocarPrimerCampo();
     }
 
     @Override

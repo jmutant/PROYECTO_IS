@@ -22,7 +22,8 @@ public class PrincipalAdministradorVentana extends PrincipalVentanaBase {
     private final JButton btnGestionFlota;
     private final JButton btnGestionItinerarios;
     private final JButton btnMonedero;
-    private final JButton btnConfigurarTarifa = new JButton("Configurar Tarifa");; // Botón para la HU-004
+    //private final JButton btnConfigurarTarifa = new JButton("Configurar Tarifa");; // Botón para la HU-004
+    private final JButton btnConfigurarTarifa;
     private final JButton btnCrearAdministrador;
     //Punto de integración de HU-002 (Gestión de Flota de Unidades) y Punto de integración de HU-003 (Gestionar Itinerarios).
 
@@ -41,6 +42,10 @@ public class PrincipalAdministradorVentana extends PrincipalVentanaBase {
         btnMonedero = crearBotonLista(
             "/imagenes/MonederoVirtualButton1.png",
             "/imagenes/MonederoVirtualButton2.png");
+
+        btnConfigurarTarifa = crearBotonLista(
+        "/imagenes/ConfTarifa1.png",
+        "/imagenes/ConfTarifa2.png");
 
         btnCrearAdministrador = crearBotonLista(
             "/imagenes/CrearAdmin1.png",

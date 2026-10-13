@@ -1,12 +1,12 @@
 package vista;
 
-import java.awt.Color;
-import java.awt.FlowLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
 import modelo.Usuario;
 import util.Mensajes;
@@ -16,25 +16,40 @@ public class PrincipalPasajeroVentana extends PrincipalVentanaBase {
 
     private static final long serialVersionUID = 1L;
 
+    // Mismo tamaño de botón en lista que usa la pantalla del administrador
+    private static final int ANCHO_BOTON = 450;
+    private static final int ALTO_BOTON = 60;
+    private static final int SEPARACION = 16;
+
     private final JButton btnMonedero;
 
     public PrincipalPasajeroVentana(Usuario usuario) {
         super(Mensajes.get("principal.pasajero.titulo"));
 
-        btnMonedero = crearBotonConImagen(
+        btnMonedero = crearBotonLista(
                 "/imagenes/MonederoVirtualButton1.png",
-                "/imagenes/MonederoVirtualButton2.png",310, 177);
+                "/imagenes/MonederoVirtualButton2.png");
 
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 20));
-        panel.setOpaque(false);
+        // Lista de botones (por ahora solo el monedero)
+        JPanel panelBotones = new JPanel(new GridBagLayout());
+        panelBotones.setOpaque(false);
 
-        JLabel pendiente = new JLabel(Mensajes.get("principal.pasajero.pendiente"), SwingConstants.CENTER);
-        pendiente.setForeground(Color.GRAY);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(SEPARACION / 2, 0, SEPARACION / 2, 0);
+        panelBotones.add(btnMonedero, gbc);
 
-        panel.add(btnMonedero);
-        panel.add(pendiente);
+        armarVentana(usuario, panelBotones);
+    }
 
-        armarVentana(usuario, panel);
+    private JButton crearBotonLista(String rutaNormal, String rutaHover) {
+        BotonImagen boton = new BotonImagen(rutaNormal, rutaHover, rutaHover);
+        Dimension tamano = new Dimension(ANCHO_BOTON, ALTO_BOTON);
+        boton.setPreferredSize(tamano);
+        boton.setMinimumSize(tamano);
+        boton.setMaximumSize(tamano);
+        return boton;
     }
 
     public void setAccionMonedero(Runnable accion) {

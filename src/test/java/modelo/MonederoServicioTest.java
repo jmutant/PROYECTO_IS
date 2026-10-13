@@ -53,6 +53,6 @@ class MonederoServicioTest {
     void rechazaCedulaFueraDelRangoExistente() {
         assertThrows(IllegalArgumentException.class, () -> servicio.recargar(usuario,
                 new MonederoServicio.DatosRecarga(
-                        "04123456789", "1234567", "Banco Nacional", "1234567890123")));
+                        "04123456789", "123456", "Banco Nacional", "1234567890123")));
     }
 }

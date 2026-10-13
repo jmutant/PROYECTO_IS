@@ -1,9 +1,10 @@
 package modelo;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 
-/** Reglas de negocio del monedero virtual y de las recargas. */
+//Reglas de negocio del monedero virtual y de las recargas
 public class MonederoServicio {
 
     public static final BigDecimal SALDO_MAXIMO = new BigDecimal("9999999.99");
@@ -14,6 +15,8 @@ public class MonederoServicio {
             "La referencia debe tener exactamente 13 dígitos.";
     public static final String MENSAJE_BANCO_INVALIDO =
             "El banco es obligatorio.";
+    public static final String MENSAJE_MONTO_INVALIDO =
+            "El monto debe ser un número mayor que cero (solo dígitos, sin signos negativos).";
     public static final String MENSAJE_SALDO_MAXIMO =
             "La recarga supera el saldo máximo permitido de Bs 9.999.999,99.";
 
@@ -28,6 +31,23 @@ public class MonederoServicio {
         return repositorio.obtenerSaldo(usuario.getUsername());
     }
 
+    /**
+     * Convierte el texto del monto ingresado a BigDecimal con 2 decimales.
+     * Solo acepta dígitos con separador decimal opcional (punto o coma, máx. 2 decimales)
+     * y el resultado debe ser mayor que cero.
+     */
+    public static BigDecimal parsearMonto(String texto) {
+        String limpio = texto == null ? "" : texto.trim();
+        if (!limpio.matches("[0-9]+([.,][0-9]{1,2})?")) {
+            throw new IllegalArgumentException(MENSAJE_MONTO_INVALIDO);
+        }
+        BigDecimal monto = new BigDecimal(limpio.replace(',', '.')).setScale(2, RoundingMode.UNNECESSARY);
+        if (monto.signum() <= 0) {
+            throw new IllegalArgumentException(MENSAJE_MONTO_INVALIDO);
+        }
+        return monto;
+    }
+
     public synchronized BigDecimal recargar(Usuario usuario, DatosRecarga datos) {
         Objects.requireNonNull(usuario, "El usuario es obligatorio.");
         validarDatosRecarga(datos);
@@ -39,7 +59,7 @@ public class MonederoServicio {
         }
 
         BigDecimal saldoActual = repositorio.obtenerSaldo(usuario.getUsername());
-        BigDecimal nuevoSaldo = saldoActual.add(MONTO_RECARGA);
+        BigDecimal nuevoSaldo = saldoActual.add(parsearMonto(datos.monto()));
 
         if (nuevoSaldo.compareTo(SALDO_MAXIMO) > 0) {
             throw new IllegalArgumentException(MENSAJE_SALDO_MAXIMO);
@@ -53,6 +73,8 @@ public class MonederoServicio {
         if (datos == null) {
             throw new IllegalArgumentException("Los datos de recarga son obligatorios.");
         }
+
+        parsearMonto(datos.monto());
 
         String telefono = limpiar(datos.telefono());
         if (!telefono.matches("0[0-9]{10}")) {
@@ -81,6 +103,12 @@ public class MonederoServicio {
         return valor == null ? "" : valor.trim();
     }
 
-    public record DatosRecarga(String telefono, String cedula, String banco, String referencia) {
+    /** Datos del Pago Móvil realizado; el monto lo escribe el usuario (texto sin procesar). */
+    public record DatosRecarga(String telefono, String cedula, String banco, String referencia, String monto) {
+
+        /** Constructor anterior: usa el monto fijo por defecto. */
+        public DatosRecarga(String telefono, String cedula, String banco, String referencia) {
+            this(telefono, cedula, banco, referencia, MONTO_RECARGA.toPlainString());
+        }
     }
 }
