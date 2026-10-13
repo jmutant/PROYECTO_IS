@@ -8,7 +8,10 @@ public class TarifaServicio {
         this.tarifaRepositorio = Objects.requireNonNull(tarifaRepositorio);
     }
 
-    public void guardarTarifaBase(double monto, double pctEstudiante, double pctEmpleado) {
+    public void guardarTarifaBase(String ruta, double monto, double pctEstudiante, double pctEmpleado) {
+        if (ruta == null || ruta.isBlank() || ruta.equals("Seleccionar...")) {
+            throw new IllegalArgumentException("La ruta no puede estar vacía.");
+        }
         if (monto <= 0) {
             throw new IllegalArgumentException("La tarifa base debe ser mayor a cero.");
         }
@@ -19,7 +22,7 @@ public class TarifaServicio {
             throw new IllegalArgumentException("El porcentaje para empleados/profesores debe estar entre 30% y 60%.");
         }
 
-        tarifaRepositorio.guardar(monto);
+        tarifaRepositorio.guardarOrActualizar(ruta, monto, pctEstudiante, pctEmpleado);
     }
 
     public double calcularTarifaPorRol(String rol, double tarifaBase, double porcentajePersonalizado) {
@@ -35,7 +38,14 @@ public class TarifaServicio {
         }
     }
     
-    public double getTarifaBase() {
-        return tarifaRepositorio.obtenerTarifa();
+    public TarifaRepositorioMemoria obtenerTarifaPorRuta(String ruta) {
+        return tarifaRepositorio.obtenerTarifaPorRuta(ruta);
+    }
+
+    public void eliminarTarifa(String ruta) {
+        if (ruta == null || ruta.isBlank() || ruta.equals("Seleccionar...")) {
+            throw new IllegalArgumentException("Debe seleccionar una ruta válida para eliminar.");
+        }
+        tarifaRepositorio.eliminar(ruta);
     }
 }

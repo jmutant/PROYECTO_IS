@@ -1,7 +1,8 @@
 package controlador;
 
-import java.util.Map;
 import java.util.Objects;
+
+import modelo.TarifaRepositorioMemoria;
 import modelo.TarifaServicio;
 import modelo.Usuario;
 import vista.ConfiguracionTarifaVista;
@@ -19,9 +20,16 @@ public final class TarifaControlador {
 
         // Mapeo de eventos de la vista
         this.vista.setAccionGuardarTarifa(this::guardarTarifa);
+        this.vista.setAccionEliminarTarifa(this::eliminarTarifaRuta);
         this.vista.setAccionRegresar(this::regresar);
 
-        // Cargar la tarifa actual al abrir la ventana (si ya fue guardada antes)
+        this.vista.setAccionSeleccionarRuta(e -> {
+            if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+                cargarTarifaActual();
+            }
+        });
+
+        // Cargar la tarifa actual al abrir la ventana
         cargarTarifaActual();
     }
 
@@ -31,7 +39,7 @@ public final class TarifaControlador {
             String montoStr = vista.getMontoTarifaBase();
             String pctEstStr = vista.getPctEstudiante();
             String pctEmpStr = vista.getPctEmpleado();
-            
+
             if (ruta == null || ruta.equals("Seleccionar...") || ruta.isBlank()) {
                 vista.mostrarError("Debe seleccionar una ruta extraurbana.");
                 return;
@@ -45,26 +53,35 @@ public final class TarifaControlador {
             double monto = Double.parseDouble(montoStr.trim());
             double pctEstudiante = Double.parseDouble(pctEstStr.trim());
             double pctEmpleado = Double.parseDouble(pctEmpStr.trim());
-            
+
             if (monto <= 0) {
                 vista.mostrarError("La tarifa base debe ser mayor a cero.");
                 return;
             }
 
-            tarifaServicio.guardarTarifaBase(monto, pctEstudiante, pctEmpleado);
+            if (pctEstudiante < 10.0 || pctEstudiante > 20.0) {
+                vista.mostrarError("El porcentaje para estudiantes debe estar entre el 10% y el 20%.");
+                return;
+            }
+            if (pctEmpleado < 30.0 || pctEmpleado > 60.0) {
+                vista.mostrarError("El porcentaje para empleados/profesores debe estar entre el 30% y el 60%.");
+                return;
+            }
 
-            // Cálculo dinámico de cobro solidario
-            Map<String, Double> calculadas = Map.of(
-                "Estudiante (" + pctEstudiante + "%)", tarifaServicio.calcularTarifaPorRol("estudiante", monto, pctEstudiante),
-                "Empleado / Profesor (" + pctEmpleado + "%)", tarifaServicio.calcularTarifaPorRol("empleado", monto, pctEmpleado),
-                "Público General (100%)", tarifaServicio.calcularTarifaPorRol("publico general", monto, 100.0)
-            );
+            // Guardar o actualizar la configuración completa en la BD
+            tarifaServicio.guardarTarifaBase(ruta, monto, pctEstudiante, pctEmpleado);
 
-            vista.mostrarTarifasCalculadas(calculadas);
+            // Calcular montos sin etiquetas (pasando solo los valores por posición)
+            double subEstudiante = tarifaServicio.calcularTarifaPorRol("estudiante", monto, pctEstudiante);
+            double subEmpleado = tarifaServicio.calcularTarifaPorRol("empleado", monto, pctEmpleado);
+            double subPublico = tarifaServicio.calcularTarifaPorRol("publico general", monto, 100.0);
+
+            // Reflejar en la tabla
+            vista.mostrarTarifasCalculadas(pctEstudiante, subEstudiante, pctEmpleado, subEmpleado, subPublico);
             vista.mostrarExito("¡Tarifa base configurada y guardada con éxito!");
 
         } catch (NumberFormatException e) {
-            vista.mostrarError("El monto ingresado no tiene un formato numérico válido.");
+            vista.mostrarError("El monto ingresado o alguno de los porcentajes no tiene un formato numérico válido.");
         } catch (IllegalArgumentException e) {
             vista.mostrarError(e.getMessage());
         } catch (Exception e) {
@@ -74,17 +91,42 @@ public final class TarifaControlador {
 
     private void cargarTarifaActual() {
         try {
-            double tarifaActual = tarifaServicio.getTarifaBase();
-            if (tarifaActual > 0) {
-                Map<String, Double> calculadas = Map.of(
-                    "Estudiante (15%)", tarifaServicio.calcularTarifaPorRol("estudiante", tarifaActual, 15.0),
-                    "Empleado / Profesor (50%)", tarifaServicio.calcularTarifaPorRol("empleado", tarifaActual, 50.0),
-                    "Público General (100%)", tarifaServicio.calcularTarifaPorRol("publico general", tarifaActual, 100.0)
-                );
-                vista.mostrarTarifasCalculadas(calculadas);
+            String rutaActual = vista.getRutaSeleccionada();
+            if (rutaActual != null && !rutaActual.equals("Seleccionar...")) {
+                TarifaRepositorioMemoria info = tarifaServicio.obtenerTarifaPorRuta(rutaActual);
+                if (info != null) {
+                    vista.setMontoTarifaBase(String.valueOf(info.getTarifaBase()));
+                    vista.setPctEstudiante(String.valueOf(info.getPctEstudiante()));
+                    vista.setPctEmpleado(String.valueOf(info.getPctEmpleado()));
+
+                    double subEstudiante = tarifaServicio.calcularTarifaPorRol("estudiante", info.getTarifaBase(), info.getPctEstudiante());
+                    double subEmpleado = tarifaServicio.calcularTarifaPorRol("empleado", info.getTarifaBase(), info.getPctEmpleado());
+                    double subPublico = tarifaServicio.calcularTarifaPorRol("publico general", info.getTarifaBase(), 100.0);
+
+                    vista.mostrarTarifasCalculadas(info.getPctEstudiante(), subEstudiante, info.getPctEmpleado(), subEmpleado, subPublico);
+                } else {
+                    vista.limpiarCampos();
+                }
             }
         } catch (Exception e) {
-            // Manejo por defecto si aún no hay registros previos
+            // Sin registros previos para esta ruta
+        }
+    }
+
+    private void eliminarTarifaRuta() {
+        try {
+            String ruta = vista.getRutaSeleccionada();
+
+            if (ruta == null || ruta.equals("Seleccionar...") || ruta.isBlank()) {
+                vista.mostrarError("Debe seleccionar una ruta válida para eliminar.");
+                return;
+            }
+
+            tarifaServicio.eliminarTarifa(ruta);
+            vista.limpiarCampos();
+            vista.mostrarExito("Tarifa eliminada correctamente para la ruta: " + ruta);
+        } catch (Exception e) {
+            vista.mostrarError(e.getMessage());
         }
     }
 

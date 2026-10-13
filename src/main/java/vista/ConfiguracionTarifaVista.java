@@ -1,6 +1,6 @@
 package vista;
 
-import java.util.Map;
+import java.awt.event.ItemListener;
 
 public interface ConfiguracionTarifaVista {
 
@@ -17,13 +17,24 @@ public interface ConfiguracionTarifaVista {
     // Registra el listener o acción para el botón de guardar/actualizar tarifa.
     void setAccionGuardarTarifa(Runnable accion);
 
+    void setAccionEliminarTarifa(Runnable accion);
+
+    void setAccionSeleccionarRuta(ItemListener listener);
+
+    void limpiarCampos();
+
     // Registra el listener o acción para el botón de regresar al menú principal.
     void setAccionRegresar(Runnable accion);
 
     // Muestra/actualiza los cálculos de las tarifas por rol en la vista según el T_base configurado.
     // @param tarifasCalculadas Mapa con el rol/tipo de usuario como clave y la tarifa subsidiada como valor.
-    void mostrarTarifasCalculadas(Map<String, Double> tarifasCalculadas);
+    public void mostrarTarifasCalculadas(double pctEstudiante, double pctEmpleado, double monto, double montoEstudiante, double montoEmpleado);
 
+    void setMontoTarifaBase(String monto);
+
+    void setPctEstudiante(String porcentaje);
+    
+    void setPctEmpleado(String porcentaje);
     // Despliega un mensaje emergente de confirmación o éxito.
     void mostrarExito(String mensaje);
 

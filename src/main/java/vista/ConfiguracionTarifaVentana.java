@@ -7,6 +7,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ItemListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -21,6 +22,7 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
+
 public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionTarifaVista {
 
     private JTextField txtMontoTarifaBase;
@@ -28,6 +30,7 @@ public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionT
     private JTextField txtPctEmpleado;
     private JComboBox<String> comboRutaExtraurbana;
     private JButton btnGuardarTarifa;
+    private JButton btnEliminarTarifa;
     private JButton btnRegresar;
     private JTable tablaTarifasCalculadas;
     private DefaultTableModel modeloTabla;
@@ -55,10 +58,10 @@ public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionT
 
         // Ruta Extraurbana
         gbc.gridx = 0; gbc.gridy = 0;
-        panelFormulario.add(new JLabel("Ruta Extraurbana:"), gbc);
+        panelFormulario.add(new JLabel("Tipo de Ruta:"), gbc);
 
         gbc.gridx = 1; gbc.gridy = 0;
-        String[] rutas = {"Seleccionar...", "Ruta Caracas - Maracay", "Ruta Caracas - Valencia", "Ruta Caracas - Los Teques", "Ruta Caracas - Guarenas", "Ruta Caracas - La Guaira"};
+        String[] rutas = {"Seleccionar...", "Urbana", "Extraurbana"};
         comboRutaExtraurbana = new JComboBox<>(rutas);
         comboRutaExtraurbana.setPreferredSize(new Dimension(250, 28));
         panelFormulario.add(comboRutaExtraurbana, gbc);
@@ -77,7 +80,7 @@ public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionT
         panelFormulario.add(new JLabel("% Subsidio Estudiante (10% - 20%):"), gbc);
 
         gbc.gridx = 1; gbc.gridy = 2;
-        txtPctEstudiante = new JTextField("15"); // Valor por defecto en rango
+        txtPctEstudiante = new JTextField(""); // Valor por defecto en rango
         txtPctEstudiante.setPreferredSize(new Dimension(250, 26));
         panelFormulario.add(txtPctEstudiante, gbc);
 
@@ -86,17 +89,28 @@ public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionT
         panelFormulario.add(new JLabel("% Subsidio Empleado/Prof. (30% - 60%):"), gbc);
 
         gbc.gridx = 1; gbc.gridy = 3;
-        txtPctEmpleado = new JTextField("50"); // Valor por defecto en rango
+        txtPctEmpleado = new JTextField(""); // Valor por defecto en rango
         txtPctEmpleado.setPreferredSize(new Dimension(250, 26));
         panelFormulario.add(txtPctEmpleado, gbc);
 
         // Botón Guardar
+        // Panel contenedor para los botones de acción (Eliminar y Guardar)
+        JPanel panelBotonesAccion = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        
+        btnEliminarTarifa = new JButton("Eliminar Tarifa");
+        btnEliminarTarifa.setBackground(new Color(220, 53, 69)); // Rojo alerta
+        btnEliminarTarifa.setForeground(Color.BLACK);
+
+        btnGuardarTarifa = new JButton("Guardar / Actualizar");
+        btnGuardarTarifa.setBackground(new Color(40, 167, 69)); // Verde éxito
+        btnGuardarTarifa.setForeground(Color.BLACK);
+
+        panelBotonesAccion.add(btnEliminarTarifa);
+        panelBotonesAccion.add(btnGuardarTarifa);
+
         gbc.gridx = 1; gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.EAST;
-        btnGuardarTarifa = new JButton("Guardar Tarifa Base");
-        btnGuardarTarifa.setBackground(new Color(40, 167, 69));
-        btnGuardarTarifa.setForeground(Color.WHITE);
-        panelFormulario.add(btnGuardarTarifa, gbc);
+        panelFormulario.add(panelBotonesAccion, gbc);
 
         // ---------------- 2. TABLA DE SUBSIDIOS Y DESCUENTOS (CENTRO) ----------------
         String[] columnas = {"Tipo de Usuario", "Porcentaje de Subsidio / Descuento", "Monto a Pagar (Bs)"};
@@ -133,10 +147,12 @@ public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionT
         return txtMontoTarifaBase.getText().trim();
     }
 
+    @Override
     public String getPctEstudiante() {
         return txtPctEstudiante.getText().trim();
     }
 
+    @Override
     public String getPctEmpleado() {
         return txtPctEmpleado.getText().trim();
     }
@@ -157,17 +173,72 @@ public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionT
     }
 
     @Override
-    public void mostrarTarifasCalculadas(java.util.Map<String, Double> tarifasCalculadas) {
-        if (modeloTabla != null && tarifasCalculadas != null) {
-            modeloTabla.setRowCount(0); // Limpiar filas anteriores
-            for (var entry : tarifasCalculadas.entrySet()) {
-                modeloTabla.addRow(new Object[]{
-                    entry.getKey(),
-                    "Calculado por rol",
-                    String.format("%.2f", entry.getValue())
-                });
-            }
+    public void mostrarTarifasCalculadas(double pctEstudiante, double montoEstudiante, double pctEmpleado, double montoEmpleado, double montoPublico) {
+        if (modeloTabla != null) {
+            modeloTabla.setRowCount(0); // Limpiar tabla antes de rellenar
+            
+            // Fila 1: Estudiante (Orden estricto)
+            modeloTabla.addRow(new Object[]{
+                "Estudiante",
+                String.format("%.2f%%", pctEstudiante),
+                String.format("%.2f", montoEstudiante)
+            });
+            
+            // Fila 2: Empleado / Profesor (Orden estricto)
+            modeloTabla.addRow(new Object[]{
+                "Empleado / Profesor",
+                String.format("%.2f%%", pctEmpleado),
+                String.format("%.2f", montoEmpleado)
+            });
+            
+            // Fila 3: Público General (Fijo 100%)
+            modeloTabla.addRow(new Object[]{
+                "Público General",
+                "100%",
+                String.format("%.2f", montoPublico)
+            });
         }
+    }
+
+    @Override
+    public void setAccionEliminarTarifa(Runnable accion) {
+        btnEliminarTarifa.addActionListener(e -> accion.run());
+    }
+
+    @Override
+    public void setAccionSeleccionarRuta(ItemListener listener) {
+        comboRutaExtraurbana.addItemListener(listener);
+    }
+
+    @Override
+    public void limpiarCampos() {
+        comboRutaExtraurbana.setSelectedIndex(0);
+        txtMontoTarifaBase.setText("");
+        txtPctEstudiante.setText("");
+        txtPctEmpleado.setText("");
+        
+        // Limpiar tabla o poner guiones
+        if (modeloTabla != null) {
+            modeloTabla.setRowCount(0);
+            modeloTabla.addRow(new Object[]{"Estudiante", "Configurable (10% - 20%)", "-"});
+            modeloTabla.addRow(new Object[]{"Empleado / Profesor", "Configurable (30% - 60%)", "-"});
+            modeloTabla.addRow(new Object[]{"Público General", "100% (Sin subsidio)", "-"});
+        }
+    }
+
+    @Override
+    public void setMontoTarifaBase(String monto) {
+        txtMontoTarifaBase.setText(monto); // Cambia "campoTarifaBase" por el nombre de tu variable real si es distinto
+    }
+
+    @Override
+    public void setPctEstudiante(String porcentaje) {
+        txtPctEstudiante.setText(porcentaje); // Cambia por el nombre real de tu campo de estudiante
+    }
+
+    @Override
+    public void setPctEmpleado(String porcentaje) {
+        txtPctEmpleado.setText(porcentaje); // Cambia por el nombre real de tu campo de empleado
     }
 
     @Override
