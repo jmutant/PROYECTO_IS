@@ -49,7 +49,7 @@ public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionT
         // ---------------- 1. FORMULARIO SUPERIOR ----------------
         JPanel panelFormulario = new JPanel(new GridBagLayout());
         panelFormulario.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(), "Configuración de Tarifa Base Extraurbana", 
+                BorderFactory.createEtchedBorder(), "Configuración de Tarifa Base", 
                 TitledBorder.LEFT, TitledBorder.TOP));
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -212,7 +212,6 @@ public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionT
 
     @Override
     public void limpiarCampos() {
-        comboRutaExtraurbana.setSelectedIndex(0);
         txtMontoTarifaBase.setText("");
         txtPctEstudiante.setText("");
         txtPctEmpleado.setText("");
