@@ -31,8 +31,8 @@ class ItinerarioServicioTest {
         servicio = new ItinerarioServicio(itinerarioRepo, unidadRepo, conductorRepo, autorizacion);
 
         // --- CONDUCTORES DE PRUEBA ---
-        Conductor conductor1 = new Conductor("Juan Perez", "V-12345678");
-        Conductor conductor2 = new Conductor("Maria Gomez", "V-87654321");
+        Conductor conductor1 = new Conductor("Juan Perez", "V12345678", "1234567890");
+        Conductor conductor2 = new Conductor("Maria Gomez", "V17654321", "0987654321");
         conductorRepo.guardar(conductor1);
         conductorRepo.guardar(conductor2);
 
