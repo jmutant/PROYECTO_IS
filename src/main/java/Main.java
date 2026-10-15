@@ -67,7 +67,7 @@ public final class Main {
 
         SwingUtilities.invokeLater(() -> {
             usarAparienciaDelSistema();
-            new NavegadorSwing(autenticacion, autorizacion, flota, itinerario, monederos, tarifaServicio).mostrarLogin();
+            new NavegadorSwing(autenticacion, autorizacion, flota, itinerario,conductores, monederos, tarifaServicio).mostrarLogin();
         });
     }
 

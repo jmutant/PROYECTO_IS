@@ -25,6 +25,7 @@ public class PrincipalAdministradorVentana extends PrincipalVentanaBase {
     //private final JButton btnConfigurarTarifa = new JButton("Configurar Tarifa");; // Botón para la HU-004
     private final JButton btnConfigurarTarifa;
     private final JButton btnCrearAdministrador;
+    private final JButton btnRegistrarConductor;
     //Punto de integración de HU-002 (Gestión de Flota de Unidades) y Punto de integración de HU-003 (Gestionar Itinerarios).
 
     public PrincipalAdministradorVentana(Usuario usuario) {
@@ -51,6 +52,10 @@ public class PrincipalAdministradorVentana extends PrincipalVentanaBase {
             "/imagenes/CrearAdmin1.png",
             "/imagenes/CrearAdmin2.png");
 
+         btnRegistrarConductor = crearBotonLista(
+            "/imagenes/RegistrarConductorButton1.png",
+            "/imagenes/RegistrarConductorButton2.png");
+
         // Lista d botones
         JPanel panelBotones = new JPanel(new GridBagLayout());
         panelBotones.setOpaque(false);
@@ -73,6 +78,9 @@ public class PrincipalAdministradorVentana extends PrincipalVentanaBase {
 
         gbc.gridy = 4;
         panelBotones.add(btnCrearAdministrador, gbc);
+
+        gbc.gridy = 5;
+        panelBotones.add(btnRegistrarConductor, gbc);
 
         armarVentana(usuario, panelBotones);
     }
@@ -106,5 +114,9 @@ public class PrincipalAdministradorVentana extends PrincipalVentanaBase {
 
     public void setAccionConfigurarTarifa(Runnable accion) {
         btnConfigurarTarifa.addActionListener(evento -> accion.run());
+    }
+
+    public void setAccionRegistrarConductor(Runnable accion) {
+        btnRegistrarConductor.addActionListener(evento -> accion.run());
     }
 }

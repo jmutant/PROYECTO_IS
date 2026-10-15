@@ -14,4 +14,6 @@ public interface ConductorRepositorio {
     boolean existePorLicencia(String numeroLicencia);
 
     List<Conductor> listarTodos();
+
+    void eliminar(String numeroLicencia);
 }

@@ -82,7 +82,7 @@ public abstract class PrincipalVentanaBase extends JFrame implements PrincipalVi
         contenido.add(pie, BorderLayout.SOUTH); // Añadimos el pie que ahora tiene ambos elementos
 
         setContentPane(contenido);
-        setSize(900, 600);
+        setSize(900, 700);
         setLocationRelativeTo(null);
     }
 

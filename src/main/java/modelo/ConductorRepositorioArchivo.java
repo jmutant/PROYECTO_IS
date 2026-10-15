@@ -58,19 +58,28 @@ public class ConductorRepositorioArchivo implements ConductorRepositorio {
                 .toList();
     }
 
+    @Override
+    public synchronized void eliminar(String numeroLicencia) {
+        if (numeroLicencia != null) {
+            conductores.remove(numeroLicencia.trim().toUpperCase(Locale.ROOT));
+            persistir();
+        }
+    }
+
     private void cargar() {
         for (String linea : almacen.leer(ARCHIVO)) {
             if (linea.isBlank()) {
                 continue;
             }
             String[] partes = linea.split("\\|", -1);
-            if (partes.length != 2) {
+            if (partes.length != 3) {
                 throw new IllegalStateException("Registro de conductor inválido en " + ARCHIVO);
             }
             try {
                 Conductor conductor = new Conductor(
                         TextoSeguro.decodificar(partes[0]),
-                        TextoSeguro.decodificar(partes[1]));
+                        TextoSeguro.decodificar(partes[1]),
+                        TextoSeguro.decodificar(partes[2]));
                 conductores.put(conductor.getNumeroLicencia(), conductor);
             } catch (RuntimeException e) {
                 throw new IllegalStateException("No se pudo cargar un conductor desde " + ARCHIVO, e);
@@ -83,8 +92,10 @@ public class ConductorRepositorioArchivo implements ConductorRepositorio {
                 .sorted(Comparator.comparing(Conductor::getNombreCompleto))
                 .map(conductor -> String.join("|",
                         TextoSeguro.codificar(conductor.getNombreCompleto()),
+                        TextoSeguro.codificar(conductor.getCedula()),
                         TextoSeguro.codificar(conductor.getNumeroLicencia())))
                 .toList();
         almacen.reemplazar(ARCHIVO, lineas);
     }
+
 }

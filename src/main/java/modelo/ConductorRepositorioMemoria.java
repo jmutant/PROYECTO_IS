@@ -48,4 +48,11 @@ public class ConductorRepositorioMemoria implements ConductorRepositorio {
                 .sorted(Comparator.comparing(Conductor::getNombreCompleto))
                 .toList();
     }
+
+    @Override
+    public void eliminar(String numeroLicencia) {
+        if (numeroLicencia != null) {
+            conductores.remove(numeroLicencia.trim().toUpperCase(Locale.ROOT));
+        }
+    }
 }
