@@ -30,7 +30,8 @@ public class SelectorOpciones extends JComponent {
 
     // Medidas del diseño original (maqueta a 1920x1080); todo se escala según el ancho real.
     private static final double ANCHO_REF = 618;
-    private static final double ALTO_CERRADO_REF = 92;
+    private static final double ALTO_CERRADO_REF_DEFECTO = 92;
+    private static final double FUENTE_REF_DEFECTO = 38;
     private static final double ALTO_FILA_REF = 83;
     private static final double MARGEN_VERTICAL_REF = 10;
 
@@ -39,6 +40,8 @@ public class SelectorOpciones extends JComponent {
     private static final Color TEXTO = new Color(20, 20, 20);
 
     private final String[] opciones;
+    private final double altoCerradoRef;
+    private double fuenteRef = FUENTE_REF_DEFECTO;
     private final boolean desplegable;
     private int seleccionado = 0;
     private boolean abierto = false;
@@ -50,15 +53,24 @@ public class SelectorOpciones extends JComponent {
     private final transient RecursosImagen.Escalado flechaAbierta = new RecursosImagen.Escalado("/imagenes/desplegableArrow2.png");
 
     public SelectorOpciones(String... opciones) {
+        this(ALTO_CERRADO_REF_DEFECTO, opciones);
+    }
+
+    /**
+     * @param altoCerradoRef alto del campo cerrado en la misma escala de la maqueta (ancho = 618);
+     *                       por defecto 92. Sirve para igualar la altura de otros campos del formulario.
+     */
+    public SelectorOpciones(double altoCerradoRef, String... opciones) {
         if (opciones == null || opciones.length == 0) {
             throw new IllegalArgumentException("Se necesita al menos una opción.");
         }
         this.opciones = opciones.clone();
+        this.altoCerradoRef = altoCerradoRef;
         this.desplegable = opciones.length > 1;
 
         setFocusable(true);
         setOpaque(false);
-        setPreferredSize(new Dimension((int) ANCHO_REF, (int) ALTO_CERRADO_REF));
+        setPreferredSize(new Dimension((int) ANCHO_REF, (int) altoCerradoRef));
         if (desplegable) {
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
@@ -160,6 +172,23 @@ public class SelectorOpciones extends JComponent {
         return opciones[seleccionado];
     }
 
+    /** Tamaño de la letra en la escala de la maqueta (ancho = 618); por defecto 38. */
+    public void setFuenteRef(double fuenteRef) {
+        this.fuenteRef = fuenteRef;
+        repaint();
+    }
+
+    public int getIndiceSeleccionado() {
+        return seleccionado;
+    }
+
+    public void setIndiceSeleccionado(int indice) {
+        if (indice >= 0 && indice < opciones.length) {
+            seleccionado = indice;
+            repaint();
+        }
+    }
+
     /** Vuelve a la primera opción y cierra la lista. */
     public void reiniciar() {
         seleccionado = 0;
@@ -172,7 +201,7 @@ public class SelectorOpciones extends JComponent {
     }
     // Tamaño (en píxeles) que debe tener el componente cuando está cerrado, para un ancho dado
     public int getAlturaCerrada(int ancho) {
-        return (int) Math.round(ALTO_CERRADO_REF * ancho / ANCHO_REF);
+        return (int) Math.round(altoCerradoRef * ancho / ANCHO_REF);
     }
 
     // Tamaño que debe tener el componente cuando está desplegado, para un ancho dado
@@ -244,14 +273,14 @@ public class SelectorOpciones extends JComponent {
 
         int w = getWidth();
         double u = w / ANCHO_REF;
-        int altoCerrado = (int) Math.round(ALTO_CERRADO_REF * u);
-        g2.setFont(new Font("Arial", Font.PLAIN, Math.max(1, (int) Math.round(38 * u))));
+        int altoCerrado = (int) Math.round(altoCerradoRef * u);
+        g2.setFont(new Font("Arial", Font.PLAIN, Math.max(1, (int) Math.round(fuenteRef * u))));
 
         if (!abierto) {
             g2.drawImage(fondoCerrado.obtener(w, altoCerrado), 0, 0, null);
             dibujarTextoCentrado(g2, opciones[seleccionado], w, altoCerrado / 2);
         } else {
-            int arco = (int) Math.round(ALTO_CERRADO_REF * u);
+            int arco = altoCerrado;
             g2.setColor(GRIS);
             g2.fillRoundRect(0, 0, w, getHeight(), arco, arco);
 
@@ -270,7 +299,7 @@ public class SelectorOpciones extends JComponent {
 
         if (desplegable) {
             int ax = (int) Math.round(522 * u);
-            int ay = (int) Math.round(29 * u);
+            int ay = (altoCerrado - (int) Math.round(34 * u)) / 2;
             int aw = (int) Math.round(52 * u);
             int ah = (int) Math.round(34 * u);
             RecursosImagen.Escalado flecha = (abierto || sobreCampo) ? flechaAbierta : flechaCerrada;

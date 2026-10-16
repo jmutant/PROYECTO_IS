@@ -27,7 +27,7 @@ public interface ConfiguracionTarifaVista {
     void setAccionRegresar(Runnable accion);
 
     // Muestra/actualiza los cálculos de las tarifas por rol en la vista según el T_base configurado.
-    // @param tarifasCalculadas Mapa con el rol/tipo de usuario como clave y la tarifa subsidiada como valor.
+
     public void mostrarTarifasCalculadas(double pctEstudiante, double pctEmpleado, double monto, double montoEstudiante, double montoEmpleado);
 
     void setMontoTarifaBase(String monto);

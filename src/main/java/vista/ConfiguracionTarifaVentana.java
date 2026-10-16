@@ -1,39 +1,31 @@
 package vista;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ItemListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
-import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionTarifaVista {
 
-    private JTextField txtMontoTarifaBase;
-    private JTextField txtPctEstudiante;
-    private JTextField txtPctEmpleado;
-    private JComboBox<String> comboRutaExtraurbana;
-    private JButton btnGuardarTarifa;
-    private JButton btnEliminarTarifa;
-    private JButton btnRegresar;
-    private JTable tablaTarifasCalculadas;
-    private DefaultTableModel modeloTabla;
+    // El diseño de la pantalla vive en TarifaPanel; aquí se toman sus componentes
+    private final TarifaPanel panel = new TarifaPanel();
+
+    private final JTextField txtMontoTarifaBase = panel.getTxtMontoTarifaBase();
+    private final JTextField txtPctEstudiante = panel.getTxtPctEstudiante();
+    private final JTextField txtPctEmpleado = panel.getTxtPctEmpleado();
+    private final JComboBox<String> comboRutaExtraurbana = panel.getComboRuta();
+    private final JButton btnGuardarTarifa = panel.getBotonGuardar();
+    private final JButton btnEliminarTarifa = panel.getBotonEliminar();
+    private final JButton btnRegresar = panel.getBotonCerrar(); // la cruz de la esquina superior derecha
+    private final JTable tablaTarifasCalculadas = panel.getTabla();
+    private final DefaultTableModel modeloTabla = panel.getModeloTabla();
 
     public ConfiguracionTarifaVentana() {
         super("Campus Express - Configuración de Tarifa Base Municipal");
@@ -42,103 +34,15 @@ public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionT
 
     private void construirInterfaz() {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        setSize(700, 520);
+        setContentPane(panel);
+        pack();
+        setMinimumSize(new Dimension(820, 460));
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout(10, 10));
-
-        // ---------------- 1. FORMULARIO SUPERIOR ----------------
-        JPanel panelFormulario = new JPanel(new GridBagLayout());
-        panelFormulario.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(), "Configuración de Tarifa Base", 
-                TitledBorder.LEFT, TitledBorder.TOP));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 10, 8, 10);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        // Ruta Extraurbana
-        gbc.gridx = 0; gbc.gridy = 0;
-        panelFormulario.add(new JLabel("Tipo de Ruta:"), gbc);
-
-        gbc.gridx = 1; gbc.gridy = 0;
-        String[] rutas = {"Seleccionar...", "Urbana", "Extraurbana"};
-        comboRutaExtraurbana = new JComboBox<>(rutas);
-        comboRutaExtraurbana.setPreferredSize(new Dimension(250, 28));
-        panelFormulario.add(comboRutaExtraurbana, gbc);
-
-        // Tarifa Base (T_base)
-        gbc.gridx = 0; gbc.gridy = 1;
-        panelFormulario.add(new JLabel("Tarifa Base Municipal en Bs:"), gbc);
-
-        gbc.gridx = 1; gbc.gridy = 1;
-        txtMontoTarifaBase = new JTextField();
-        txtMontoTarifaBase.setPreferredSize(new Dimension(250, 28));
-        panelFormulario.add(txtMontoTarifaBase, gbc);
-
-        // % Estudiante (Rango 10% - 20%)
-        gbc.gridx = 0; gbc.gridy = 2;
-        panelFormulario.add(new JLabel("% Subsidio Estudiante (10% - 20%):"), gbc);
-
-        gbc.gridx = 1; gbc.gridy = 2;
-        txtPctEstudiante = new JTextField(""); // Valor por defecto en rango
-        txtPctEstudiante.setPreferredSize(new Dimension(250, 26));
-        panelFormulario.add(txtPctEstudiante, gbc);
-
-        // % Empleado / Profesor (Rango 30% - 60%)
-        gbc.gridx = 0; gbc.gridy = 3;
-        panelFormulario.add(new JLabel("% Subsidio Empleado/Prof. (30% - 60%):"), gbc);
-
-        gbc.gridx = 1; gbc.gridy = 3;
-        txtPctEmpleado = new JTextField(""); // Valor por defecto en rango
-        txtPctEmpleado.setPreferredSize(new Dimension(250, 26));
-        panelFormulario.add(txtPctEmpleado, gbc);
-
-        // Botón Guardar
-        // Panel contenedor para los botones de acción (Eliminar y Guardar)
-        JPanel panelBotonesAccion = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        
-        btnEliminarTarifa = new JButton("Eliminar Tarifa");
-        btnEliminarTarifa.setBackground(new Color(220, 53, 69)); // Rojo alerta
-        btnEliminarTarifa.setForeground(Color.BLACK);
-
-        btnGuardarTarifa = new JButton("Guardar / Actualizar");
-        btnGuardarTarifa.setBackground(new Color(40, 167, 69)); // Verde éxito
-        btnGuardarTarifa.setForeground(Color.BLACK);
-
-        panelBotonesAccion.add(btnEliminarTarifa);
-        panelBotonesAccion.add(btnGuardarTarifa);
-
-        gbc.gridx = 1; gbc.gridy = 4;
-        gbc.anchor = GridBagConstraints.EAST;
-        panelFormulario.add(panelBotonesAccion, gbc);
-
-        // ---------------- 2. TABLA DE SUBSIDIOS Y DESCUENTOS (CENTRO) ----------------
-        String[] columnas = {"Tipo de Usuario", "Porcentaje de Subsidio / Descuento", "Monto a Pagar (Bs)"};
-        modeloTabla = new DefaultTableModel(columnas, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false; // No editable
-            }
-        };
 
         // Datos iniciales de demostración visual
-        modeloTabla.addRow(new Object[]{"Estudiante", "-"});
-        modeloTabla.addRow(new Object[]{"Empleado / Profesor",  "-"});
+        modeloTabla.addRow(new Object[]{"Estudiante", "-", "-"});
+        modeloTabla.addRow(new Object[]{"Empleado / Profesor", "-", "-"});
         modeloTabla.addRow(new Object[]{"Público General", "0% Subsidio (Paga 100%)", "-"});
-
-        tablaTarifasCalculadas = new JTable(modeloTabla);
-        JScrollPane scrollTabla = new JScrollPane(tablaTarifasCalculadas);
-        scrollTabla.setBorder(BorderFactory.createTitledBorder("Estructura de Cobro Solidario por Tipo de Usuario"));
-
-        // ---------------- 3. PANEL INFERIOR (BOTONES DE NAVEGACIÓN) ----------------
-        JPanel panelInferior = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
-        btnRegresar = new JButton("Regresar");
-        panelInferior.add(btnRegresar);
-
-        // Ensamblar todo en la ventana
-        add(panelFormulario, BorderLayout.NORTH);
-        add(scrollTabla, BorderLayout.CENTER);
-        add(panelInferior, BorderLayout.SOUTH);
     }
 
     // Getters y Setters de acciones para conectar con el Controlador

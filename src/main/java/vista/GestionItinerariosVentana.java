@@ -1,17 +1,14 @@
 package vista;
 
-import java.awt.BorderLayout;
 import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import modelo.Conductor;
@@ -23,170 +20,39 @@ public class GestionItinerariosVentana extends JFrame implements GestionItinerar
 
     private static final long serialVersionUID = 1L;
 
-    // Nombres de los días en español (índice 0 = lunes ... 6 = domingo)
-    private static final String[] DIAS_ES =
-            {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
-
     // Convierte un DayOfWeek (MONDAY, TUESDAY...) a su nombre en español con inicial mayúscula
     private static String nombreDia(DayOfWeek dia) {
-        return DIAS_ES[dia.getValue() - 1]; // DayOfWeek: 1 = lunes ... 7 = domingo
+        return ItinerariosPanel.nombreDia(dia);
     }
 
-    // Componentes visuales
-    private final JButton botonRegresar = new JButton("Regresar");
-    private final JButton botonRegistrar = new JButton("Registrar Itinerario");
-    private final javax.swing.JButton botonModificar = new JButton("Modificar");
-    private final javax.swing.JButton botonEliminar = new JButton("Eliminar");
-    
-    private final JTextField campoOrigen = new JTextField();
-    private final JTextField campoDestino = new JTextField();
-    private final JComboBox<String> cbHora = new JComboBox<>(generarHoras());
-    private final JComboBox<String> cbMinuto = new JComboBox<>(new String[]{"00", "15", "30", "45"});
-    
-    private final JComboBox<DayOfWeek> comboDiaSemana = new JComboBox<>(DayOfWeek.values());
-    private final JComboBox<TipoRuta> comboTipoRuta = new JComboBox<>(TipoRuta.values());
-    private final JComboBox<Unidad> comboUnidades = new JComboBox<>();
-    private final JComboBox<Conductor> comboConductores = new JComboBox<>();
-    private javax.swing.JTable tablaItinerarios;
-    private javax.swing.table.DefaultTableModel modeloTabla;
+    // El diseño de la pantalla vive en ItinerariosPanel; aquí se toman sus componentes
+    private final ItinerariosPanel panel = new ItinerariosPanel();
+
+    private final JButton botonRegresar = panel.getBotonRegresar();
+    private final JButton botonRegistrar = panel.getBotonRegistrar();
+    private final JButton botonModificar = panel.getBotonModificar();
+    private final JButton botonEliminar = panel.getBotonEliminar();
+
+    private final JTextField campoOrigen = panel.getCampoOrigen();
+    private final JTextField campoDestino = panel.getCampoDestino();
+    private final JComboBox<String> cbHora = panel.getCbHora();
+    private final JComboBox<String> cbMinuto = panel.getCbMinuto();
+
+    private final JComboBox<DayOfWeek> comboDiaSemana = panel.getComboDiaSemana();
+    private final JComboBox<TipoRuta> comboTipoRuta = panel.getComboTipoRuta();
+    private final JComboBox<Unidad> comboUnidades = panel.getComboUnidades();
+    private final JComboBox<Conductor> comboConductores = panel.getComboConductores();
+    private final javax.swing.JTable tablaItinerarios = panel.getTabla();
+    private final javax.swing.table.DefaultTableModel modeloTabla = panel.getModeloTabla();
     private final List<Itinerario> listaItinerariosActual = new ArrayList<>();
 
     public GestionItinerariosVentana() {
         super("Campus Express - Gestionar Itinerarios");
-        construirInterfaz();
-    }
-
-    private void construirInterfaz() {
-        setSize(850, 650);
-        setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-
-        java.awt.Dimension tamanoComboHora = new java.awt.Dimension(50, 20);
-        cbHora.setPreferredSize(tamanoComboHora);
-        cbMinuto.setPreferredSize(tamanoComboHora);
-
-        javax.swing.JPanel panelPrincipal = new javax.swing.JPanel(new java.awt.BorderLayout(10, 10));
-        panelPrincipal.setBorder(javax.swing.BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-        // ---------------- FORMULARIO (ARRIBA) ----------------
-        javax.swing.JPanel panelFormulario = new javax.swing.JPanel(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
-        gbc.insets = new java.awt.Insets(4, 8, 4, 8);
-        gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
-
-        // Fila 0: Origen
-        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.3;
-        panelFormulario.add(new javax.swing.JLabel("Origen:"), gbc);
-        gbc.gridx = 1; gbc.weightx = 0.7;
-        panelFormulario.add(campoOrigen, gbc);
-
-        // Fila 1: Destino
-        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.3;
-        panelFormulario.add(new javax.swing.JLabel("Destino:"), gbc);
-        gbc.gridx = 1; gbc.weightx = 0.7;
-        panelFormulario.add(campoDestino, gbc);
-
-        // Fila 2: Día de la Semana
-        gbc.gridx = 0; gbc.gridy = 2; gbc.weightx = 0.3;
-        panelFormulario.add(new javax.swing.JLabel("Día de la Semana:"), gbc);
-        gbc.gridx = 1; gbc.weightx = 0.7;
-        comboDiaSemana.setRenderer(new javax.swing.DefaultListCellRenderer() {
-            @Override
-            public java.awt.Component getListCellRendererComponent(
-                    javax.swing.JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof DayOfWeek dia) {
-                    setText(nombreDia(dia));
-                }
-                return this;
-            }
-        });
-        panelFormulario.add(comboDiaSemana, gbc);
-
-        // // Fila 3: Hora Salida (Mejora pedida para el Sprint 2 para eliminar hora manual)
-        gbc.gridx = 0; gbc.gridy = 3; gbc.weightx = 0.3;
-        panelFormulario.add(new javax.swing.JLabel("Hora Salida:"), gbc);
-
-        // Contenedor horizontal para la hora y los minutos
-        javax.swing.JPanel panelHora = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 8, 0));
-        cbHora.setPreferredSize(new java.awt.Dimension(50, 20));
-        cbMinuto.setPreferredSize(new java.awt.Dimension(50, 20));
-
-        panelHora.add(cbHora);
-        panelHora.add(new javax.swing.JLabel(":"));
-        panelHora.add(cbMinuto);
-
-        gbc.gridx = 1; gbc.weightx = 0.7;
-        panelFormulario.add(panelHora, gbc);
-
-        // Fila 4: Tipo de Ruta
-        gbc.gridx = 0; gbc.gridy = 4; gbc.weightx = 0.3;
-        panelFormulario.add(new javax.swing.JLabel("Tipo de Ruta:"), gbc);
-        gbc.gridx = 1; gbc.weightx = 0.7;
-        panelFormulario.add(comboTipoRuta, gbc);
-
-        // Fila 5: Unidad / Vehículo
-        gbc.gridx = 0; gbc.gridy = 5; gbc.weightx = 0.3;
-        panelFormulario.add(new javax.swing.JLabel("Unidad / Vehículo:"), gbc);
-        gbc.gridx = 1; gbc.weightx = 0.7;
-        comboUnidades.setEditable(true);
-        panelFormulario.add(comboUnidades, gbc);
-
-        // Fila 6: Conductor
-        gbc.gridx = 0; gbc.gridy = 6; gbc.weightx = 0.3;
-        panelFormulario.add(new javax.swing.JLabel("Conductor:"), gbc);
-        gbc.gridx = 1; gbc.weightx = 0.7;
-        comboConductores.setEditable(true);
-        panelFormulario.add(comboConductores, gbc);
-
-        // Panel superior contenedor (Formulario + Botones)
-        javax.swing.JPanel panelNorte = new javax.swing.JPanel(new BorderLayout());
-        panelNorte.add(panelFormulario, BorderLayout.CENTER);
-
-        // ---------------- BOTONES ----------------
-        JPanel panelBotones = new JPanel(new BorderLayout());
-        panelBotones.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10)); // Márgenes externos
-
-        // 1. Subpanel para las acciones principales (Centradas)
-        JPanel panelAccionesCentrales = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 15, 0));
-        panelAccionesCentrales.add(botonRegistrar);
-        panelAccionesCentrales.add(botonModificar);
-        panelAccionesCentrales.add(botonEliminar);
-
-        // 2. Subpanel para la salida/navegación (Alineado a la Derecha)
-        JPanel panelNavegacion = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 0, 0));
-        panelNavegacion.add(botonRegresar);
-
-        // 3. Ensamblar en el panel principal de botones
-        panelBotones.add(panelAccionesCentrales, BorderLayout.CENTER);
-        panelBotones.add(panelNavegacion, BorderLayout.EAST);
-
-        // ---------------- TABLA DE ITINERARIOS (ABAJO) ----------------
-        String[] columnas = {"Origen", "Destino", "Día", "Hora", "Tipo", "Unidad", "Conductor"};
-        modeloTabla = new javax.swing.table.DefaultTableModel(columnas, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false; // Hace la tabla no editable
-            }
-        };
-        tablaItinerarios = new javax.swing.JTable(modeloTabla);
-        javax.swing.JScrollPane scrollTabla = new javax.swing.JScrollPane(tablaItinerarios);
-
-        // Unir paneles al principal
-        panelPrincipal.add(panelNorte, java.awt.BorderLayout.NORTH);
-        panelPrincipal.add(scrollTabla, java.awt.BorderLayout.CENTER);
-        panelPrincipal.add(panelBotones, java.awt.BorderLayout.SOUTH);
-
-        setContentPane(panelPrincipal);
-    }
-
-    // Método auxiliar de horas (Parte de la mejora)
-    private static String[] generarHoras() {
-        String[] horas = new String[24];
-        for (int i = 0; i < 24; i++) {
-            horas[i] = String.format("%02d", i); // "00", "01", ..., "23"
-        }
-        return horas;
+        setContentPane(panel);
+        pack();
+        setMinimumSize(new java.awt.Dimension(820, 460));
+        setLocationRelativeTo(null);
     }
 
     // --- IMPLEMENTACIÓN DE MÉTODOS DE LA INTERFAZ ---

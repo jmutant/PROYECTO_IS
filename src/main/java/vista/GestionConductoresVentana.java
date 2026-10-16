@@ -1,138 +1,39 @@
 package vista;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.Dimension;
 import java.awt.event.ActionListener;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 public class GestionConductoresVentana extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
-    private JTextField txtNombreCompleto;
-    private JTextField txtCedula;
-    private JTextField txtNumeroLicencia;
-    private JButton btnRegistrarConductor;
-    private JButton btnEliminarConductor;
-    private JTable tablaConductores;
-    private DefaultTableModel modeloTabla;
+    // El diseño de la pantalla vive en ConductoresPanel; aquí se toman sus componentes
+    private final ConductoresPanel panel = new ConductoresPanel();
+
+    private final JTextField txtNombreCompleto = panel.getTxtNombreCompleto();
+    private final JTextField txtCedula = panel.getTxtCedula();
+    private final JTextField txtNumeroLicencia = panel.getTxtNumeroLicencia();
+    private final JButton btnRegistrarConductor = panel.getBotonRegistrar();
+    private final JButton btnEliminarConductor = panel.getBotonEliminar();
+    private final JTable tablaConductores = panel.getTabla();
+    private final DefaultTableModel modeloTabla = panel.getModeloTabla();
 
     public GestionConductoresVentana() {
         setTitle("Campus Express - Gestión de Conductores");
-        setSize(700, 560);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setContentPane(panel);
+        pack();
+        setMinimumSize(new Dimension(820, 460));
         setLocationRelativeTo(null);
-        initComponents();
-    }
-
-    private void initComponents() {
-        JPanel panelPrincipal = new JPanel(new BorderLayout(10, 10));
-        panelPrincipal.setBorder(new EmptyBorder(15, 15, 15, 15));
-
-        // Panel central con formulario y tabla
-        JPanel panelCentral = new JPanel(new BorderLayout(10, 10));
-
-        // Formulario (GridBagLayout para mantener simetría con los campos)
-        JPanel panelFormulario = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 6, 6, 6);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        // Fila 0: Nombre Completo
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        panelFormulario.add(new JLabel("Nombre Completo:"), gbc);
-
-        gbc.gridx = 1;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        txtNombreCompleto = new JTextField(20);
-        panelFormulario.add(txtNombreCompleto, gbc);
-
-        // Fila 1: Cédula
-        gbc.gridwidth = 1;
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0.0;
-        panelFormulario.add(new JLabel("Cédula:"), gbc);
-
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        txtCedula = new JTextField(15);
-        panelFormulario.add(txtCedula, gbc);
-
-        // Etiqueta de formato para la cédula
-        gbc.gridx = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0.0;
-        JLabel lblFormatoCedula = new JLabel("Ej: V12345678 ");
-        lblFormatoCedula.setForeground(Color.GRAY);
-        panelFormulario.add(lblFormatoCedula, gbc);
-
-        // Fila 2: Número de Licencia
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0.0;
-        panelFormulario.add(new JLabel("Nº de Licencia:"), gbc);
-
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        txtNumeroLicencia = new JTextField(20);
-        panelFormulario.add(txtNumeroLicencia, gbc);
-
-        // Etiqueta de formato para la licencia
-        gbc.gridx = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0.0;
-        JLabel lblFormatoLicencia = new JLabel("10 dígitos exactos");
-        lblFormatoLicencia.setForeground(Color.GRAY);
-        panelFormulario.add(lblFormatoLicencia, gbc);
-
-        // Panel para botones de acción (Registrar Conductor y Eliminar)
-        JPanel panelBotonesAccion = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
-        btnRegistrarConductor = new JButton("Registrar Conductor");
-        btnEliminarConductor = new JButton("Eliminar");
-        panelBotonesAccion.add(btnRegistrarConductor);
-        panelBotonesAccion.add(btnEliminarConductor);
-
-        // Agrupando formulario y botones de acción en la parte superior del centro
-        JPanel panelNorteCentro = new JPanel(new BorderLayout());
-        panelNorteCentro.add(panelFormulario, BorderLayout.CENTER);
-        panelNorteCentro.add(panelBotonesAccion, BorderLayout.SOUTH);
-        panelCentral.add(panelNorteCentro, BorderLayout.NORTH);
-
-        // Tabla de conductores registrados
-        modeloTabla = new DefaultTableModel(new Object[]{"Nombre Completo", "Cédula", "Número de Licencia"}, 0) {
-            private static final long serialVersionUID = 1L;
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false; // Celdas no editables directamente desde la tabla
-            }
-        };
-        tablaConductores = new JTable(modeloTabla);
-        JScrollPane scrollPane = new JScrollPane(tablaConductores);
-        panelCentral.add(scrollPane, BorderLayout.CENTER);
-
-        panelPrincipal.add(panelCentral, BorderLayout.CENTER);
-        add(panelPrincipal);
+        // La cruz de la esquina superior derecha cierra la pantalla
+        panel.getBotonCerrar().addActionListener(e -> cerrar());
     }
 
     public void mostrar() {
