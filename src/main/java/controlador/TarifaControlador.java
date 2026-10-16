@@ -11,12 +11,10 @@ public final class TarifaControlador {
 
     private final ConfiguracionTarifaVista vista;
     private final TarifaServicio tarifaServicio;
-    private final Usuario usuario;
 
     public TarifaControlador(ConfiguracionTarifaVista vista, TarifaServicio tarifaServicio, Usuario usuario) {
         this.vista = Objects.requireNonNull(vista);
         this.tarifaServicio = Objects.requireNonNull(tarifaServicio);
-        this.usuario = Objects.requireNonNull(usuario);
 
         // Mapeo de eventos de la vista
         this.vista.setAccionGuardarTarifa(this::guardarTarifa);
@@ -72,10 +70,10 @@ public final class TarifaControlador {
             tarifaServicio.guardarTarifaBase(ruta, monto, pctEstudiante, pctEmpleado);
 
             // Calcular montos sin etiquetas (pasando solo los valores por posición)
-            double subEstudiante = tarifaServicio.calcularTarifaPorRol("estudiante", monto, pctEstudiante);
-            double subEmpleado = tarifaServicio.calcularTarifaPorRol("empleado", monto, pctEmpleado);
-            double subPublico = tarifaServicio.calcularTarifaPorRol("publico general", monto, 100.0);
-
+            double subEstudiante = tarifaServicio.calcularTarifaPorRol("Estudiante", monto, pctEstudiante);
+            double subEmpleado = tarifaServicio.calcularTarifaPorRol("Empleado", monto, pctEmpleado);
+            double subPublico = tarifaServicio.calcularTarifaPorRol("Público General", monto, 100.0);
+ 
             // Reflejar en la tabla
             vista.mostrarTarifasCalculadas(pctEstudiante, subEstudiante, pctEmpleado, subEmpleado, subPublico);
             vista.mostrarExito("¡Tarifa base configurada y guardada con éxito!");
@@ -99,9 +97,9 @@ public final class TarifaControlador {
                     vista.setPctEstudiante(String.valueOf(info.getPctEstudiante()));
                     vista.setPctEmpleado(String.valueOf(info.getPctEmpleado()));
 
-                    double subEstudiante = tarifaServicio.calcularTarifaPorRol("estudiante", info.getTarifaBase(), info.getPctEstudiante());
-                    double subEmpleado = tarifaServicio.calcularTarifaPorRol("empleado", info.getTarifaBase(), info.getPctEmpleado());
-                    double subPublico = tarifaServicio.calcularTarifaPorRol("publico general", info.getTarifaBase(), 100.0);
+                    double subEstudiante = tarifaServicio.calcularTarifaPorRol("Estudiante", info.getTarifaBase(), info.getPctEstudiante());
+                    double subEmpleado = tarifaServicio.calcularTarifaPorRol("Empleado", info.getTarifaBase(), info.getPctEmpleado());
+                    double subPublico = tarifaServicio.calcularTarifaPorRol("Público General", info.getTarifaBase(), 100.0);
 
                     vista.mostrarTarifasCalculadas(info.getPctEstudiante(), subEstudiante, info.getPctEmpleado(), subEmpleado, subPublico);
                 } else {
