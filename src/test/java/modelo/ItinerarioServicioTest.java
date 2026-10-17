@@ -57,7 +57,7 @@ class ItinerarioServicioTest {
         Itinerario creado = servicio.registrar(
                 "Catia", "UCV",
                 DayOfWeek.MONDAY, LocalTime.of(8, 0),
-                TipoRuta.URBANA, "ABC123", "V-12345678", admin
+                TipoRuta.URBANA, "ABC123", "1234567890", admin
         );
 
         assertNotNull(creado);
@@ -78,7 +78,7 @@ class ItinerarioServicioTest {
             servicio.registrar(
                     "   ", "UCV",
                     DayOfWeek.MONDAY, LocalTime.of(8, 0),
-                    TipoRuta.URBANA, "ABC123", "V-12345678", admin
+                    TipoRuta.URBANA, "ABC123", "1234567890", admin
             );
         });
         assertNotNull(ex.getMessage());
@@ -91,7 +91,7 @@ class ItinerarioServicioTest {
             servicio.registrar(
                     "Catia", "",
                     DayOfWeek.MONDAY, LocalTime.of(8, 0),
-                    TipoRuta.URBANA, "ABC123", "V-12345678", admin
+                    TipoRuta.URBANA, "ABC123", "1234567890", admin
             );
         });
         assertNotNull(ex.getMessage());
@@ -104,7 +104,7 @@ class ItinerarioServicioTest {
             servicio.registrar(
                     "Catia", "UCV",
                     DayOfWeek.MONDAY, LocalTime.of(8, 0),
-                    TipoRuta.URBANA, null, "V-12345678", admin
+                    TipoRuta.URBANA, null, "1234567890", admin
             );
         });
         assertNotNull(ex.getMessage());
@@ -133,7 +133,7 @@ class ItinerarioServicioTest {
         servicio.registrar(
                 "Catia", "UCV",
                 DayOfWeek.MONDAY, LocalTime.of(8, 0),
-                TipoRuta.URBANA, "ABC123", "V-12345678", admin
+                TipoRuta.URBANA, "ABC123", "1234567890", admin
         );
 
         // Intento con misma unidad, distinto conductor
@@ -141,7 +141,7 @@ class ItinerarioServicioTest {
             servicio.registrar(
                     "Gato Negro", "La Guaira",
                     DayOfWeek.MONDAY, LocalTime.of(8, 0),
-                    TipoRuta.EXTRAURBANA, "ABC123", "V-87654321", admin
+                    TipoRuta.EXTRAURBANA, "ABC123", "0987654321", admin
             );
         });
         assertNotNull(ex.getMessage());
@@ -154,7 +154,7 @@ class ItinerarioServicioTest {
         servicio.registrar(
                 "Catia", "UCV",
                 DayOfWeek.MONDAY, LocalTime.of(8, 0),
-                TipoRuta.URBANA, "ABC123", "V-12345678", admin
+                TipoRuta.URBANA, "ABC123", "1234567890", admin
         );
 
         // Intento con mismo conductor, distinta unidad (si tuviéramos otra activa)
@@ -162,7 +162,7 @@ class ItinerarioServicioTest {
             servicio.registrar(
                     "Catia", "UCV",
                     DayOfWeek.MONDAY, LocalTime.of(8, 0),
-                    TipoRuta.URBANA, "ABC123", "V-12345678", admin
+                    TipoRuta.URBANA, "ABC123", "1234567890", admin
             );
         });
         assertNotNull(ex.getMessage());
@@ -178,7 +178,7 @@ class ItinerarioServicioTest {
             servicio.registrar(
                     "Catia", "UCV",
                     DayOfWeek.MONDAY, LocalTime.of(8, 0),
-                    TipoRuta.URBANA, "MNT999", "V-12345678", admin
+                    TipoRuta.URBANA, "MNT999", "1234567890", admin
             );
         });
         assertNotNull(ex.getMessage());
@@ -198,7 +198,7 @@ class ItinerarioServicioTest {
 
         // Registrar itinerario base
         servicio.registrar(
-            "Catia", "UCV", diaOriginal, horaOriginal, TipoRuta.URBANA, placaOriginal, "V-12345678", admin
+            "Catia", "UCV", diaOriginal, horaOriginal, TipoRuta.URBANA, placaOriginal, "1234567890", admin
         );
 
         // 2. Modificar invocando al servicio con la clave ORIGINAL y los NUEVOS valores
@@ -207,7 +207,7 @@ class ItinerarioServicioTest {
 
         servicio.modificar(
             placaOriginal, diaOriginal, horaOriginal, // Clave de búsqueda original
-            "Catia", nuevoDestino, diaOriginal, nuevaHora, TipoRuta.URBANA, placaOriginal, "V-12345678", admin
+            "Catia", nuevoDestino, diaOriginal, nuevaHora, TipoRuta.URBANA, placaOriginal, "1234567890", admin
         );
 
         // 3. Verificación buscando en la lista completa obtenida del servicio
@@ -225,17 +225,17 @@ class ItinerarioServicioTest {
     @DisplayName("Rechazar modificación por conflicto de horario")
     void testModificarItinerarioConConflictoHorario() {
         // 1. Crear un itinerario A de 8:00 a 9:00 en el día MONDAY con la unidad ABC123
-        servicio.registrar("Caracas", "UCV", DayOfWeek.MONDAY, LocalTime.of(8, 0), TipoRuta.URBANA, "ABC123", "V-12345678", admin);
+        servicio.registrar("Caracas", "UCV", DayOfWeek.MONDAY, LocalTime.of(8, 0), TipoRuta.URBANA, "ABC123", "1234567890", admin);
 
         // 2. Crear un itinerario B a las 10:00 con la misma unidad
-        servicio.registrar("Caracas", "Guarenas", DayOfWeek.MONDAY, LocalTime.of(10, 0), TipoRuta.URBANA, "ABC123", "V-12345678", admin);
+        servicio.registrar("Caracas", "Guarenas", DayOfWeek.MONDAY, LocalTime.of(10, 0), TipoRuta.URBANA, "ABC123", "1234567890", admin);
 
         // 3. Intentar modificar el itinerario B para moverlo a las 8:00 (mismo día y unidad que el itinerario A)
         assertThrows(ConflictoHorarioException.class, () -> {
             servicio.modificar(
                 "ABC123", DayOfWeek.MONDAY, LocalTime.of(10, 0), // Datos del itinerario B a cambiar
                 "Caracas", "Guarenas", DayOfWeek.MONDAY, LocalTime.of(8, 0), // Intentar mover a las 8:00
-                TipoRuta.URBANA, "ABC123", "V-12345678", admin
+                TipoRuta.URBANA, "ABC123", "1234567890", admin
             );
         });
     }
@@ -254,7 +254,7 @@ class ItinerarioServicioTest {
 
         // Registrar el itinerario base
         servicio.registrar(
-            "Catia", "UCV", dia, hora, TipoRuta.URBANA, placa, "V-12345678", admin
+            "Catia", "UCV", dia, hora, TipoRuta.URBANA, placa, "1234567890", admin
         );
 
         // 2. Invocar al método eliminar del servicio pasando la clave/parámetros reales
