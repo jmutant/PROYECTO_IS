@@ -45,8 +45,7 @@ public final class Main {
     }
 
     public static void main(String[] args) {
-        // Todos los datos persistentes usan una única carpeta: data/
-        // Esto evita que el login lea un archivo diferente según cómo se ejecute el programa.
+        // Todos los datos persistentes usan una única carpeta: data/. Esto evita que el login lea un archivo diferente según cómo se ejecute el programa.
         AlmacenDatosLocal almacen = AlmacenDatosLocal.porDefecto();
 
         UsuarioRepositorio usuarios = new UsuarioRepositorioArchivo(almacen);

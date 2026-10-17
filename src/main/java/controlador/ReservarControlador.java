@@ -1,18 +1,25 @@
 package controlador;
 
+import java.awt.event.ItemEvent;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 
 import modelo.Itinerario;
 import modelo.ItinerarioServicio;
 import modelo.MonederoServicio;
+import modelo.Rol;
 import modelo.TarifaRepositorioMemoria;
 import modelo.TarifaServicio;
 import modelo.Usuario;
 import vista.ReservarVista;
 
-// Controlador de la ventana "reserva": por ahora solo maneja el botón para regresar.
+// Controlador de la ventana "reserva": muestra el desglose de la tarifa y cobra el pasaje del monedero.
 public class ReservarControlador {
+
+    // Resultado del cálculo de una tarifa para el rol del usuario
+    private record Cobro(double tarifaBase, double porcentajeSubsidio, double total) { }
 
     private final ReservarVista vista;
     private final ItinerarioServicio itinerarioServicio;
@@ -32,115 +39,82 @@ public class ReservarControlador {
         this.usuarioActual = Objects.requireNonNull(usuarioActual);
         this.vista.setAccionRegresar(this::regresar);
 
-         // 1. Cargar las rutas disponibles en el ComboBox de la vista
+        // 1. Cargar las rutas disponibles en la lista desplegable de la vista
         cargarRutasEnVista();
 
-        // 2. Escuchar cuando el usuario seleccione una ruta para calcular el pasaje en tiempo real
+        // 2. Al seleccionar una ruta se recalcula el pasaje en tiempo real
         this.vista.setAccionSeleccionarRuta(e -> {
-            if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-                calcularYMostrarPasajeSeleccionado();
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                mostrarDesgloseSeleccionado();
             }
         });
+        mostrarDesgloseSeleccionado();
 
-        calcularYMostrarPasajeSeleccionado();
-
-        // 3. Botón para confirmar la reserva y descontar del monedero
+        // 3. Botón Reservar: verifica el saldo y cobra del monedero
         this.vista.setAccionConfirmarReserva(this::procesarReservaYDescuento);
-}
+    }
 
     private void cargarRutasEnVista() {
-        // Obtiene los itinerarios registrados en la BD local de itinerarios
-        List<Itinerario> itinerarios = itinerarioServicio.listar(Usuario.class.cast(usuarioActual));
+        List<Itinerario> itinerarios = itinerarioServicio.listar(usuarioActual);
         vista.mostrarItinerarios(itinerarios);
     }
 
-    private void calcularYMostrarPasajeSeleccionado() {
+    /** Calcula la tarifa de la ruta según el rol; null si el tipo de ruta no tiene tarifa configurada. */
+    private Cobro calcularCobro(Itinerario itinerario) {
+        // La tarifa se guarda con la etiqueta del tipo de ruta ("Urbana" / "Extraurbana")
+        String tipoRuta = itinerario.getTipoRuta() != null ? itinerario.getTipoRuta().getEtiqueta() : "";
+        TarifaRepositorioMemoria tarifa = tarifaServicio.obtenerTarifaPorRuta(tipoRuta);
+        if (tarifa == null) {
+            return null;
+        }
+
+        Rol rol = usuarioActual.getRol();
+        double porcentaje = switch (rol) {
+            case ESTUDIANTE -> tarifa.getPctEstudiante();
+            case EMPLEADO, PROFESOR -> tarifa.getPctEmpleado();
+            default -> 0.0; // Público General: paga el 100 %
+        };
+        double total = tarifaServicio.calcularTarifaPorRol(rol.getNombreVisible(), tarifa.getTarifaBase(), porcentaje);
+        return new Cobro(tarifa.getTarifaBase(), porcentaje, total);
+    }
+
+    private void mostrarDesgloseSeleccionado() {
         Object seleccion = vista.getRutaSeleccionada();
-        if (seleccion == null) return;
-
-        String tipoRuta = "";
-        
-        // 1. Si el elemento seleccionado es un objeto Itinerario:
-        if (seleccion instanceof Itinerario) {
-            Itinerario itinerario = (Itinerario) seleccion;
-            // Obtenemos si es Extraurbana o Urbana desde el enum / atributo
-            tipoRuta = itinerario.getTipoRuta() != null ? itinerario.getTipoRuta().toString() : "";
-        } else {
-            // 2. Si el ComboBox contiene solo texto, buscamos la palabra clave en la cadena:
-            String textoCompleto = seleccion.toString();
-            if (textoCompleto.toUpperCase().contains("EXTRAURBANA")) {
-                tipoRuta = "Extraurbana";
-            } else if (textoCompleto.toUpperCase().contains("URBANA")) {
-                tipoRuta = "Urbana";
-            }
+        Cobro cobro = seleccion instanceof Itinerario it ? calcularCobro(it) : null;
+        if (cobro == null) {
+            vista.mostrarDesgloseCobro(0.0, 0.0, 0.0);
+            return;
         }
-
-        double tarifaBase = 0.0;
-        double porcentajeSubsidio = 0.0;
-
-        // 3. Consultar la tarifa en la BD usando "Extraurbana" o "Urbana"
-        TarifaRepositorioMemoria tarifaInfo = tarifaServicio.obtenerTarifaPorRuta(tipoRuta);
-
-        if (tarifaInfo != null) {
-            tarifaBase = tarifaInfo.getTarifaBase(); // Lee el $200.0 guardado
-
-            // Determinar subsidio según el rol activo
-            String rol = usuarioActual.getRol().toString().toLowerCase();
-            if (rol.contains("estudiante")) {
-                porcentajeSubsidio = tarifaInfo.getPctEstudiante();
-            } else if (rol.contains("empleado") || rol.contains("profesor")) {
-                porcentajeSubsidio = tarifaInfo.getPctEmpleado();
-            } else {
-                porcentajeSubsidio = 0.0; // Público General
-            }
-        } else {
-            // Valor por defecto en caso de que la ruta sea Urbana sin tarifa configurada
-        }
-
-        // 4. Calcular el monto final a cobrar
-        double totalAPagar = tarifaServicio.calcularTarifaPorRol(usuarioActual.getRol().getNombreVisible(), tarifaBase, porcentajeSubsidio);
-
-        // 5. Reflejar los datos reales en las etiquetas de la pantalla
-        vista.mostrarDesgloseCobro(tarifaBase, porcentajeSubsidio, totalAPagar);
+        vista.mostrarDesgloseCobro(cobro.tarifaBase(), cobro.porcentajeSubsidio(), cobro.total());
     }
 
     private void procesarReservaYDescuento() {
         try {
-            // 1. Obtener el objeto Itinerario completo desde la vista correctamente
             Object seleccion = vista.getRutaSeleccionada();
-            if (!(seleccion instanceof Itinerario)) {
+            if (!(seleccion instanceof Itinerario itinerario)) {
                 vista.mostrarError("Por favor, seleccione una ruta válida.");
                 return;
             }
-            Itinerario itinerario = (Itinerario) seleccion;
 
-            // 2. Consultar saldo actual (asegúrate de usar getCedula() o getUsername() según tu modelo de Usuario)
-            // double saldoActual = monederoServicio.consultarSaldo(usuarioActual.getCedula());
-            double montoAPagar = vista.getMontoCalculado(); // El monto calculado previamente según el rol
+            // Se recalcula con la tarifa vigente (el administrador pudo cambiarla mientras la ventana estaba abierta)
+            Cobro cobro = calcularCobro(itinerario);
+            if (cobro == null || cobro.total() <= 0) {
+                vista.mostrarError("No hay una tarifa configurada para este tipo de ruta.\n"
+                        + "Comuníquese con el administrador.");
+                return;
+            }
+            vista.mostrarDesgloseCobro(cobro.tarifaBase(), cobro.porcentajeSubsidio(), cobro.total());
 
-            // if (saldoActual < montoAPagar) {
-            //     vista.mostrarError("Saldo insuficiente en el monedero virtual. Recargue para continuar.");
-            //     return;
-            // }
+            // Verifica que el saldo alcance y, si es así, lo descuenta. Si no alcanza lanza IllegalArgumentException
+            BigDecimal monto = BigDecimal.valueOf(cobro.total()).setScale(2, RoundingMode.HALF_UP);
+            BigDecimal nuevoSaldo = monederoServicio.debitar(usuarioActual, monto);
 
-            // 3. Descontar del monedero
-            // monederoServicio.debitar(usuarioActual.getCedula(), montoAPagar);
-
-            // 4. Crear el ticket o reserva digital y guardarlo en su repositorio/archivo .db
-            // TicketReserva ticket = new TicketReserva(
-            //    UUID.randomUUID().toString().substring(0, 8).toUpperCase(),
-            //    usuarioActual.getCedula(),
-            //    itinerario,
-            //    montoAPagar,
-            //    LocalDateTime.now()
-            // );
-            
-            // ticketRepositorio.guardar(ticket);
-
-            vista.mostrarExito("¡Reserva exitosa! Se han descontado $" + montoAPagar + " de tu monedero.");
-            // vista.mostrarTicketDigital(ticket);
-
-        } catch (Exception e) {
+            vista.mostrarExito(String.format(java.util.Locale.US,
+                    "¡Reserva exitosa!%nSe descontaron Bs %,.2f de tu monedero.%nSaldo restante: Bs %,.2f",
+                    monto, nuevoSaldo));
+        } catch (IllegalArgumentException e) {
+            vista.mostrarError(e.getMessage());
+        } catch (RuntimeException e) {
             vista.mostrarError("Error al procesar la reserva: " + e.getMessage());
         }
     }

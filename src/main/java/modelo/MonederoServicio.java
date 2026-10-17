@@ -2,6 +2,7 @@ package modelo;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Locale;
 import java.util.Objects;
 
 //Reglas de negocio del monedero virtual y de las recargas
@@ -19,6 +20,9 @@ public class MonederoServicio {
             "El monto debe ser un número mayor que cero (solo dígitos, sin signos negativos).";
     public static final String MENSAJE_SALDO_MAXIMO =
             "La recarga supera el saldo máximo permitido de Bs 9.999.999,99.";
+
+    public static final String MENSAJE_MONTO_COBRO_INVALIDO =
+            "El monto a cobrar debe ser mayor que cero.";
 
     private final MonederoRepositorio repositorio;
 
@@ -65,6 +69,31 @@ public class MonederoServicio {
             throw new IllegalArgumentException(MENSAJE_SALDO_MAXIMO);
         }
 
+        repositorio.guardarSaldo(usuario.getUsername(), nuevoSaldo);
+        return nuevoSaldo;
+    }
+
+    /**
+     * Cobra un monto del monedero del usuario (por ejemplo, el pasaje de una reserva).
+     * Si el saldo no alcanza lanza IllegalArgumentException y no se descuenta nada.
+     * @return el nuevo saldo luego del cobro
+     */
+    public synchronized BigDecimal debitar(Usuario usuario, BigDecimal monto) {
+        Objects.requireNonNull(usuario, "El usuario es obligatorio.");
+        if (monto == null || monto.signum() <= 0) {
+            throw new IllegalArgumentException(MENSAJE_MONTO_COBRO_INVALIDO);
+        }
+        BigDecimal montoCobro = monto.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal saldoActual = repositorio.obtenerSaldo(usuario.getUsername());
+
+        if (saldoActual.compareTo(montoCobro) < 0) {
+            throw new IllegalArgumentException(String.format(Locale.US,
+                    "Saldo insuficiente en el monedero virtual.%nSaldo disponible: Bs %,.2f%nMonto a pagar: Bs %,.2f%n"
+                            + "Recargue su monedero para continuar.",
+                    saldoActual, montoCobro));
+        }
+
+        BigDecimal nuevoSaldo = saldoActual.subtract(montoCobro);
         repositorio.guardarSaldo(usuario.getUsername(), nuevoSaldo);
         return nuevoSaldo;
     }

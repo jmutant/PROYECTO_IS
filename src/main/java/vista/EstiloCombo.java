@@ -124,6 +124,8 @@ public final class EstiloCombo {
     private static final class ComboUI extends BasicComboBoxUI {
         private final boolean flecha;
         private final transient RecursosImagen.Escalado fondo;
+        private final transient BufferedImage origenFondo;
+        private transient BufferedImage fondoTresPartes;
         private boolean sobre = false;
         private final MouseAdapter seguirMouse = new MouseAdapter() {
             @Override
@@ -142,6 +144,42 @@ public final class EstiloCombo {
         ComboUI(boolean flecha, String rutaFondo) {
             this.flecha = flecha;
             this.fondo = cargarFondo(rutaFondo);
+            this.origenFondo = cargarOrigen(rutaFondo);
+        }
+
+        private static BufferedImage cargarOrigen(String ruta) {
+            try {
+                return RecursosImagen.cargar(ruta);
+            } catch (IllegalStateException e) {
+                return RecursosImagen.cargar(FONDO_DEFECTO);
+            }
+        }
+
+        // Si el combo es mucho más ancho que la imagen, estirarla deforma las puntas redondas:
+        // se dibujan las dos puntas con su proporción original y solo se estira el centro.
+        private BufferedImage fondoParaTamano(int w, int h) {
+            double proporcionCombo = (double) w / h;
+            double proporcionImagen = (double) origenFondo.getWidth() / origenFondo.getHeight();
+            if (proporcionCombo <= proporcionImagen * 1.5) {
+                return null;
+            }
+            if (fondoTresPartes == null || fondoTresPartes.getWidth() != w || fondoTresPartes.getHeight() != h) {
+                int sw = origenFondo.getWidth();
+                int sh = origenFondo.getHeight();
+                int puntaOrigen = sh / 2;
+                int puntaDestino = Math.max(1, h / 2);
+                BufferedImage compuesta = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g = compuesta.createGraphics();
+                g.drawImage(RecursosImagen.escalar(origenFondo.getSubimage(0, 0, puntaOrigen, sh), puntaDestino, h),
+                        0, 0, null);
+                g.drawImage(RecursosImagen.escalar(origenFondo.getSubimage(puntaOrigen, 0, sw - 2 * puntaOrigen, sh),
+                        Math.max(1, w - 2 * puntaDestino), h), puntaDestino, 0, null);
+                g.drawImage(RecursosImagen.escalar(origenFondo.getSubimage(sw - puntaOrigen, 0, puntaOrigen, sh),
+                        puntaDestino, h), w - puntaDestino, 0, null);
+                g.dispose();
+                fondoTresPartes = compuesta;
+            }
+            return fondoTresPartes;
         }
 
         private static RecursosImagen.Escalado cargarFondo(String ruta) {
@@ -249,7 +287,8 @@ public final class EstiloCombo {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-            g2.drawImage(fondo.obtener(c.getWidth(), c.getHeight()), 0, 0, null);
+            BufferedImage tresPartes = fondoParaTamano(c.getWidth(), c.getHeight());
+            g2.drawImage(tresPartes != null ? tresPartes : fondo.obtener(c.getWidth(), c.getHeight()), 0, 0, null);
             if (!comboBox.isEditable()) {
                 paintCurrentValue(g2, rectangleForCurrentValue(), false);
             }

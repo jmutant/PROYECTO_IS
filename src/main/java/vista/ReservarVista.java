@@ -2,7 +2,7 @@ package vista;
 
 import java.util.List;
 
-/** Lo que el controlador necesita de la ventana "reserva" (por ahora solo regresar). */
+
 public interface ReservarVista {
 
     // Métodos para la manipulación de elementos en la interfaz

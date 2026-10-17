@@ -6,7 +6,10 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -14,6 +17,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
@@ -29,14 +33,24 @@ public abstract class PrincipalVentanaBase extends JFrame implements PrincipalVi
     //private final JButton botonCerrarSesion = new JButton(Mensajes.get("principal.cerrarSesion"));
     private final JButton botonCerrarSesion = crearBotonConImagen("/imagenes/logOutButton1.png", "/imagenes/logOutButton2.png", 140, 40);
 
+    private EtiquetaFlotante bienvenida;
+    private Timer temporizadorBienvenida;
+
     protected PrincipalVentanaBase(String tituloPantalla) {
         super(Mensajes.get("app.nombre") + " - " + tituloPantalla);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        // Si la ventana se cierra por cualquier vía (dispose), se detiene la animación
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                detenerAnimacionBienvenida();
+            }
+        });
     }
 
     protected final void armarVentana(Usuario usuario, JComponent contenidoCentral) {
         
-        JLabel bienvenida = new JLabel(Mensajes.get("principal.bienvenida", usuario.getNombreCompleto()));
+        bienvenida = new EtiquetaFlotante(Mensajes.get("principal.bienvenida", usuario.getNombreCompleto()));
         bienvenida.setFont(bienvenida.getFont().deriveFont(Font.BOLD, 28f)); 
         bienvenida.setForeground(Color.BLACK);
         
@@ -59,7 +73,7 @@ public abstract class PrincipalVentanaBase extends JFrame implements PrincipalVi
         pie.add(botonCerrarSesion, BorderLayout.EAST); // El botón queda en la esquina inferior derecha
 
         // 5. Panel Contenedor Principal (con la imagen de fondo)
-        JPanel contenido = new JPanel(new BorderLayout(0, 16)) {
+        JPanel contenido = new JPanel(new BorderLayout(0, 9)) {
             Image fondoMenu = new ImageIcon(getClass().getResource("/imagenes/CE_BackgroundMenu.png")).getImage();
             @Override
             protected void paintComponent(Graphics g) {
@@ -71,7 +85,7 @@ public abstract class PrincipalVentanaBase extends JFrame implements PrincipalVi
         };
         
         contenido.setOpaque(false);
-        contenido.setBorder(new EmptyBorder(30, 40, 20, 40)); 
+        contenido.setBorder(new EmptyBorder(29, 40, 20, 40)); // 23 + 7 px que reserva la etiqueta flotante = 30
         
         //
         contenido.add(encabezado, BorderLayout.NORTH);
@@ -115,14 +129,67 @@ public abstract class PrincipalVentanaBase extends JFrame implements PrincipalVi
         botonCerrarSesion.addActionListener(evento -> accion.run());
     }
 
+    // Animación de flotación del texto de bienvenida (misma onda que el logo de LoginVentana)
+    private void iniciarAnimacionBienvenida() {
+        if (bienvenida == null || temporizadorBienvenida != null) {
+            return;
+        }
+        temporizadorBienvenida = new Timer(40, evento -> {
+            long tiempo = System.nanoTime() / 1_000_000L;
+            double fase = (tiempo % 2400) / 2400.0 * Math.PI * 2.0;
+            bienvenida.setDesplazamientoY((int) Math.round(Math.sin(fase) * 6));
+            bienvenida.repaint();
+        });
+        temporizadorBienvenida.start();
+    }
+
+    private void detenerAnimacionBienvenida() {
+        if (temporizadorBienvenida != null) {
+            temporizadorBienvenida.stop();
+            temporizadorBienvenida = null;
+        }
+    }
+
     @Override
     public void mostrar() {
         setVisible(true);
+        iniciarAnimacionBienvenida();
     }
 
     @Override
     public void cerrar() {
+        detenerAnimacionBienvenida();
         dispose();
+    }
+
+    // flotante label para el texto de bienvenidaa
+    private static final class EtiquetaFlotante extends JLabel {
+        private static final long serialVersionUID = 1L;
+        private static final int MARGEN = 7;
+
+        private int desplazamientoY = 0;
+
+        EtiquetaFlotante(String texto) {
+            super(texto);
+        }
+
+        void setDesplazamientoY(int desplazamientoY) {
+            this.desplazamientoY = desplazamientoY;
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            Dimension d = super.getPreferredSize();
+            return new Dimension(d.width, d.height + 2 * MARGEN);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.translate(0, desplazamientoY);
+            super.paintComponent(g2);
+            g2.dispose();
+        }
     }
 }
 

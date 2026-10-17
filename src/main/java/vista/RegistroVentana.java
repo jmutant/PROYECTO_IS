@@ -14,12 +14,7 @@ import javax.swing.WindowConstants;
 
 import modelo.AutenticacionServicio;
 import modelo.UsuarioDuplicadoException;
-
-/**
- * Ventana de registro (público, o creación de Administradores si modoAdministrador = true).
- * El diseño y los campos están en {@link RegistroPanel}; aquí solo se arma la ventana y se
- * conecta el formulario con el servicio de autenticación.
- */
+//
 public class RegistroVentana extends JFrame {
     private static final long serialVersionUID = 1L;
 

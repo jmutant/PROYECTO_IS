@@ -47,12 +47,12 @@ public class PrincipalAdministradorVentana extends PrincipalVentanaBase {
         btnConfigurarTarifa = crearBotonLista(
         "/imagenes/ConfTarifa1.png",
         "/imagenes/ConfTarifa2.png");
-
+//
         btnCrearAdministrador = crearBotonLista(
             "/imagenes/CrearAdmin1.png",
             "/imagenes/CrearAdmin2.png");
 
-         btnRegistrarConductor = crearBotonLista(
+        btnRegistrarConductor = crearBotonLista(
             "/imagenes/RegistrarConductorButton1.png",
             "/imagenes/RegistrarConductorButton2.png");
 
