@@ -45,7 +45,6 @@ public class ItinerarioServicio {
         return nuevo;
     }
     public List<Itinerario> listar(Usuario usuario) {
-        autorizacion.exigirAdministrador(usuario);
         return itinerarioRepositorio.listarTodos();
     }
 

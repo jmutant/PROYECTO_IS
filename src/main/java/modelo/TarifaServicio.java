@@ -27,12 +27,12 @@ public class TarifaServicio {
 
     public double calcularTarifaPorRol(String rol, double tarifaBase, double porcentajePersonalizado) {
         switch (rol != null ? rol.toLowerCase() : "") {
-            case "Estudiante":
+            case "estudiante":
                 return tarifaBase * (porcentajePersonalizado / 100.0);
-            case "Empleado":
-            case "Profesor":
+            case "empleado":
+            case "profesor":
                 return tarifaBase * (porcentajePersonalizado / 100.0);
-            case "Público General":
+            case "publico general":
             default:
                 return tarifaBase; // 100%
         }
