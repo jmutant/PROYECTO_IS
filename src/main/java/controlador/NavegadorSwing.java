@@ -22,6 +22,7 @@ import vista.LoginVentana;
 import vista.MonederoVentana;
 import vista.PrincipalAdministradorVentana;
 import vista.PrincipalPasajeroVentana;
+import vista.ReservarVentana;
 import vista.RegistroVentana;
 
 // Implementación real de Navegador: crea las ventanas Swing y sus controladores.
@@ -69,6 +70,7 @@ public class NavegadorSwing implements Navegador {
         this.usuarioActual = usuario;
         PrincipalPasajeroVentana ventana = new PrincipalPasajeroVentana(usuario);
         new PrincipalControlador(ventana, this);
+        ventana.setAccionRutasDisponibles(this::mostrarReservar);
         ventana.setAccionMonedero(this::mostrarMonedero);
         ventana.mostrar();
     }
@@ -84,6 +86,13 @@ public class NavegadorSwing implements Navegador {
         ventana.setAccionMonedero(this::mostrarMonedero);
         ventana.setAccionConfigurarTarifa(this::mostrarConfigurarTarifa);
         ventana.setAccionRegistrarConductor(this::mostrarRegistroConductor);
+        ventana.mostrar();
+    }
+
+    // Ventana "reserva": se abre desde el botón Rutas Disponibles del pasajero (aún sin contenido)
+    private void mostrarReservar() {
+        ReservarVentana ventana = new ReservarVentana();
+        new ReservarControlador(ventana);
         ventana.mostrar();
     }
 

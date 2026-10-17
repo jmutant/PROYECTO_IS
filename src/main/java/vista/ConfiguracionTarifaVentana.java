@@ -133,7 +133,7 @@ public class ConfiguracionTarifaVentana extends JFrame implements ConfiguracionT
     public void setMontoTarifaBase(String monto) {
         txtMontoTarifaBase.setText(monto); // Cambia "campoTarifaBase" por el nombre de tu variable real si es distinto
     }
-
+//
     @Override
     public void setPctEstudiante(String porcentaje) {
         txtPctEstudiante.setText(porcentaje); // Cambia por el nombre real de tu campo de estudiante

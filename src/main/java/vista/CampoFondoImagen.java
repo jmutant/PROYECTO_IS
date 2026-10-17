@@ -17,7 +17,7 @@ public class CampoFondoImagen extends JTextField {
         this("/imagenes/appButton.png");
     }
 
-    /** Igual que el anterior, pero con otra imagen de fondo (por ejemplo "/imagenes/BarButton.png" para campos largos). */
+
     public CampoFondoImagen(String rutaFondo) {
         this.fondo = new RecursosImagen.Escalado(rutaFondo);
         setOpaque(false);

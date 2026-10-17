@@ -21,16 +21,21 @@ public class PrincipalPasajeroVentana extends PrincipalVentanaBase {
     private static final int ALTO_BOTON = 60;
     private static final int SEPARACION = 16;
 
+    private final JButton btnRutasDisponibles;
     private final JButton btnMonedero;
 
     public PrincipalPasajeroVentana(Usuario usuario) {
         super(Mensajes.get("principal.pasajero.titulo"));
 
+        btnRutasDisponibles = crearBotonLista(
+                "/imagenes/RutasDisponibles1.png",
+                "/imagenes/RutasDisponibles2.png");
+
         btnMonedero = crearBotonLista(
                 "/imagenes/MonederoVirtualButton1.png",
                 "/imagenes/MonederoVirtualButton2.png");
 
-        // Lista de botones (por ahora solo el monedero)
+        // Lista de botones
         JPanel panelBotones = new JPanel(new GridBagLayout());
         panelBotones.setOpaque(false);
 
@@ -38,6 +43,9 @@ public class PrincipalPasajeroVentana extends PrincipalVentanaBase {
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.insets = new Insets(SEPARACION / 2, 0, SEPARACION / 2, 0);
+        panelBotones.add(btnRutasDisponibles, gbc);
+
+        gbc.gridy = 1;
         panelBotones.add(btnMonedero, gbc);
 
         armarVentana(usuario, panelBotones);
@@ -50,6 +58,10 @@ public class PrincipalPasajeroVentana extends PrincipalVentanaBase {
         boton.setMinimumSize(tamano);
         boton.setMaximumSize(tamano);
         return boton;
+    }
+
+    public void setAccionRutasDisponibles(Runnable accion) {
+        btnRutasDisponibles.addActionListener(evento -> accion.run());
     }
 
     public void setAccionMonedero(Runnable accion) {

@@ -80,3 +80,24 @@ public class ConductoresPanel extends PanelFormularioTabla {
         dibujarTexto(g2, new String[]{"10 Dígitos exactos"}, AYUDA_X, 417, 40, false, GRIS_AYUDA);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// :333333333
