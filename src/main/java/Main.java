@@ -6,7 +6,7 @@
 ##                                         INGENIERÍA DE SOFTWARE SEMESTRE 1-2026                                     ##
 ##                                                                                                                    ##
 ##                                                                                                                    ##
-##                                                 ENTREGA 2 : SPRINT 1                                               ##
+##                                                 ENTREGA 2 : SPRINT 2                                               ##
 ##                                                                                                                    ##
 ##                                      Ángel Rosamilia - Jesús Hiraola - Samuel Mendoza                              ##
 ##                                                                                                                    ##
@@ -86,4 +86,4 @@ public final class Main {
 
 
 
-//╰(*°▽°*)╯
+//╰(*°▽°*)╯ Éxito puro.
