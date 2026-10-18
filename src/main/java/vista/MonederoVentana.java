@@ -39,6 +39,10 @@ public class MonederoVentana extends JFrame implements MonederoVista {
     private final RecursosImagen.Escalado fondo =
             new RecursosImagen.Escalado("/imagenes/MonederoPantalla.png");
 
+    // Título animado (flotación). El lienzo del PNG mide 1673 x 151 (sistema 1920 x 1080): x, y, ancho, alto
+    private final transient TituloFlotante titulo =
+            new TituloFlotante("/imagenes/MONEDEROTEXTO.png", 15, 8, 1673, 151);
+
     private final BotonImagen botonRecargar = new BotonImagen(
             "/imagenes/RecargaSaldo1.png",
             "/imagenes/RecargaSaldo2.png",
@@ -95,9 +99,11 @@ public class MonederoVentana extends JFrame implements MonederoVista {
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                         RenderingHints.VALUE_INTERPOLATION_BILINEAR);
                 g2.drawImage(fondo.obtener(getWidth(), getHeight()), 0, 0, null);
+                titulo.dibujar(g2, getWidth(), getHeight());
                 g2.dispose();
             }
         };
+        titulo.conectar(fondoPanel);
         fondoPanel.setBorder(new EmptyBorder(20, 55, 55, 55));
         fondoPanel.setOpaque(false);
 

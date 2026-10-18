@@ -39,6 +39,7 @@ public class ConductoresPanel extends PanelFormularioTabla {
                 new String[]{"Nombre Completo", "Cédula", "Licencia"},
                 new double[]{554.5, 501, 540.5}, // suman 1596 (ancho de las filas junto a la barra)
                 true, 44, 27);
+        setTitulo(new TituloFlotante("/imagenes/GESTIONCONDUCTORTEXTO.png", 15, 8, 1673, 151));
         add(txtNombreCompleto);
         add(txtCedula);
         add(txtNumeroLicencia);

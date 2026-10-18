@@ -16,8 +16,10 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-
-//antalla "Rutas disponibles" (reserva)
+/**
+ * Pantalla "Rutas disponibles" (reserva). Se dibuja sobre una imagen de fondo de 1920 x 1080 y se posiciona
+ * con las medidas de la maqueta, escalándolas al tamaño real de la ventana (igual que PanelFormularioTabla).
+ */
 public class ReservarPanel extends JPanel {
     private static final long serialVersionUID = 1L;
 
@@ -53,6 +55,10 @@ public class ReservarPanel extends JPanel {
     private final JTextField campoSubsidio = new CampoFondoImagen();
 
     private final transient RecursosImagen.Escalado fondo = new RecursosImagen.Escalado("/imagenes/RutasPantallaa.png");
+    // Título animado (flotación). El lienzo del PNG mide 1673 x 151 (sistema 1920 x 1080): x, y, ancho, alto
+    private final transient TituloFlotante titulo =
+            new TituloFlotante("/imagenes/RUTASDISPONIBLESTEXTO.png", 15, 8, 1673, 151);
+
     private final transient TarjetaNueveCortes tarjeta = new TarjetaNueveCortes("/imagenes/BlanckWindow.png");
     private final double proporcionCruz = proporcion("/imagenes/cross1.png");
     private final double proporcionReservar = proporcion("/imagenes/ReservarBoton1.png");
@@ -66,6 +72,7 @@ public class ReservarPanel extends JPanel {
         super(null);
         setOpaque(true);
         setPreferredSize(new Dimension(1100, 619));
+        titulo.conectar(this);
 
         EstiloCombo.aplicar(comboRutas, true, false, null); // misma lista desplegable del resto del proyecto
 
@@ -142,6 +149,7 @@ public class ReservarPanel extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
         g2.drawImage(fondo.obtener(getWidth(), getHeight()), 0, 0, null);
+        titulo.dibujar(g2, getWidth(), getHeight());
 
         Rectangle t = rect(TARJETA);
         tarjeta.dibujar(g2, t.x, t.y, t.width, t.height, px(90));
@@ -156,7 +164,7 @@ public class ReservarPanel extends JPanel {
 
         // Etiquetas azules
         dibujarPildora(g2, rect(ETIQUETA_RUTA), "Seleccione la Ruta del itinerario");
-        dibujarPildora(g2, rect(ETIQUETA_DESGLOSE), "Tarifa a Pagar");
+        dibujarPildora(g2, rect(ETIQUETA_DESGLOSE), "Desglose de la tarifa según su rol");
 
         // Textos del desglose
         g2.setColor(Color.BLACK);

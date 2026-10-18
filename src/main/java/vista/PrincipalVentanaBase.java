@@ -85,7 +85,7 @@ public abstract class PrincipalVentanaBase extends JFrame implements PrincipalVi
         };
         
         contenido.setOpaque(false);
-        contenido.setBorder(new EmptyBorder(29, 40, 20, 40)); // 23 + 7 px que reserva la etiqueta flotante = 30
+        contenido.setBorder(new EmptyBorder(23, 40, 20, 40)); // 23 + 7 px que reserva la etiqueta flotante = 30
         
         //
         contenido.add(encabezado, BorderLayout.NORTH);
@@ -162,7 +162,7 @@ public abstract class PrincipalVentanaBase extends JFrame implements PrincipalVi
         dispose();
     }
 
-    // flotante label para el texto de bienvenidaa
+    /** JLabel que dibuja su texto desplazado en vertical; reserva 7 px arriba y abajo para poder moverse. */
     private static final class EtiquetaFlotante extends JLabel {
         private static final long serialVersionUID = 1L;
         private static final int MARGEN = 7;

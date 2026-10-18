@@ -28,11 +28,7 @@ import modelo.Conductor;
 import modelo.TipoRuta;
 import modelo.Unidad;
 
-/**
- * Pantalla "Gestionar Itinerarios". Se dibuja sobre ItinerariosPantalla.png y se posiciona con las medidas
- * de la maqueta (1222 x 684), escalándolas al tamaño real de la ventana.
- * Aquí vive solo el diseño; la lógica está en GestionItinerariosVentana.
- */
+
 public class ItinerariosPanel extends JPanel {
     private static final long serialVersionUID = 1L;
 
@@ -138,6 +134,10 @@ public class ItinerariosPanel extends JPanel {
 
     private final transient RecursosImagen.Escalado fondo =
             new RecursosImagen.Escalado("/imagenes/ItinerariosPantalla.png");
+    // Título animado (flotación). El lienzo del PNG mide 1673 x 151 (sistema 1920 x 1080): x, y, ancho, alto
+    private final transient TituloFlotante titulo =
+            new TituloFlotante("/imagenes/GESTIONARITINERARIOSTEXTO.png", 15, 8, 1673, 151);
+
     private final transient TarjetaNueveCortes tarjeta = new TarjetaNueveCortes("/imagenes/BlanckWindow.png");
 
     // Proporción (alto / ancho) de cada imagen, para no deformar los botones
@@ -154,6 +154,7 @@ public class ItinerariosPanel extends JPanel {
         super(null);
         setOpaque(true);
         setPreferredSize(new Dimension(1100, 616));
+        titulo.conectar(this);
 
         // Unidad y Conductor son editables: se escribe para buscar y la lista se va filtrando
         comboUnidades.setEditable(true);
@@ -358,6 +359,7 @@ public class ItinerariosPanel extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
         g2.drawImage(fondo.obtener(getWidth(), getHeight()), 0, 0, null);
+        titulo.dibujar(g2, getWidth(), getHeight());
 
         Rectangle t = rect(TARJETA);
         tarjeta.dibujar(g2, t.x, t.y, t.width, t.height, px(50));

@@ -11,7 +11,7 @@ public class MonederoServicio {
     public static final BigDecimal SALDO_MAXIMO = new BigDecimal("9999999.99");
     public static final BigDecimal MONTO_RECARGA = new BigDecimal("1200.00");
     public static final String MENSAJE_TELEFONO_INVALIDO =
-            "El teléfono debe tener exactamente 11 dígitos y comenzar por 0.";
+            "El teléfono debe tener un prefijo válido (0412, 0414, 0416, 0422, 0424 o 0426) seguido de 7 dígitos.";
     public static final String MENSAJE_REFERENCIA_INVALIDA =
             "La referencia debe tener exactamente 13 dígitos.";
     public static final String MENSAJE_BANCO_INVALIDO =
@@ -35,11 +35,7 @@ public class MonederoServicio {
         return repositorio.obtenerSaldo(usuario.getUsername());
     }
 
-    /**
-     * Convierte el texto del monto ingresado a BigDecimal con 2 decimales.
-     * Solo acepta dígitos con separador decimal opcional (punto o coma, máx. 2 decimales)
-     * y el resultado debe ser mayor que cero.
-     */
+
     public static BigDecimal parsearMonto(String texto) {
         String limpio = texto == null ? "" : texto.trim();
         if (!limpio.matches("[0-9]+([.,][0-9]{1,2})?")) {
@@ -56,8 +52,7 @@ public class MonederoServicio {
         Objects.requireNonNull(usuario, "El usuario es obligatorio.");
         validarDatosRecarga(datos);
 
-        // Por el momento la verificación de pago es simulada: las reglas de formato
-        // representan la entrada válida del comprobante bancario.
+        // Por el momento la verificación de pago es simulada: las reglas de formato representan la entrada válida del comprobante bancario.
         if (!verificarPago(datos)) {
             throw new IllegalArgumentException("No fue posible verificar el pago.");
         }
@@ -73,11 +68,6 @@ public class MonederoServicio {
         return nuevoSaldo;
     }
 
-    /**
-     * Cobra un monto del monedero del usuario (por ejemplo, el pasaje de una reserva).
-     * Si el saldo no alcanza lanza IllegalArgumentException y no se descuenta nada.
-     * @return el nuevo saldo luego del cobro
-     */
     public synchronized BigDecimal debitar(Usuario usuario, BigDecimal monto) {
         Objects.requireNonNull(usuario, "El usuario es obligatorio.");
         if (monto == null || monto.signum() <= 0) {
@@ -106,7 +96,7 @@ public class MonederoServicio {
         parsearMonto(datos.monto());
 
         String telefono = limpiar(datos.telefono());
-        if (!telefono.matches("0[0-9]{10}")) {
+        if (!telefono.matches("0(412|414|416|422|424|426)[0-9]{7}")) {
             throw new IllegalArgumentException(MENSAJE_TELEFONO_INVALIDO);
         }
 
@@ -132,10 +122,10 @@ public class MonederoServicio {
         return valor == null ? "" : valor.trim();
     }
 
-    /** Datos del Pago Móvil realizado; el monto lo escribe el usuario (texto sin procesar). */
+    //datos del pagomovillllllll
     public record DatosRecarga(String telefono, String cedula, String banco, String referencia, String monto) {
 
-        /** Constructor anterior: usa el monto fijo por defecto. */
+        //Constructor anterior: usa el monto fijo por defecto. 
         public DatosRecarga(String telefono, String cedula, String banco, String referencia) {
             this(telefono, cedula, banco, referencia, MONTO_RECARGA.toPlainString());
         }

@@ -19,12 +19,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * Base de las pantallas con formulario arriba y tabla abajo (Registrar Conductor, Configurar Tarifa).
- * Se dibuja sobre una imagen de fondo de 1920 x 1080 y se posiciona con las medidas de la maqueta,
- * escalándolas al tamaño real de la ventana. Aquí están la tarjeta, la cruz de cerrar y la tabla;
- * cada pantalla coloca sus propios campos y botones en colocarFormulario().
- */
 public abstract class PanelFormularioTabla extends JPanel {
     private static final long serialVersionUID = 1L;
 
@@ -71,17 +65,13 @@ public abstract class PanelFormularioTabla extends JPanel {
     private final transient TarjetaNueveCortes tarjeta = new TarjetaNueveCortes("/imagenes/BlanckWindow.png");
     private final double proporcionCruz;
 
+    // Título animado opcional (lo fija cada pantalla con setTitulo)
+    private transient TituloFlotante titulo;
+
     protected double escala = 1;
     protected int desfaseX = 0;
     protected int desfaseY = 0;
 
-    /**
-     * @param columnas         títulos de la tabla
-     * @param anchosColumnas   ancho de cada columna en la escala de la maqueta
-     * @param conBarra         si la tabla muestra la barra de desplazamiento a la derecha
-     * @param fuenteEncabezado tamaño de la letra de los títulos (escala de la maqueta)
-     * @param fuenteFilas      tamaño de la letra de las filas (escala de la maqueta)
-     */
     protected PanelFormularioTabla(String rutaFondo, String[] columnas, double[] anchosColumnas,
             boolean conBarra, double fuenteEncabezado, double fuenteFilas) {
         super(null);
@@ -165,11 +155,7 @@ public abstract class PanelFormularioTabla extends JPanel {
         return (double) img.getHeight() / img.getWidth();
     }
 
-    /**
-     * Dibuja una o varias líneas de texto centradas verticalmente en centroY.
-     * @param x       borde derecho si alinearDerecha, borde izquierdo si no
-     * @param tamano  tamaño de la letra en la escala de la maqueta
-     */
+
     protected void dibujarTexto(Graphics2D g2, String[] lineas, double x, double centroY, double tamano,
             boolean alinearDerecha, Color color) {
         g2.setFont(new Font("Arial", Font.PLAIN, px(tamano)));
@@ -235,6 +221,12 @@ public abstract class PanelFormularioTabla extends JPanel {
         }
     }
 
+    /** Asigna el título con animación de flotación de la pantalla. */
+    protected void setTitulo(TituloFlotante titulo) {
+        this.titulo = titulo;
+        titulo.conectar(this);
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
@@ -243,6 +235,9 @@ public abstract class PanelFormularioTabla extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
         g2.drawImage(fondo.obtener(getWidth(), getHeight()), 0, 0, null);
+        if (titulo != null) {
+            titulo.dibujar(g2, getWidth(), getHeight());
+        }
 
         Rectangle t = rect(TARJETA[0], TARJETA[1], TARJETA[2], TARJETA[3]);
         tarjeta.dibujar(g2, t.x, t.y, t.width, t.height, px(90));

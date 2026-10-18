@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import modelo.Usuario;
@@ -21,8 +22,14 @@ public class PrincipalPasajeroVentana extends PrincipalVentanaBase {
     private static final int ALTO_BOTON = 60;
     private static final int SEPARACION = 16;
 
+    private static final String MENSAJE_NO_DISPONIBLE = "Función aún no disponible";
+
     private final JButton btnRutasDisponibles;
     private final JButton btnMonedero;
+    private final JButton btnRutasOfertantes;
+    private final JButton btnPostularCupo;
+    private final JButton btnModeloComunitario;
+    private final JButton btnConsultarRecorrido;
 
     public PrincipalPasajeroVentana(Usuario usuario) {
         super(Mensajes.get("principal.pasajero.titulo"));
@@ -34,6 +41,28 @@ public class PrincipalPasajeroVentana extends PrincipalVentanaBase {
         btnMonedero = crearBotonLista(
                 "/imagenes/MonederoVirtualButton1.png",
                 "/imagenes/MonederoVirtualButton2.png");
+
+        btnRutasOfertantes = crearBotonLista(
+                "/imagenes/RutasOfertantes1.png",
+                "/imagenes/RutasOfertantes2.png");
+
+        btnPostularCupo = crearBotonLista(
+                "/imagenes/PostularCupo1.png",
+                "/imagenes/PostularCupo2.png");
+
+        btnModeloComunitario = crearBotonLista(
+                "/imagenes/ModeloCom1.png",
+                "/imagenes/ModeloCom2.png");
+
+        btnConsultarRecorrido = crearBotonLista(
+                "/imagenes/ConsultarRecorrido1.png",
+                "/imagenes/ConsultarRecorrido2.png");
+
+        // Estas funciones todavía no existen: solo avisan al usuario
+        for (JButton boton : new JButton[]{btnRutasOfertantes, btnPostularCupo,
+                btnModeloComunitario, btnConsultarRecorrido}) {
+            boton.addActionListener(evento -> mostrarNoDisponible());
+        }
 
         // Lista de botones
         JPanel panelBotones = new JPanel(new GridBagLayout());
@@ -48,6 +77,18 @@ public class PrincipalPasajeroVentana extends PrincipalVentanaBase {
         gbc.gridy = 1;
         panelBotones.add(btnMonedero, gbc);
 
+        gbc.gridy = 2;
+        panelBotones.add(btnRutasOfertantes, gbc);
+
+        gbc.gridy = 3;
+        panelBotones.add(btnPostularCupo, gbc);
+
+        gbc.gridy = 4;
+        panelBotones.add(btnModeloComunitario, gbc);
+
+        gbc.gridy = 5;
+        panelBotones.add(btnConsultarRecorrido, gbc);
+
         armarVentana(usuario, panelBotones);
     }
 
@@ -58,6 +99,10 @@ public class PrincipalPasajeroVentana extends PrincipalVentanaBase {
         boton.setMinimumSize(tamano);
         boton.setMaximumSize(tamano);
         return boton;
+    }
+
+    private void mostrarNoDisponible() {
+        JOptionPane.showMessageDialog(this, MENSAJE_NO_DISPONIBLE, "Aviso", JOptionPane.INFORMATION_MESSAGE);
     }
 
     public void setAccionRutasDisponibles(Runnable accion) {

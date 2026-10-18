@@ -109,10 +109,9 @@ public class ReservarControlador {
             BigDecimal monto = BigDecimal.valueOf(cobro.total()).setScale(2, RoundingMode.HALF_UP);
             BigDecimal nuevoSaldo = monederoServicio.debitar(usuarioActual, monto);
 
-            int numeroTicket = java.util.concurrent.ThreadLocalRandom.current().nextInt(10000, 100000);
             vista.mostrarExito(String.format(java.util.Locale.US,
-                    "¡Reserva exitosa!%nSe descontaron Bs %,.2f de tu monedero.%nSaldo actual: Bs %,.2f%nTicket N° %05d",
-                    monto, nuevoSaldo, numeroTicket));
+                    "¡Reserva exitosa!%nSe descontaron Bs %,.2f de tu monedero.%nSaldo restante: Bs %,.2f",
+                    monto, nuevoSaldo));
         } catch (IllegalArgumentException e) {
             vista.mostrarError(e.getMessage());
         } catch (RuntimeException e) {

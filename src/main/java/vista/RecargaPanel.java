@@ -46,6 +46,9 @@ public class RecargaPanel extends JPanel {
     private static final String IMG_CAMPO = "/imagenes/appButton.png";
 
     private final JTextField txtMonto = new CampoTextoFondo();
+    // Teléfono: el prefijo se elige en la lista y en el campo se escriben los 7 dígitos restantes
+    private final SelectorPrefijo selectorPrefijo = new SelectorPrefijo(
+            "0414", "0424", "0416", "0426", "0412", "0422");
     private final JTextField txtTelefono = new CampoTextoFondo();
     private final JTextField txtCedula = new CampoTextoFondo();
     private final SelectorOpciones selectorBanco = new SelectorOpciones(
@@ -62,6 +65,10 @@ public class RecargaPanel extends JPanel {
     private final BotonAceptar botonAceptar = new BotonAceptar("Aceptar");
 
     private final transient RecursosImagen.Escalado fondo = new RecursosImagen.Escalado(IMG_FONDO);
+    // Título animado (flotación). El lienzo del PNG mide 1673 x 151 (sistema 1920 x 1080): x, y, ancho, alto
+    private final transient TituloFlotante titulo =
+            new TituloFlotante("/imagenes/RECARGARSALDOTEXTO.png", 15, 8, 1673, 151);
+
     private final transient RecursosImagen.Escalado tarjeta = new RecursosImagen.Escalado(IMG_TARJETA);
 
     private double escala = 0.5;
@@ -72,10 +79,12 @@ public class RecargaPanel extends JPanel {
         super(null);
         setOpaque(true);
         setPreferredSize(new Dimension(1000, 650));
+        titulo.conectar(this);
 
         // Monto: solo números positivos. Cédula: mismo filtro y rango que el registro de usuarios.
         ((AbstractDocument) txtMonto.getDocument()).setDocumentFilter(new FiltroMonto());
         ((AbstractDocument) txtCedula.getDocument()).setDocumentFilter(new FiltroCedula());
+        ((AbstractDocument) txtTelefono.getDocument()).setDocumentFilter(new FiltroTelefono());
 
         lblInstruccion.setForeground(Color.BLACK);
         lblBs.setForeground(Color.BLACK);
@@ -89,6 +98,7 @@ public class RecargaPanel extends JPanel {
         }
         add(txtMonto);
         add(txtTelefono);
+        add(selectorPrefijo);
         add(txtCedula);
         add(selectorBanco);
         add(txtReferencia);
@@ -96,12 +106,13 @@ public class RecargaPanel extends JPanel {
         add(botonVolver);
         botonVolver.setFocusable(false);
         setComponentZOrder(selectorBanco, 0); // la lista desplegada se dibuja por encima de lo de abajo
+        setComponentZOrder(selectorPrefijo, 0);
     }
 
     // ------------------------------------------------------------------ acceso a los datos
 
     public String getMonto() { return txtMonto.getText(); }
-    public String getTelefono() { return txtTelefono.getText(); }
+    public String getTelefono() { return selectorPrefijo.getOpcionSeleccionada() + txtTelefono.getText().trim(); }
     public String getCedula() { return txtCedula.getText(); }
     public String getBanco() { return selectorBanco.getOpcionSeleccionada(); }
     public String getReferencia() { return txtReferencia.getText(); }
@@ -109,6 +120,7 @@ public class RecargaPanel extends JPanel {
     public void limpiar() {
         txtMonto.setText("");
         txtTelefono.setText("");
+        selectorPrefijo.reiniciar();
         txtCedula.setText("");
         selectorBanco.reiniciar();
         txtReferencia.setText("");
@@ -156,6 +168,8 @@ public class RecargaPanel extends JPanel {
         Font fuenteEtiqueta = new Font("Arial", Font.PLAIN, px(48));
         Font fuenteCampo = new Font("Arial", Font.PLAIN, px(40));
         EmptyBorder margenTexto = new EmptyBorder(0, px(45), 0, px(45));
+        // El texto del teléfono empieza después del selector de prefijo
+        EmptyBorder margenTelefono = new EmptyBorder(0, px(SelectorPrefijo.ANCHO_REF + 35), 0, px(45));
 
         Component[] campos = {txtMonto, txtTelefono, txtCedula, selectorBanco, txtReferencia};
         for (int i = 0; i < campos.length; i++) {
@@ -171,10 +185,17 @@ public class RecargaPanel extends JPanel {
             } else {
                 JTextComponent campo = (JTextComponent) campos[i];
                 campo.setFont(fuenteCampo);
-                campo.setBorder(margenTexto);
+                campo.setBorder(campos[i] == txtTelefono ? margenTelefono : margenTexto);
             }
             campos[i].setBounds(r);
         }
+
+        // Selector de prefijo: encima del extremo izquierdo del campo del teléfono
+        Rectangle rp = rect(CAMPO_X, FILA_Y[1], SelectorPrefijo.ANCHO_REF, CAMPO_ALTO);
+        rp.height = selectorPrefijo.isAbierto()
+                ? selectorPrefijo.getAlturaAbierta(rp.width)
+                : selectorPrefijo.getAlturaCerrada(rp.width);
+        selectorPrefijo.setBounds(rp);
 
         lblBs.setFont(fuenteEtiqueta);
         lblBs.setBounds(rect(CAMPO_X + CAMPO_MONTO_ANCHO + 18, FILA_Y[0] + 14, 120, CAMPO_ALTO));
@@ -188,6 +209,7 @@ public class RecargaPanel extends JPanel {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g2.drawImage(fondo.obtener(getWidth(), getHeight()), 0, 0, null);
+        titulo.dibujar(g2, getWidth(), getHeight());
         Rectangle t = rect(TARJETA[0], TARJETA[1], TARJETA[2], TARJETA[3]);
         g2.drawImage(tarjeta.obtener(t.width, t.height), t.x, t.y, null);
         g2.dispose();

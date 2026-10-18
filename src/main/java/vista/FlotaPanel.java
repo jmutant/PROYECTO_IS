@@ -106,6 +106,10 @@ public class FlotaPanel extends JPanel {
 
     private final transient RecursosImagen.Escalado fondo =
             new RecursosImagen.Escalado("/imagenes/GestionDeFlotaPantalla.png");
+    // Título animado (flotación). El lienzo del PNG mide 1673 x 151 (sistema 1920 x 1080): x, y, ancho, alto
+    private final transient TituloFlotante titulo =
+            new TituloFlotante("/imagenes/GESTIONDEFLOTATEXTO.png", 15, 8, 1673, 151);
+
     private final transient RecursosImagen.Escalado camion = new RecursosImagen.Escalado("/imagenes/UnidadTrans.png");
     private final transient Tarjeta tarjeta = new Tarjeta("/imagenes/BlanckWindow.png");
 
@@ -117,6 +121,7 @@ public class FlotaPanel extends JPanel {
         super(null);
         setOpaque(true);
         setPreferredSize(new Dimension((int) REF_ANCHO, (int) REF_ALTO));
+        titulo.conectar(this);
 
         for (int i = 0; i < etiquetas.length; i++) {
             etiquetas[i] = new JLabel(TEXTOS_ETIQUETA[i], SwingConstants.LEFT);
@@ -297,6 +302,7 @@ public class FlotaPanel extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
         g2.drawImage(fondo.obtener(getWidth(), getHeight()), 0, 0, null);
+        titulo.dibujar(g2, getWidth(), getHeight());
 
         Rectangle t = rect(TARJETA);
         tarjeta.dibujar(g2, t.x, t.y, t.width, t.height, px(50));
