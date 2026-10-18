@@ -43,6 +43,11 @@ public class MonederoVentana extends JFrame implements MonederoVista {
     private final transient TituloFlotante titulo =
             new TituloFlotante("/imagenes/MONEDEROTEXTO.png", 15, 8, 1673, 151);
 
+    // Tarjeta blanca: la misma imagen (BlanckWindow.png) que usan las demás pantallas, redimensionada sin deformar esquinas
+    private final transient TarjetaNueveCortes tarjetaBlanca = new TarjetaNueveCortes("/imagenes/BlanckWindow.png");
+    private static final int ESQUINA_TARJETA = 50; // tamaño de las esquinas en pantalla (píxeles)
+    private static final int SOMBRA_TARJETA = 11;  // la imagen trae su sombra abajo y a la derecha: se deja ese espacio
+
     private final BotonImagen botonRecargar = new BotonImagen(
             "/imagenes/RecargaSaldo1.png",
             "/imagenes/RecargaSaldo2.png",
@@ -104,7 +109,7 @@ public class MonederoVentana extends JFrame implements MonederoVista {
             }
         };
         titulo.conectar(fondoPanel);
-        fondoPanel.setBorder(new EmptyBorder(20, 55, 55, 55));
+        fondoPanel.setBorder(new EmptyBorder(20, 55, 55 - SOMBRA_TARJETA, 55 - SOMBRA_TARJETA));
         fondoPanel.setOpaque(false);
 
         // La X va ENCIMA de la tarjeta blanca (sobre el fondo), alineada a la derecha
@@ -121,15 +126,14 @@ public class MonederoVentana extends JFrame implements MonederoVista {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(Color.WHITE);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 42, 42);
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                tarjetaBlanca.dibujar(g2, 0, 0, getWidth(), getHeight(), ESQUINA_TARJETA);
                 g2.dispose();
                 super.paintComponent(g);
             }
         };
         tarjeta.setOpaque(false);
-        tarjeta.setBorder(new EmptyBorder(28, 24, 25, 24));
+        tarjeta.setBorder(new EmptyBorder(28, 24, 25 + SOMBRA_TARJETA, 24 + SOMBRA_TARJETA));
 
         JPanel cabecera = new JPanel(new BorderLayout());
         cabecera.setOpaque(false);

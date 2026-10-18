@@ -16,6 +16,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import modelo.Itinerario;
+
 /**
  * Pantalla "Rutas disponibles" (reserva). Se dibuja sobre una imagen de fondo de 1920 x 1080 y se posiciona
  * con las medidas de la maqueta, escalándolas al tamaño real de la ventana (igual que PanelFormularioTabla).
@@ -74,7 +76,7 @@ public class ReservarPanel extends JPanel {
         setPreferredSize(new Dimension(1100, 619));
         titulo.conectar(this);
 
-        EstiloCombo.aplicar(comboRutas, true, false, null); // misma lista desplegable del resto del proyecto
+        EstiloCombo.aplicar(comboRutas, true, false, ReservarPanel::textoRuta); // misma lista desplegable del resto del proyecto
 
         for (JTextField campo : new JTextField[]{campoTarifa, campoSubsidio}) {
             campo.setEditable(false);
@@ -92,6 +94,17 @@ public class ReservarPanel extends JPanel {
     }
 
     public JComboBox<Object> getComboRutas() { return comboRutas; }
+
+    // Texto de cada ruta en la lista: igual que Itinerario.toString(), pero con el día en español
+    private static String textoRuta(Object valor) {
+        if (valor instanceof Itinerario) {
+            Itinerario it = (Itinerario) valor;
+            return ItinerariosPanel.nombreDia(it.getDiaSemana()) + " " + it.getHoraSalida()
+                    + " | " + it.getOrigen() + " -> " + it.getDestino()
+                    + " | " + it.getTipoRuta().getEtiqueta() + " | " + it.getPlacaUnidad();
+        }
+        return String.valueOf(valor);
+    }
     public BotonImagen getBotonRegresar() { return botonRegresar; }
     public BotonImagen getBotonReservar() { return botonReservar; }
 

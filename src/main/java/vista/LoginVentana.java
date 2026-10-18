@@ -160,7 +160,7 @@ public class LoginVentana extends JFrame implements LoginVista {
         appTitleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         appTitleLabel.setBorder(new EmptyBorder(0, 0, 100, 0));
 
-        JLabel versionLabel = new JLabel("Ver 1.0");
+        JLabel versionLabel = new JLabel("Ver 2.0");
         versionLabel.setFont(new Font("Arial", Font.BOLD, 12));
         versionLabel.setBorder(new EmptyBorder(0, 10, 10, 0));
 
@@ -231,9 +231,9 @@ public class LoginVentana extends JFrame implements LoginVista {
         setResizable(false);
     }
 
-    /**
-     * Carga CAMPUSLOGO.png y conserva su proporción original.
-     */
+    
+    //Carga CAMPUSLOGO.png y conserva su proporción original.
+    
     private void cargarLogo() {
 
         java.net.URL logoURL = getClass().getResource(
@@ -284,9 +284,9 @@ public class LoginVentana extends JFrame implements LoginVista {
         logoLabel.setText(null);
     }
 
-    /**
-     * Icono animado que mantiene unas dimensiones constantes.
-     */
+    
+    //Icono animado que mantiene unas dimensiones constantes.
+    
     private static final class IconoFlotante implements Icon {
 
         private final Image imagen;
@@ -333,9 +333,9 @@ public class LoginVentana extends JFrame implements LoginVista {
         }
     }
 
-    /**
-     * Inicia la animación de flotación con Swing Timer.
-     */
+    
+    //Inicia la animación de flotación con Swing Timer.
+    
     private void iniciarAnimacionLogo() {
 
         if (iconoLogoAnimado == null || temporizadorLogo != null) {
@@ -359,7 +359,7 @@ public class LoginVentana extends JFrame implements LoginVista {
 
         temporizadorLogo.start();
     }
-
+//
     private JButton crearBotonConImagen(
             String rutaImagenNormal,
             String rutaImagenHover,
