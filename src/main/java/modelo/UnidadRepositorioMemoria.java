@@ -33,6 +33,13 @@ public class UnidadRepositorioMemoria implements UnidadRepositorio {
     }
 
     @Override
+    public void eliminar(String placa) {
+        if (placa != null) {
+            unidades.remove(Unidad.normalizarPlaca(placa));
+        }
+    }
+
+    @Override
     public Optional<Unidad> buscarPorPlaca(String placa) {
         if (placa == null) {
             return Optional.empty();

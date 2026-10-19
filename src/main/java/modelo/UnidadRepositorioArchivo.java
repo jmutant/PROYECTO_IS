@@ -47,6 +47,16 @@ public class UnidadRepositorioArchivo implements UnidadRepositorio {
     }
 
     @Override
+    public synchronized void eliminar(String placa) {
+        if (placa == null || placa.isBlank()) {
+            return;
+        }
+        if (unidades.remove(Unidad.normalizarPlaca(placa)) != null) {
+            persistir();
+        }
+    }
+
+    @Override
     public Optional<Unidad> buscarPorPlaca(String placa) {
         if (placa == null || placa.isBlank()) {
             return Optional.empty();

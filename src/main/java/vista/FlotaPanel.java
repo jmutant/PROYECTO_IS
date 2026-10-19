@@ -46,8 +46,9 @@ public class FlotaPanel extends JPanel {
     // Medidas de la maqueta {x, y, ancho, alto}
     private static final double[] TARJETA = {25, 78, 977, 480};
     private static final double[] CRUZ = {944, 8, 56, 55};
-    private static final double[] CAMION = {572, 88, 282, 125};
-    private static final double[] BOTON_REGISTRAR = {458, 232, 247, 70};
+    private static final double[] CAMION = {722, 90, 250, 111};
+    private static final double[] BOTON_REGISTRAR = {458, 144, 247, 70};
+    private static final double[] BOTON_ELIMINAR = {458, 232, 247, 70};
     private static final double[] BOTON_GUARDAR = {716, 232, 247, 70};
     private static final double ETIQUETA_X = 54;
     private static final double ETIQUETA_ANCHO = 130;
@@ -89,6 +90,8 @@ public class FlotaPanel extends JPanel {
             new BotonImagen("/imagenes/RegistrarUnidad1.png", "/imagenes/RegistrarUnidad2.png", "Registrar Unidad");
     private final BotonImagen botonGuardar =
             new BotonImagen("/imagenes/GuardarCambios1.png", "/imagenes/GuardarCambios2.png", "Guardar Cambios");
+    private final BotonImagen botonEliminar =
+            new BotonImagen("/imagenes/Erase1.png", "/imagenes/Erase2.png", "Eliminar");
     private final BotonImagen botonCerrar =
             new BotonImagen("/imagenes/cross1.png", "/imagenes/cross2.png", "Cerrar");
 
@@ -134,6 +137,7 @@ public class FlotaPanel extends JPanel {
         add(selectorEstado);
         add(botonRegistrar);
         add(botonGuardar);
+        add(botonEliminar);
         add(botonCerrar);
         add(scroll);
         selectorEstado.setFuenteRef(40);
@@ -163,6 +167,7 @@ public class FlotaPanel extends JPanel {
 
     public void setAccionRegistrar(Runnable accion) { botonRegistrar.addActionListener(e -> accion.run()); }
     public void setAccionGuardar(Runnable accion) { botonGuardar.addActionListener(e -> accion.run()); }
+    public void setAccionEliminar(Runnable accion) { botonEliminar.addActionListener(e -> accion.run()); }
     public void setAccionCerrar(Runnable accion) { botonCerrar.addActionListener(e -> accion.run()); }
 
     public void limpiarFormulario() {
@@ -284,6 +289,7 @@ public class FlotaPanel extends JPanel {
 
         botonRegistrar.setBounds(rect(BOTON_REGISTRAR));
         botonGuardar.setBounds(rect(BOTON_GUARDAR));
+        botonEliminar.setBounds(rect(BOTON_ELIMINAR));
         botonCerrar.setBounds(rect(CRUZ));
 
         tabla.setRowHeight(px(FILA_ALTO));

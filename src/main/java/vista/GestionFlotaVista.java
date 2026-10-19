@@ -28,6 +28,12 @@ public interface GestionFlotaVista {
     // Asigna la acción a ejecutar al pulsar el botón Modificar Estado
     void setAccionModificarEstado(Runnable accion);
 
+    // Asigna la acción a ejecutar al pulsar el botón Eliminar
+    void setAccionEliminar(Runnable accion);
+
+    // Pregunta al usuario si confirma una acción; devuelve true si responde que sí
+    boolean confirmar(String mensaje);
+
     // Asigna la acción a ejecutar al pulsar el botón Regresar
     void setAccionRegresar(Runnable accion);
 

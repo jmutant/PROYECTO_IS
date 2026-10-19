@@ -71,6 +71,17 @@ public class GestionFlotaVentana extends JFrame implements GestionFlotaVista {
         panel.setAccionGuardar(accion);
     }
 
+    @Override
+    public void setAccionEliminar(Runnable accion) {
+        panel.setAccionEliminar(accion);
+    }
+
+    @Override
+    public boolean confirmar(String mensaje) {
+        return JOptionPane.showConfirmDialog(this, mensaje, "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+    }
+
     // La cruz de la esquina superior derecha cierra la pantalla y vuelve al panel anterior
     @Override
     public void setAccionRegresar(Runnable accion) {

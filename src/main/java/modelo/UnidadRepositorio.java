@@ -9,5 +9,6 @@ public interface UnidadRepositorio {
     void guardar(Unidad unidad);
     boolean existePorPlaca(String placa);
     void actualizar(String placaOriginal, Unidad unidadActualizada);
+    void eliminar(String placa);
 }
 

@@ -21,6 +21,7 @@ public class GestionFlotaControlador {
         // Vínculo entre eventos de la vista y acciones del controlador
         this.vista.setAccionRegistrar(this::registrarUnidad);
         this.vista.setAccionModificarEstado(this::modificarUnidad);
+        this.vista.setAccionEliminar(this::eliminarUnidad);
         this.vista.setAccionRegresar(this.vista::cerrar);
 
         cargarUnidades();
@@ -53,6 +54,29 @@ public class GestionFlotaControlador {
             vista.limpiarFormulario();
         } catch (Exception e) {
             vista.mostrarError("Error al actualizar la unidad: " + e.getMessage());
+        }
+    }
+
+    // Elimina la unidad seleccionada en la tabla, previa confirmación del usuario.
+    private void eliminarUnidad() {
+        try {
+            int filaSeleccionada = vista.getTablaUnidades().getSelectedRow();
+            if (filaSeleccionada == -1) {
+                vista.mostrarError("Seleccione una unidad de la tabla para eliminar.");
+                return;
+            }
+
+            String placa = vista.getModeloTabla().getValueAt(filaSeleccionada, 0).toString();
+            if (!vista.confirmar("¿Está seguro de eliminar la unidad " + placa + "?")) {
+                return;
+            }
+
+            flotaServicio.eliminarUnidad(placa, usuarioActual);
+            vista.mostrarExito("Unidad eliminada correctamente.");
+            cargarUnidades();
+            vista.limpiarFormulario();
+        } catch (Exception e) {
+            vista.mostrarError("Error al eliminar la unidad: " + e.getMessage());
         }
     }
 

@@ -44,6 +44,15 @@ public class FlotaServicio {
         repositorio.actualizar(placaOriginal, unidadEditada);
     }
 
+    /** Elimina la unidad con la placa indicada. Solo el administrador puede hacerlo. */
+    public void eliminarUnidad(String placa, Usuario usuario) {
+        autorizacion.exigirAdministrador(usuario);
+        if (placa == null || !repositorio.existePorPlaca(placa)) {
+            throw new IllegalArgumentException("No se encontró ninguna unidad con la placa: " + placa);
+        }
+        repositorio.eliminar(placa);
+    }
+
     public List<Unidad> listar(Usuario usuario) {
         autorizacion.exigirAdministrador(usuario);
         return repositorio.listarTodos();
